@@ -19,20 +19,25 @@
 
 #define H_objectgroup 0xc0b9d518970be349
 #define H_tilelayer   0x0377d9f70e844fb0
+#define H_width       0x0000003110a3b0a5
+#define H_height      0x0000065301d688de
+#define H_sprite_id   0x0377d8f6e7994748
 
 #define ANIM_TILE_FPS 15
 
-Sint32 get_first_gid(cute_tiled_map_t* tiled_map)
+/* PRIVATE FUNCTIONS */
+
+static Sint32 get_first_gid(cute_tiled_map_t* tiled_map)
 {
     return tiled_map->tilesets->firstgid;
 }
 
-cute_tiled_layer_t* get_head_layer(cute_tiled_map_t* tiled_map)
+static cute_tiled_layer_t* get_head_layer(cute_tiled_map_t* tiled_map)
 {
     return tiled_map->layers;
 }
 
-SDL_bool is_tiled_layer_of_type(const tiled_layer_type tiled_type, cute_tiled_layer_t* tiled_layer, core_t* core)
+static SDL_bool is_tiled_layer_of_type(const tiled_layer_type tiled_type, cute_tiled_layer_t* tiled_layer, core_t* core)
 {
     switch (tiled_type)
     {
@@ -53,7 +58,7 @@ SDL_bool is_tiled_layer_of_type(const tiled_layer_type tiled_type, cute_tiled_la
     return SDL_FALSE;
 }
 
-cute_tiled_object_t* get_head_object(cute_tiled_layer_t* tiled_layer, core_t* core)
+static cute_tiled_object_t* get_head_object(cute_tiled_layer_t* tiled_layer, core_t* core)
 {
     if (is_tiled_layer_of_type(OBJECT_GROUP, tiled_layer, core))
     {
@@ -63,38 +68,38 @@ cute_tiled_object_t* get_head_object(cute_tiled_layer_t* tiled_layer, core_t* co
     return NULL;
 }
 
-cute_tiled_tileset_t* get_head_tileset(cute_tiled_map_t* tiled_map)
+static cute_tiled_tileset_t* get_head_tileset(cute_tiled_map_t* tiled_map)
 {
     return tiled_map->tilesets;
 }
 
-Sint32* get_layer_content(cute_tiled_layer_t* tiled_layer)
+static Sint32* get_layer_content(cute_tiled_layer_t* tiled_layer)
 {
     return (Sint32*)tiled_layer->data;
 }
 
-const char* get_layer_name(cute_tiled_layer_t* tiled_layer)
+static const char* get_layer_name(cute_tiled_layer_t* tiled_layer)
 {
     return tiled_layer->name.ptr;
 }
 
-Sint32 get_layer_property_count(cute_tiled_layer_t* tiled_layer)
+static Sint32 get_layer_property_count(cute_tiled_layer_t* tiled_layer)
 {
     return tiled_layer->property_count;
 }
 
-Sint32 get_local_id(Sint32 gid, cute_tiled_map_t* tiled_map)
+static Sint32 get_local_id(Sint32 gid, cute_tiled_map_t* tiled_map)
 {
     Sint32 local_id = gid - get_first_gid(tiled_map);
     return local_id >= 0 ? local_id : 0;
 }
 
-Sint32 get_map_property_count(cute_tiled_map_t* tiled_map)
+static Sint32 get_map_property_count(cute_tiled_map_t* tiled_map)
 {
     return tiled_map->property_count;
 }
 
-Sint32 get_next_animated_tile_id(Sint32 gid, Sint32 current_frame, cute_tiled_map_t* tiled_map)
+static Sint32 get_next_animated_tile_id(Sint32 gid, Sint32 current_frame, cute_tiled_map_t* tiled_map)
 {
     cute_tiled_tileset_t*         tileset = get_head_tileset(tiled_map);
     cute_tiled_tile_descriptor_t* tile    = tileset->tiles;
@@ -111,27 +116,22 @@ Sint32 get_next_animated_tile_id(Sint32 gid, Sint32 current_frame, cute_tiled_ma
     return 0;
 }
 
-const char* get_object_name(cute_tiled_object_t* tiled_object)
+static const char* get_object_name(cute_tiled_object_t* tiled_object)
 {
     return tiled_object->name.ptr;
 }
 
-Sint32 get_object_property_count(cute_tiled_object_t* tiled_object)
+static Sint32 get_object_property_count(cute_tiled_object_t* tiled_object)
 {
     return tiled_object->property_count;
 }
 
-const char* get_object_type_name(cute_tiled_object_t* tiled_object)
+static const char* get_object_type_name(cute_tiled_object_t* tiled_object)
 {
     return tiled_object->type.ptr;
 }
 
-int get_tile_height(cute_tiled_map_t* tiled_map)
-{
-    return tiled_map->tilesets->tileheight;
-}
-
-void get_tile_position(Sint32 gid, Sint32* pos_x, Sint32* pos_y, cute_tiled_map_t* tiled_map)
+static void get_tile_position(Sint32 gid, Sint32* pos_x, Sint32* pos_y, cute_tiled_map_t* tiled_map)
 {
     cute_tiled_tileset_t* tileset  = tiled_map->tilesets;
     Sint32                local_id = get_local_id(gid, tiled_map);
@@ -140,17 +140,12 @@ void get_tile_position(Sint32 gid, Sint32* pos_x, Sint32* pos_y, cute_tiled_map_
     *pos_y = (local_id / tileset->columns) * get_tile_height(tiled_map);
 }
 
-Sint32 get_tile_property_count(cute_tiled_tile_descriptor_t* tiled_tile)
+static Sint32 get_tile_property_count(cute_tiled_tile_descriptor_t* tiled_tile)
 {
     return tiled_tile->property_count;
 }
 
-int get_tile_width(cute_tiled_map_t* tiled_map)
-{
-    return tiled_map->tilesets->tilewidth;
-}
-
-SDL_bool is_gid_valid(Sint32 gid, cute_tiled_map_t* tiled_map)
+static SDL_bool is_gid_valid(Sint32 gid, cute_tiled_map_t* tiled_map)
 {
     if (gid)
     {
@@ -160,7 +155,7 @@ SDL_bool is_gid_valid(Sint32 gid, cute_tiled_map_t* tiled_map)
     return SDL_FALSE;
 }
 
-SDL_bool is_tile_animated(Sint32 gid, Sint32* animation_length, Sint32* id, cute_tiled_map_t* tiled_map)
+static SDL_bool is_tile_animated(Sint32 gid, Sint32* animation_length, Sint32* id, cute_tiled_map_t* tiled_map)
 {
     Sint32                        local_id = get_local_id(gid, tiled_map);
     cute_tiled_tileset_t*         tileset  = tiled_map->tilesets;
@@ -189,10 +184,36 @@ SDL_bool is_tile_animated(Sint32 gid, Sint32* animation_length, Sint32* id, cute
     return SDL_FALSE;
 }
 
+static Sint32 remove_gid_flip_bits(Sint32 gid)
+{
+    return cute_tiled_unset_flags(gid);
+}
+
+static SDL_bool tile_has_properties(Sint32 gid, cute_tiled_tile_descriptor_t** tile, cute_tiled_map_t* tiled_map)
+{
+    Sint32 local_id;
+
+    local_id = gid - get_first_gid(tiled_map);
+
+    while ((*tile))
+    {
+        if ((*tile)->tile_index == local_id)
+        {
+            if (0 < (*tile)->property_count)
+            {
+                return SDL_TRUE;
+            }
+        }
+        (*tile) = (*tile)->next;
+    }
+
+    return SDL_FALSE;
+}
+
 /* djb2 by Dan Bernstein
  * http://www.cse.yorku.ca/~oz/hash.html
  */
-Uint64 generate_hash(const unsigned char* name)
+static Uint64 generate_hash(const unsigned char* name)
 {
     Uint64 hash = 5381;
     Uint32 c;
@@ -205,7 +226,7 @@ Uint64 generate_hash(const unsigned char* name)
     return hash;
 }
 
-void load_property(const Uint64 name_hash, cute_tiled_property_t* properties, Sint32 property_count, core_t* core)
+static void load_property(const Uint64 name_hash, cute_tiled_property_t* properties, Sint32 property_count, core_t* core)
 {
     int index = 0;
 
@@ -249,72 +270,75 @@ void load_property(const Uint64 name_hash, cute_tiled_property_t* properties, Si
     }
 }
 
-status_t load_tiled_map(const char* map_file_name, core_t* core)
+static status_t load_texture_from_file(const char* file_name, SDL_Texture** texture, core_t* core)
 {
-    FILE*               fp = fopen(map_file_name, "r");
-    cute_tiled_layer_t* layer;
+    SDL_Surface* surface;
 
-    if (fp)
+    if (! file_name)
     {
-        fclose(fp);
-    }
-    else
-    {
-        SDL_Log("%s: %s not found.", FUNCTION_NAME, map_file_name);
         return CORE_WARNING;
     }
 
-    core->map->handle = (cute_tiled_map_t*)cute_tiled_load_map_from_file(map_file_name, NULL);
-    if (! core->map->handle)
+    surface = SDL_LoadBMP(file_name);
+    if (! surface)
     {
-        SDL_Log("%s: %s.", FUNCTION_NAME, cute_tiled_error_reason);
-        return CORE_WARNING;
+        SDL_Log("Failed to load image: %s", SDL_GetError());
+        return CORE_ERROR;
+    }
+    if (0 != SDL_SetColorKey(surface, SDL_TRUE, SDL_MapRGB(surface->format, 0xff, 0x00, 0xff)))
+    {
+        SDL_Log("Failed to set color key for %s: %s", file_name, SDL_GetError());
+    }
+    if (0 != SDL_SetSurfaceRLE(surface, 1))
+    {
+        SDL_Log("Could not enable RLE for surface %s: %s", file_name, SDL_GetError());
     }
 
-    layer = get_head_layer(core->map->handle);
-    while (layer)
+    *texture = SDL_CreateTextureFromSurface(core->renderer, surface);
+    if (! *texture)
     {
-        if (H_tilelayer == generate_hash((const unsigned char*)layer->type.ptr) && !core->map->hash_id_tilelayer)
-        {
-            core->map->hash_id_tilelayer = layer->type.hash_id;
-            SDL_Log("Set hash ID for tile layer: %llu", core->map->hash_id_tilelayer);
-        }
-        else if (H_objectgroup == generate_hash((const unsigned char*)layer->type.ptr) && !core->map->hash_id_objectgroup)
-        {
-            core->map->hash_id_objectgroup = layer->type.hash_id;
-            SDL_Log("Set hash ID for object group: %llu", core->map->hash_id_objectgroup);
-        }
-        layer = layer->next;
+        SDL_Log("Could not create texture from surface: %s", SDL_GetError());
+        SDL_FreeSurface(surface);
+        return CORE_ERROR;
     }
+    SDL_FreeSurface(surface);
+
+    SDL_Log("Loading image from file: %s.", file_name);
 
     return CORE_OK;
 }
 
-Sint32 remove_gid_flip_bits(Sint32 gid)
+static status_t create_and_set_render_target(SDL_Texture** target, core_t* core)
 {
-    return cute_tiled_unset_flags(gid);
-}
-
-SDL_bool tile_has_properties(Sint32 gid, cute_tiled_tile_descriptor_t** tile, cute_tiled_map_t* tiled_map)
-{
-    Sint32 local_id;
-
-    local_id = gid - get_first_gid(tiled_map);
-
-    while ((*tile))
+    if (! (*target))
     {
-        if ((*tile)->tile_index == local_id)
-        {
-            if (0 < (*tile)->property_count)
-            {
-                return SDL_TRUE;
-            }
-        }
-        (*tile) = (*tile)->next;
+        (*target) = SDL_CreateTexture(
+            core->renderer,
+            SDL_PIXELFORMAT_RGB444,
+            SDL_TEXTUREACCESS_TARGET,
+            176,
+            208);
     }
 
-    return SDL_FALSE;
+    if (! (*target))
+    {
+        SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+        return CORE_ERROR;
+    }
+
+    if (0 > SDL_SetRenderTarget(core->renderer, (*target)))
+    {
+        SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+        SDL_DestroyTexture((*target));
+        return CORE_ERROR;
+    }
+
+    SDL_RenderClear(core->renderer);
+
+    return CORE_OK;
 }
+
+/* PUBLIC FUNCTIONS */
 
 void unload_tiled_map(core_t* core)
 {
@@ -335,6 +359,16 @@ SDL_bool is_map_loaded(core_t* core)
     }
 
     return SDL_FALSE;
+}
+
+int get_tile_width(cute_tiled_map_t* tiled_map)
+{
+    return tiled_map->tilesets->tilewidth;
+}
+
+int get_tile_height(cute_tiled_map_t* tiled_map)
+{
+    return tiled_map->tilesets->tileheight;
 }
 
 SDL_bool get_boolean_map_property(const Uint64 name_hash, core_t* core)
@@ -397,42 +431,32 @@ const char* get_string_map_property(const Uint64 name_hash, core_t* core)
     return core->map->string_property;
 }
 
-status_t load_texture_from_file(const char* file_name, SDL_Texture** texture, core_t* core)
+SDL_bool get_boolean_property(const Uint64 name_hash, cute_tiled_property_t* properties, Sint32 property_count, core_t* core)
 {
-    SDL_Surface* surface;
+    core->map->boolean_property = SDL_FALSE;
+    load_property(name_hash, properties, property_count, core);
+    return core->map->boolean_property;
+}
 
-    if (! file_name)
-    {
-        return CORE_WARNING;
-    }
+float get_decimal_property(const Uint64 name_hash, cute_tiled_property_t* properties, Sint32 property_count, core_t* core)
+{
+    core->map->decimal_property = 0.0;
+    load_property(name_hash, properties, property_count, core);
+    return core->map->decimal_property;
+}
 
-    surface = SDL_LoadBMP(file_name);
-    if (! surface)
-    {
-        SDL_Log("Failed to load image: %s", SDL_GetError());
-        return CORE_ERROR;
-    }
-    if (0 != SDL_SetColorKey(surface, SDL_TRUE, SDL_MapRGB(surface->format, 0xff, 0x00, 0xff)))
-    {
-        SDL_Log("Failed to set color key for %s: %s", file_name, SDL_GetError());
-    }
-    if (0 != SDL_SetSurfaceRLE(surface, 1))
-    {
-        SDL_Log("Could not enable RLE for surface %s: %s", file_name, SDL_GetError());
-    }
+int32_t get_integer_property(const Uint64 name_hash, cute_tiled_property_t* properties, Sint32 property_count, core_t* core)
+{
+    core->map->integer_property = 0;
+    load_property(name_hash, properties, property_count, core);
+    return core->map->integer_property;
+}
 
-    *texture = SDL_CreateTextureFromSurface(core->renderer, surface);
-    if (! *texture)
-    {
-        SDL_Log("Could not create texture from surface: %s", SDL_GetError());
-        SDL_FreeSurface(surface);
-        return CORE_ERROR;
-    }
-    SDL_FreeSurface(surface);
-
-    SDL_Log("Loading image from file: %s.", file_name);
-
-    return CORE_OK;
+const char* get_string_property(const Uint64 name_hash, cute_tiled_property_t* properties, Sint32 property_count, core_t* core)
+{
+    core->map->string_property = NULL;
+    load_property(name_hash, properties, property_count, core);
+    return core->map->string_property;
 }
 
 status_t load_tileset(const char* tileset_file_name, core_t* core)
@@ -447,6 +471,47 @@ status_t load_tileset(const char* tileset_file_name, core_t* core)
 
 warning:
     return status;
+}
+
+status_t load_tiled_map(const char* map_file_name, core_t* core)
+{
+    FILE*               fp = fopen(map_file_name, "r");
+    cute_tiled_layer_t* layer;
+
+    if (fp)
+    {
+        fclose(fp);
+    }
+    else
+    {
+        SDL_Log("%s: %s not found.", FUNCTION_NAME, map_file_name);
+        return CORE_WARNING;
+    }
+
+    core->map->handle = (cute_tiled_map_t*)cute_tiled_load_map_from_file(map_file_name, NULL);
+    if (! core->map->handle)
+    {
+        SDL_Log("%s: %s.", FUNCTION_NAME, cute_tiled_error_reason);
+        return CORE_WARNING;
+    }
+
+    layer = get_head_layer(core->map->handle);
+    while (layer)
+    {
+        if (H_tilelayer == generate_hash((const unsigned char*)layer->type.ptr) && !core->map->hash_id_tilelayer)
+        {
+            core->map->hash_id_tilelayer = layer->type.hash_id;
+            SDL_Log("Set hash ID for tile layer: %llu", core->map->hash_id_tilelayer);
+        }
+        else if (H_objectgroup == generate_hash((const unsigned char*)layer->type.ptr) && !core->map->hash_id_objectgroup)
+        {
+            core->map->hash_id_objectgroup = layer->type.hash_id;
+            SDL_Log("Set hash ID for object group: %llu", core->map->hash_id_objectgroup);
+        }
+        layer = layer->next;
+    }
+
+    return CORE_OK;
 }
 
 status_t load_animated_tiles(core_t* core)
@@ -496,71 +561,145 @@ status_t load_animated_tiles(core_t* core)
     return CORE_OK;
 }
 
-status_t create_and_set_render_target(SDL_Texture** target, core_t* core)
+status_t alloc_sprites(Sint32 sprite_count, core_t* core)
 {
-    if (! (*target))
+    status_t status = CORE_OK;
+
+    if (core->map->sprite_count)
     {
-        (*target) = SDL_CreateTexture(
-            core->renderer,
-            SDL_PIXELFORMAT_RGB444,
-            SDL_TEXTUREACCESS_TARGET,
-            176,
-            208);
+        /* Nothing else to do here. */
+        return CORE_OK;
     }
 
-    if (! (*target))
+    core->map->sprite_count = sprite_count;
+    core->map->sprite       = (sprite_t*)calloc((size_t)sprite_count, sizeof(struct sprite));
+    if (! core->map->sprite)
     {
-        SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+        SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
+        status = CORE_ERROR;
+    }
+
+    return status;
+}
+
+status_t load_sprite(const char* sprite_file_name, Sint32 id, core_t* core)
+{
+    status_t status = CORE_OK;
+
+    if (id > core->map->sprite_count)
+    {
         return CORE_ERROR;
     }
-    else
+
+    if (CORE_OK != load_texture_from_file(sprite_file_name, &core->map->sprite[id - 1].texture, core))
     {
-        if (0 > SDL_SetTextureBlendMode((*target), SDL_BLENDMODE_NONE))
+        SDL_Log("%s: Error loading image '%s'.", FUNCTION_NAME, sprite_file_name);
+        status = CORE_ERROR;
+    }
+
+    return status;
+}
+
+void dealloc_sprites(core_t* core)
+{
+    Sint32 index;
+
+    if (core->map->sprite_count)
+    {
+        for (index = 0; index < core->map->sprite_count; index += 1)
         {
-            SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
-            SDL_DestroyTexture((*target));
+            core->map->sprite[index].id = 0;
+
+            if (core->map->sprite[index].texture)
+            {
+                SDL_DestroyTexture(core->map->sprite[index].texture);
+                core->map->sprite[index].texture = NULL;
+            }
+        }
+    }
+
+    if (core->map->sprite)
+    {
+        free(core->map->sprite);
+    }
+}
+
+status_t load_actors(core_t* core)
+{
+    cute_tiled_layer_t*  layer        = get_head_layer(core->map->handle);
+    cute_tiled_object_t* tiled_object = NULL;
+
+    if (core->map->actor_count)
+    {
+        /* Nothing else to do here. */
+        return CORE_OK;
+    }
+
+    while (layer)
+    {
+        if (is_tiled_layer_of_type(OBJECT_GROUP, layer, core))
+        {
+            tiled_object = get_head_object(layer, core);
+            while (tiled_object)
+            {
+                core->map->actor_count += 1;
+                tiled_object            = tiled_object->next;
+            }
+        }
+        layer = layer->next;
+    }
+
+    if (core->map->actor_count)
+    {
+        core->map->actor = (actor_t*)calloc((size_t)core->map->actor_count, sizeof(struct actor));
+        if (! core->map->actor)
+        {
+            SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
             return CORE_ERROR;
         }
     }
 
-    if (0 > SDL_SetRenderTarget(core->renderer, (*target)))
+    SDL_Log("Load %u actors:", core->map->actor_count);
+
+    layer = get_head_layer(core->map->handle);
+    while (layer)
     {
-        SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
-        SDL_DestroyTexture((*target));
-        return CORE_ERROR;
+        if (is_tiled_layer_of_type(OBJECT_GROUP, layer, core))
+        {
+            Sint32 index = 0;
+            tiled_object = get_head_object(layer, core);
+            while (tiled_object)
+            {
+                actor_t*               actor      = &core->map->actor[index];
+                cute_tiled_property_t* properties = tiled_object->properties;
+                Sint32                 prop_cnt   = get_object_property_count(tiled_object);
+
+                actor->pos_x     = (double)tiled_object->x;
+                actor->pos_y     = (double)tiled_object->y;
+                actor->handle    = tiled_object;
+                actor->id        = index;
+                actor->width     = get_integer_property(H_width,     properties, prop_cnt, core);
+                actor->height    = get_integer_property(H_height,    properties, prop_cnt, core);
+                actor->sprite_id = get_integer_property(H_sprite_id, properties, prop_cnt, core);
+
+                if (0 >= actor->width)
+                {
+                    actor->width = get_tile_width(core->map->handle);
+                }
+
+                if (0 >= actor->height)
+                {
+                    actor->width = get_tile_height(core->map->handle);
+                }
+
+                index        += 1;
+                tiled_object  = tiled_object->next;
+            }
+        }
+        layer = layer->next;
     }
 
-    SDL_RenderClear(core->renderer);
-
     return CORE_OK;
-}
-
-SDL_bool get_boolean_property(const Uint64 name_hash, cute_tiled_property_t* properties, Sint32 property_count, core_t* core)
-{
-    core->map->boolean_property = SDL_FALSE;
-    load_property(name_hash, properties, property_count, core);
-    return core->map->boolean_property;
-}
-
-float get_decimal_property(const Uint64 name_hash, cute_tiled_property_t* properties, Sint32 property_count, core_t* core)
-{
-    core->map->decimal_property = 0.0;
-    load_property(name_hash, properties, property_count, core);
-    return core->map->decimal_property;
-}
-
-int32_t get_integer_property(const Uint64 name_hash, cute_tiled_property_t* properties, Sint32 property_count, core_t* core)
-{
-    core->map->integer_property = 0;
-    load_property(name_hash, properties, property_count, core);
-    return core->map->integer_property;
-}
-
-const char* get_string_property(const Uint64 name_hash, cute_tiled_property_t* properties, Sint32 property_count, core_t* core)
-{
-    core->map->string_property = NULL;
-    load_property(name_hash, properties, property_count, core);
-    return core->map->string_property;
 }
 
 status_t render_map(core_t* core)
@@ -733,12 +872,6 @@ status_t render_map(core_t* core)
     }
 
     if (0 > SDL_SetRenderTarget(core->renderer, core->render_target))
-    {
-        SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
-        return CORE_ERROR;
-    }
-
-    if (0 > SDL_SetTextureBlendMode(core->map->layer_texture, SDL_BLENDMODE_NONE))
     {
         SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
         return CORE_ERROR;

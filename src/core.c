@@ -3,8 +3,67 @@
 #include <SDL.h>
 #include "core.h"
 
-static status_t render_scene(core_t* core);
-static status_t draw_scene(core_t* core);
+#define SPRITE_COUNT 1
+
+#if defined __SYMBIAN32__
+#  define MAP_FILE_NAME     "E:\\entry.tmj"
+#  define TILESET_FILE_NAME "E:\\lowtown.bmp"
+#  define SPRITE_1          "E:\\morgan.bmp
+#else
+#  define MAP_FILE_NAME     "entry.tmj"
+#  define TILESET_FILE_NAME "lowtown.bmp"
+#  define SPRITE_1          "morgan.bmp
+#endif
+
+static status_t render_scene(core_t* core)
+{
+    status_t status = CORE_OK;
+    Sint32   index;
+
+    status = render_map(core);
+    if (CORE_OK != status)
+    {
+        return status;
+    }
+
+    return status;
+}
+
+static status_t draw_scene(core_t* core)
+{
+    SDL_Rect dst;
+    Sint32   index;
+
+    if (0 > SDL_SetRenderTarget(core->renderer, NULL))
+    {
+        SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+    }
+
+    if (! core->is_map_loaded)
+    {
+        SDL_SetRenderDrawColor(core->renderer, 0x00, 0x00, 0xaa, 0x00);
+        SDL_RenderPresent(core->renderer);
+        SDL_RenderClear(core->renderer);
+
+        return CORE_OK;
+    }
+
+    dst.x = 0;
+    dst.y = 0;
+    dst.w = 176;
+    dst.h = 208;
+
+    if (0 > SDL_RenderCopy(core->renderer, core->render_target, NULL, &dst))
+    {
+        SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+        return CORE_ERROR;
+    }
+    SDL_SetRenderDrawColor(core->renderer, 0x00, 0x00, 0x00, 0x00);
+    SDL_RenderPresent(core->renderer);
+    SDL_RenderClear(core->renderer);
+
+    return CORE_OK;
+}
 
 status_t init_core(const char* title, core_t** core)
 {
@@ -43,11 +102,6 @@ status_t init_core(const char* title, core_t** core)
         SDL_Log("Could not create renderer: %s", SDL_GetError());
         SDL_DestroyWindow((*core)->window);
         return CORE_ERROR;
-    }
-    if (0 != SDL_SetRenderDrawBlendMode((*core)->renderer, SDL_BLENDMODE_NONE))
-    {
-        SDL_Log("Could not disable blending: %s", SDL_GetError());
-        status = CORE_WARNING;
     }
     if (0 != SDL_RenderSetIntegerScale((*core)->renderer, SDL_TRUE))
     {
@@ -170,7 +224,7 @@ void free_core(core_t *core)
     SDL_Quit();
 }
 
-status_t load_map(const char* map_file_name, const char* tileset_file_name, core_t* core)
+status_t load_map(core_t* core)
 {
     status_t status = CORE_OK;
 
@@ -191,7 +245,7 @@ status_t load_map(const char* map_file_name, const char* tileset_file_name, core
     }
 
     // [2] Tiled map.
-    status = load_tiled_map(map_file_name, core);
+    status = load_tiled_map(MAP_FILE_NAME, core);
     if (CORE_OK != status)
     {
         free(core->map);
@@ -199,14 +253,34 @@ status_t load_map(const char* map_file_name, const char* tileset_file_name, core
     }
     core->is_map_loaded = SDL_TRUE;
 
-    // [3] Tileset.
-    status = load_tileset(tileset_file_name, core);
+    // [3] Actors.
+    status = load_actors(core);
     if (CORE_OK != status)
     {
         goto exit;
     }
 
-    // [4] Animated tiles.
+    // [4] Tileset.
+    status = load_tileset(TILESET_FILE_NAME, core);
+    if (CORE_OK != status)
+    {
+        goto exit;
+    }
+
+    // [5] Sprites.
+    status = alloc_sprites(SPRITE_COUNT, core);
+    if (CORE_OK != status)
+    {
+        goto exit;
+    }
+
+    status = load_sprite(SPRITE_1, 1, core);
+    if (CORE_OK != status)
+    {
+        goto exit;
+    }
+
+    // [6] Animated tiles.
     status = load_animated_tiles(core);
     if (CORE_OK != status)
     {
@@ -253,69 +327,25 @@ void unload_map(core_t* core)
 
     // Free up allocated memory in reverse order.
 
-    // [4] Animated tiles.
+    // [6] Animated tiles.
     free(core->map->animated_tile);
 
-    // [3] Tileset.
+    // [5] Sprites.
+    dealloc_sprites(core);
+
+    // [4] Tileset.
     if (core->map->tileset_texture)
     {
         SDL_DestroyTexture(core->map->tileset_texture);
         core->map->tileset_texture = NULL;
     }
 
+    // [3] Actors.
+    free(core->map->actor);
+
     // [2] Tiled map.
     unload_tiled_map(core);
 
     // [1] Map.
     free(core->map);
-}
-
-static status_t render_scene(core_t* core)
-{
-    status_t status = CORE_OK;
-    Sint32   index;
-
-    status = render_map(core);
-    if (CORE_OK != status)
-    {
-        return status;
-    }
-
-    return status;
-}
-
-static status_t draw_scene(core_t* core)
-{
-    SDL_Rect dst;
-    Sint32   index;
-
-    if (0 > SDL_SetRenderTarget(core->renderer, NULL))
-    {
-        SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
-    }
-
-    if (! core->is_map_loaded)
-    {
-        SDL_SetRenderDrawColor(core->renderer, 0x00, 0x00, 0xaa, 0x00);
-        SDL_RenderPresent(core->renderer);
-        SDL_RenderClear(core->renderer);
-
-        return CORE_OK;
-    }
-
-    dst.x = 0;
-    dst.y = 0;
-    dst.w = 176;
-    dst.h = 208;
-
-    if (0 > SDL_RenderCopy(core->renderer, core->render_target, NULL, &dst))
-    {
-        SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
-        return CORE_ERROR;
-    }
-    SDL_SetRenderDrawColor(core->renderer, 0x00, 0x00, 0x00, 0x00);
-    SDL_RenderPresent(core->renderer);
-    SDL_RenderClear(core->renderer);
-
-    return CORE_OK;
 }

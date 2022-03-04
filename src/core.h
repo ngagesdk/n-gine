@@ -39,6 +39,26 @@ typedef struct camera
 
 } camera_t;
 
+typedef struct actor
+{
+    Sint32               pos_x;
+    Sint32               pos_y;
+    cute_tiled_object_t* handle;
+    Sint32               id;
+    Sint32               index;
+    Sint32               width;
+    Sint32               height;
+    Sint32               sprite_id;
+
+} actor_t;
+
+typedef struct sprite
+{
+    SDL_Texture* texture;
+    Sint32       id;
+
+} sprite_t;
+
 typedef struct animated_tile
 {
     Sint32 dst_x;
@@ -75,6 +95,11 @@ typedef struct map
     const char*        string_property;
     Uint32*            tile_properties;
 
+    actor_t*           actor;
+    Sint32             actor_count;
+    sprite_t*          sprite;
+    Sint32             sprite_count;
+
 } map_t;
 
 typedef struct core
@@ -95,7 +120,7 @@ typedef struct core
 status_t init_core(const char* title, core_t** core);
 status_t update_core(core_t* core);
 void     free_core(core_t *core);
-status_t load_map(const char* map_file_name, const char* tileset_file_name, core_t* core);
+status_t load_map(core_t* core);
 void     unload_map(core_t* core);
 
 #endif /* CORE_H */
