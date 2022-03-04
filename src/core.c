@@ -12,7 +12,7 @@
 #else
 #  define MAP_FILE_NAME     "entry.tmj"
 #  define TILESET_FILE_NAME "lowtown.bmp"
-#  define SPRITE_1          "morgan.bmp
+#  define SPRITE_1          "morgan.bmp"
 #endif
 
 static status_t render_scene(core_t* core)
