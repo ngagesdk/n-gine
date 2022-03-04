@@ -267,6 +267,14 @@ status_t load_map(core_t* core)
         goto exit;
     }
 
+    /* DEBUG */
+    core->map->actor[0].show_animation          = SDL_TRUE;
+    core->map->actor[0].animation.first_frame   = 1;
+    core->map->actor[0].animation.fps           = 8;
+    core->map->actor[0].animation.length        = 3;
+    core->map->actor[0].animation.offset_y      = 0;
+    /* DEBUG */
+
     // [4] Tileset.
     status = load_tileset(TILESET_FILE_NAME, core);
     if (CORE_OK != status)

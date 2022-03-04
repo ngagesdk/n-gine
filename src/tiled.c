@@ -787,6 +787,69 @@ status_t render_map(core_t* core)
             return CORE_ERROR;
         }
 
+        // Update and render actor entities.
+        index = 0;
+        while (layer && core->map->actor_count)
+        {
+            if (is_tiled_layer_of_type(OBJECT_GROUP, layer, core))
+            {
+                cute_tiled_object_t* tiled_object = get_head_object(layer, core);
+                while (tiled_object)
+                {
+                    actor_t* actor = &core->map->actor[index];
+                    Sint32   pos_x = actor->pos_x - core->camera.pos_x;
+                    Sint32   pos_y = actor->pos_y - core->camera.pos_y;
+                    SDL_Rect dst   = { 0 };
+                    SDL_Rect src   = { 0 };
+
+                    if (actor->show_animation)
+                    {
+                        actor->animation.time_since_last_anim_frame += core->time_since_last_frame;
+                    }
+
+                    if (actor->show_animation)
+                    {
+                        actor->animation.time_since_last_anim_frame += core->time_since_last_frame;
+
+                        if (actor->animation.time_since_last_anim_frame >= (Uint32)(1000 / actor->animation.fps))
+                        {
+                            actor->animation.time_since_last_anim_frame  = 0;
+                            actor->animation.current_frame              += 1;
+
+                            if (actor->animation.current_frame >= actor->animation.length)
+                            {
+                                actor->animation.current_frame = 0;
+                            }
+                        }
+
+                        src.x  = (actor->animation.first_frame - 1) * actor->width;
+                        src.x += actor->animation.current_frame     * actor->width;
+                        src.y  = actor->animation.offset_y          * actor->height;
+                    }
+                    else
+                    {
+                        actor->animation.current_frame = actor->animation.first_frame;
+                    }
+
+                    src.w  = actor->width;
+                    src.h  = actor->height;
+                    dst.x  = (Sint32)pos_x - (actor->width  / 2);
+                    dst.y  = (Sint32)pos_y - (actor->height / 2);
+                    dst.w  = actor->width;
+                    dst.h  = actor->height;
+
+                    if (0 > SDL_RenderCopyEx(core->renderer, core->map->sprite[actor->sprite_id - 1].texture, &src, &dst, 0, NULL, SDL_FLIP_NONE))
+                    {
+                        SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+                        return CORE_ERROR;
+                    }
+                    index        += 1;
+                    tiled_object  = tiled_object->next;
+                }
+            }
+            layer = layer->next;
+        }
+
         return CORE_OK;
     }
 

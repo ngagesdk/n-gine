@@ -30,6 +30,15 @@ typedef enum
 
 } tiled_layer_type;
 
+typedef enum
+{
+    DIR_DOWN = 0,
+    DIR_UP,
+    DIR_LEFT,
+    DIR_RIGHT
+
+} direction_t;
+
 typedef struct camera
 {
     Sint32  pos_x;
@@ -38,6 +47,17 @@ typedef struct camera
     Sint32  max_pos_y;
 
 } camera_t;
+
+typedef struct animation
+{
+    Uint32 time_since_last_anim_frame;
+    Sint32 current_frame;
+    Sint32 first_frame;
+    Sint32 fps;
+    Sint32 length;
+    Sint32 offset_y;
+
+} animation_t;
 
 typedef struct actor
 {
@@ -49,6 +69,8 @@ typedef struct actor
     Sint32               width;
     Sint32               height;
     Sint32               sprite_id;
+    SDL_bool             show_animation;
+    animation_t          animation;
 
 } actor_t;
 
