@@ -8,7 +8,7 @@
 #if defined __SYMBIAN32__
 #  define MAP_FILE_NAME     "E:\\entry.tmj"
 #  define TILESET_FILE_NAME "E:\\lowtown.bmp"
-#  define SPRITE_1          "E:\\morgan.bmp
+#  define SPRITE_1          "E:\\morgan.bmp"
 #else
 #  define MAP_FILE_NAME     "entry.tmj"
 #  define TILESET_FILE_NAME "lowtown.bmp"
@@ -48,6 +48,12 @@ static status_t draw_scene(core_t* core)
         return CORE_OK;
     }
 
+    if (0 > SDL_RenderCopy(core->renderer, core->render_target, NULL, &dst))
+    {
+        SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+        return CORE_ERROR;
+    }
+
     dst.x = 0;
     dst.y = 0;
     dst.w = 176;
@@ -58,6 +64,7 @@ static status_t draw_scene(core_t* core)
         SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
         return CORE_ERROR;
     }
+
     SDL_SetRenderDrawColor(core->renderer, 0x00, 0x00, 0x00, 0x00);
     SDL_RenderPresent(core->renderer);
     SDL_RenderClear(core->renderer);
