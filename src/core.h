@@ -144,7 +144,7 @@ typedef struct core
 status_t init_core(const char* title, core_t** core);
 status_t update_core(core_t* core);
 void     free_core(core_t *core);
-status_t load_map(core_t* core);
+status_t load_map(const char* map_file, core_t* core);
 void     unload_map(core_t* core);
 
 #endif /* CORE_H */

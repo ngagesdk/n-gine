@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
         goto quit;
     }
 
-    status = load_map(core);
+    status = load_map("E:\\lowtown.tmj", core);
     if (CORE_OK != status)
     {
         goto quit;

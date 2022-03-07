@@ -3,18 +3,6 @@
 #include <SDL.h>
 #include "core.h"
 
-#define SPRITE_COUNT 1
-
-#if defined __SYMBIAN32__
-#  define MAP_FILE_NAME     "E:\\lowtown.tmj"
-#  define TILESET_FILE_NAME "E:\\lowtown.bmp"
-#  define SPRITE_1          "E:\\morgan.bmp"
-#else
-#  define MAP_FILE_NAME     "lowtown.tmj"
-#  define TILESET_FILE_NAME "lowtown.bmp"
-#  define SPRITE_1          "morgan.bmp"
-#endif
-
 static status_t render_scene(core_t* core)
 {
     status_t status = CORE_OK;
@@ -267,7 +255,7 @@ void free_core(core_t *core)
     SDL_Quit();
 }
 
-status_t load_map(core_t* core)
+status_t load_map(const char* map_file, core_t* core)
 {
     status_t status = CORE_OK;
 
@@ -276,6 +264,9 @@ status_t load_map(core_t* core)
         SDL_Log("A map has already been loaded: unload map first.");
         return CORE_WARNING;
     }
+
+    // Todo: load file name from Tiled map!
+    initFileReader("E:\\data.pfs");
 
     // Load map file and allocate required memory.
 
@@ -288,7 +279,7 @@ status_t load_map(core_t* core)
     }
 
     // [2] Tiled map.
-    status = load_tiled_map(MAP_FILE_NAME, core);
+    status = load_tiled_map(map_file, core);
     if (CORE_OK != status)
     {
         free(core->map);
@@ -304,20 +295,22 @@ status_t load_map(core_t* core)
     }
 
     // [4] Tileset.
-    status = load_tileset(TILESET_FILE_NAME, core);
+    status = load_tileset(core);
     if (CORE_OK != status)
     {
         goto exit;
     }
+
+    // Todo: sprite auto-loader (by parsing the Tiled map)!
 
     // [5] Sprites.
-    status = alloc_sprites(SPRITE_COUNT, core);
+    status = alloc_sprites(1, core);
     if (CORE_OK != status)
     {
         goto exit;
     }
 
-    status = load_sprite(SPRITE_1, 1, core);
+    status = load_sprite("morgan.bmp", 1, core);
     if (CORE_OK != status)
     {
         goto exit;
