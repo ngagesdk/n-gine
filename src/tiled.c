@@ -247,22 +247,22 @@ static void load_property(const Uint64 name_hash, cute_tiled_property_t* propert
             case CUTE_TILED_PROPERTY_NONE:
                 break;
             case CUTE_TILED_PROPERTY_INT:
-                SDL_Log("Loading integer property '%s': %d", properties[index].name.ptr, properties[index].data.integer);
+                dbgprint("Loading integer property '%s': %d", properties[index].name.ptr, properties[index].data.integer);
 
                 core->map->integer_property = properties[index].data.integer;
                 break;
             case CUTE_TILED_PROPERTY_BOOL:
-                SDL_Log("Loading boolean property '%s': %u", properties[index].name.ptr, properties[index].data.boolean);
+                dbgprint("Loading boolean property '%s': %u", properties[index].name.ptr, properties[index].data.boolean);
 
                 core->map->boolean_property = (SDL_bool)properties[index].data.boolean;
                 break;
             case CUTE_TILED_PROPERTY_FLOAT:
-                SDL_Log("Loading decimal property '%s': %f", properties[index].name.ptr, (float)properties[index].data.floating);
+                dbgprint("Loading decimal property '%s': %f", properties[index].name.ptr, (float)properties[index].data.floating);
 
                 core->map->decimal_property = (float)properties[index].data.floating;
                 break;
             case CUTE_TILED_PROPERTY_STRING:
-                SDL_Log("Loading string property '%s': %s", properties[index].name.ptr, properties[index].data.string.ptr);
+                dbgprint("Loading string property '%s': %s", properties[index].name.ptr, properties[index].data.string.ptr);
 
                 core->map->string_property  = properties[index].data.string.ptr;
                 break;
@@ -282,28 +282,28 @@ static status_t load_texture_from_file(const char* file_name, SDL_Texture** text
     surface = SDL_LoadBMP(file_name);
     if (! surface)
     {
-        SDL_Log("Failed to load image: %s", SDL_GetError());
+        dbgprint("Failed to load image: %s", SDL_GetError());
         return CORE_ERROR;
     }
     if (0 != SDL_SetColorKey(surface, SDL_TRUE, SDL_MapRGB(surface->format, 0xff, 0x00, 0xff)))
     {
-        SDL_Log("Failed to set color key for %s: %s", file_name, SDL_GetError());
+        dbgprint("Failed to set color key for %s: %s", file_name, SDL_GetError());
     }
     if (0 != SDL_SetSurfaceRLE(surface, 1))
     {
-        SDL_Log("Could not enable RLE for surface %s: %s", file_name, SDL_GetError());
+        dbgprint("Could not enable RLE for surface %s: %s", file_name, SDL_GetError());
     }
 
     *texture = SDL_CreateTextureFromSurface(core->renderer, surface);
     if (! *texture)
     {
-        SDL_Log("Could not create texture from surface: %s", SDL_GetError());
+        dbgprint("Could not create texture from surface: %s", SDL_GetError());
         SDL_FreeSurface(surface);
         return CORE_ERROR;
     }
     SDL_FreeSurface(surface);
 
-    SDL_Log("Loading image from file: %s.", file_name);
+    dbgprint("Loading image from file: %s.", file_name);
 
     return CORE_OK;
 }
@@ -322,13 +322,13 @@ static status_t create_and_set_render_target(SDL_Texture** target, core_t* core)
 
     if (! (*target))
     {
-        SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+        dbgprint("%s: %s.", FUNCTION_NAME, SDL_GetError());
         return CORE_ERROR;
     }
 
     if (0 > SDL_SetRenderTarget(core->renderer, (*target)))
     {
-        SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+        dbgprint("%s: %s.", FUNCTION_NAME, SDL_GetError());
         SDL_DestroyTexture((*target));
         return CORE_ERROR;
     }
@@ -465,7 +465,7 @@ status_t load_tileset(const char* tileset_file_name, core_t* core)
 
     if (CORE_OK != load_texture_from_file(tileset_file_name, &core->map->tileset_texture, core))
     {
-        SDL_Log("%s: Error loading image '%s'.", FUNCTION_NAME, tileset_file_name);
+        dbgprint("%s: Error loading image '%s'.", FUNCTION_NAME, tileset_file_name);
         status = CORE_ERROR;
     }
 
@@ -484,14 +484,14 @@ status_t load_tiled_map(const char* map_file_name, core_t* core)
     }
     else
     {
-        SDL_Log("%s: %s not found.", FUNCTION_NAME, map_file_name);
+        dbgprint("%s: %s not found.", FUNCTION_NAME, map_file_name);
         return CORE_WARNING;
     }
 
     core->map->handle = (cute_tiled_map_t*)cute_tiled_load_map_from_file(map_file_name, NULL);
     if (! core->map->handle)
     {
-        SDL_Log("%s: %s.", FUNCTION_NAME, cute_tiled_error_reason);
+        dbgprint("%s: %s.", FUNCTION_NAME, cute_tiled_error_reason);
         return CORE_WARNING;
     }
 
@@ -501,12 +501,12 @@ status_t load_tiled_map(const char* map_file_name, core_t* core)
         if (H_tilelayer == generate_hash((const unsigned char*)layer->type.ptr) && !core->map->hash_id_tilelayer)
         {
             core->map->hash_id_tilelayer = layer->type.hash_id;
-            SDL_Log("Set hash ID for tile layer: %llu", core->map->hash_id_tilelayer);
+            dbgprint("Set hash ID for tile layer: %llu", core->map->hash_id_tilelayer);
         }
         else if (H_objectgroup == generate_hash((const unsigned char*)layer->type.ptr) && !core->map->hash_id_objectgroup)
         {
             core->map->hash_id_objectgroup = layer->type.hash_id;
-            SDL_Log("Set hash ID for object group: %llu", core->map->hash_id_objectgroup);
+            dbgprint("Set hash ID for object group: %llu", core->map->hash_id_objectgroup);
         }
         layer = layer->next;
     }
@@ -551,12 +551,12 @@ status_t load_animated_tiles(core_t* core)
         core->map->animated_tile = (animated_tile_t*)calloc((size_t)animated_tile_count, sizeof(struct animated_tile));
         if (! core->map->animated_tile)
         {
-            SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
+            dbgprint("%s: error allocating memory.", FUNCTION_NAME);
             return CORE_ERROR;
         }
     }
 
-    SDL_Log("Load %u animated tile(s).", animated_tile_count);
+    dbgprint("Load %u animated tile(s).", animated_tile_count);
 
     return CORE_OK;
 }
@@ -575,7 +575,7 @@ status_t alloc_sprites(Sint32 sprite_count, core_t* core)
     core->map->sprite       = (sprite_t*)calloc((size_t)sprite_count, sizeof(struct sprite));
     if (! core->map->sprite)
     {
-        SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
+        dbgprint("%s: error allocating memory.", FUNCTION_NAME);
         status = CORE_ERROR;
     }
 
@@ -593,7 +593,7 @@ status_t load_sprite(const char* sprite_file_name, Sint32 id, core_t* core)
 
     if (CORE_OK != load_texture_from_file(sprite_file_name, &core->map->sprite[id - 1].texture, core))
     {
-        SDL_Log("%s: Error loading image '%s'.", FUNCTION_NAME, sprite_file_name);
+        dbgprint("%s: Error loading image '%s'.", FUNCTION_NAME, sprite_file_name);
         status = CORE_ERROR;
     }
 
@@ -654,12 +654,12 @@ status_t load_actors(core_t* core)
         core->map->actor = (actor_t*)calloc((size_t)core->map->actor_count, sizeof(struct actor));
         if (! core->map->actor)
         {
-            SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
+            dbgprint("%s: error allocating memory.", FUNCTION_NAME);
             return CORE_ERROR;
         }
     }
 
-    SDL_Log("Load %u actors:", core->map->actor_count);
+    dbgprint("Load %u actors:", core->map->actor_count);
 
     layer = get_head_layer(core->map->handle);
     while (layer)
@@ -677,7 +677,7 @@ status_t load_actors(core_t* core)
                 actor->pos_x     = (double)tiled_object->x;
                 actor->pos_y     = (double)tiled_object->y;
                 actor->handle    = tiled_object;
-                actor->id        = index;
+                actor->id        = index + 1;
                 actor->width     = get_integer_property(H_width,     properties, prop_cnt, core);
                 actor->height    = get_integer_property(H_height,    properties, prop_cnt, core);
                 actor->sprite_id = get_integer_property(H_sprite_id, properties, prop_cnt, core);
@@ -690,6 +690,12 @@ status_t load_actors(core_t* core)
                 if (0 >= actor->height)
                 {
                     actor->width = get_tile_height(core->map->handle);
+                }
+
+                if (0 == core->camera.target_actor_id)
+                {
+                    core->camera.target_actor_id = actor->id;
+                    core->camera.is_locked       = SDL_TRUE;
                 }
 
                 index        += 1;
@@ -721,7 +727,7 @@ status_t render_map(core_t* core)
 
         if (0 > SDL_SetRenderTarget(core->renderer, core->map->layer_texture))
         {
-            SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+            dbgprint("%s: %s.", FUNCTION_NAME, SDL_GetError());
             return CORE_ERROR;
         }
 
@@ -745,7 +751,7 @@ status_t render_map(core_t* core)
 
             if (0 > SDL_RenderCopy(core->renderer, core->map->tileset_texture, &src, &dst))
             {
-                SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+                dbgprint("%s: %s.", FUNCTION_NAME, SDL_GetError());
                 return CORE_ERROR;
             }
 
@@ -783,7 +789,7 @@ status_t render_map(core_t* core)
 
         if (0 > SDL_RenderCopyEx(core->renderer, core->map->layer_texture, NULL, &dst, 0, NULL, SDL_FLIP_NONE))
         {
-            SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+            dbgprint("%s: %s.", FUNCTION_NAME, SDL_GetError());
             return CORE_ERROR;
         }
 
@@ -807,6 +813,9 @@ status_t render_map(core_t* core)
                         actor->animation.time_since_last_anim_frame += core->time_since_last_frame;
                     }
 
+                    src.x  = (actor->animation.first_frame - 1) * actor->width;
+                    src.y  = actor->animation.offset_y          * actor->height;
+
                     if (actor->show_animation)
                     {
                         actor->animation.time_since_last_anim_frame += core->time_since_last_frame;
@@ -822,9 +831,7 @@ status_t render_map(core_t* core)
                             }
                         }
 
-                        src.x  = (actor->animation.first_frame - 1) * actor->width;
-                        src.x += actor->animation.current_frame     * actor->width;
-                        src.y  = actor->animation.offset_y          * actor->height;
+                        src.x += actor->animation.current_frame * actor->width;
                     }
                     else
                     {
@@ -840,7 +847,7 @@ status_t render_map(core_t* core)
 
                     if (0 > SDL_RenderCopyEx(core->renderer, core->map->sprite[actor->sprite_id - 1].texture, &src, &dst, 0, NULL, SDL_FLIP_NONE))
                     {
-                        SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+                        dbgprint("%s: %s.", FUNCTION_NAME, SDL_GetError());
                         return CORE_ERROR;
                     }
                     index        += 1;
@@ -863,13 +870,13 @@ status_t render_map(core_t* core)
 
     if (! core->map->layer_texture)
     {
-        SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+        dbgprint("%s: %s.", FUNCTION_NAME, SDL_GetError());
         return CORE_ERROR;
     }
 
     if (0 > SDL_SetRenderTarget(core->renderer, core->map->layer_texture))
     {
-        SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+        dbgprint("%s: %s.", FUNCTION_NAME, SDL_GetError());
         return CORE_ERROR;
     }
     SDL_RenderClear(core->renderer);
@@ -927,7 +934,7 @@ status_t render_map(core_t* core)
 
                 {
                     const char* layer_name = get_layer_name(layer);
-                    SDL_Log("Render map layer: %s", layer_name);
+                    dbgprint("Render map layer: %s", layer_name);
                 }
             }
         }
@@ -936,7 +943,7 @@ status_t render_map(core_t* core)
 
     if (0 > SDL_SetRenderTarget(core->renderer, core->render_target))
     {
-        SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+        dbgprint("%s: %s.", FUNCTION_NAME, SDL_GetError());
         return CORE_ERROR;
     }
 

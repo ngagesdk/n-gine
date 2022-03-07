@@ -41,10 +41,12 @@ typedef enum
 
 typedef struct camera
 {
-    Sint32  pos_x;
-    Sint32  pos_y;
-    Sint32  max_pos_x;
-    Sint32  max_pos_y;
+    Sint32   pos_x;
+    Sint32   pos_y;
+    Sint32   max_pos_x;
+    Sint32   max_pos_y;
+    Sint32   target_actor_id;
+    SDL_bool is_locked;
 
 } camera_t;
 

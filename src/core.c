@@ -6,11 +6,11 @@
 #define SPRITE_COUNT 1
 
 #if defined __SYMBIAN32__
-#  define MAP_FILE_NAME     "E:\\entry.tmj"
+#  define MAP_FILE_NAME     "E:\\lowtown.tmj"
 #  define TILESET_FILE_NAME "E:\\lowtown.bmp"
 #  define SPRITE_1          "E:\\morgan.bmp"
 #else
-#  define MAP_FILE_NAME     "entry.tmj"
+#  define MAP_FILE_NAME     "lowtown.tmj"
 #  define TILESET_FILE_NAME "lowtown.bmp"
 #  define SPRITE_1          "morgan.bmp"
 #endif
@@ -72,6 +72,35 @@ static status_t draw_scene(core_t* core)
     return CORE_OK;
 }
 
+static void restrict_camera(core_t* core)
+{
+    core->camera.pos_x = SDL_clamp(core->camera.pos_x, 0, core->map->width  - 176);
+    core->camera.pos_y = SDL_clamp(core->camera.pos_y, 0, core->map->height - 208);
+}
+
+static void update_camera(core_t* core)
+{
+    if (core->camera.is_locked)
+    {
+        if (core->camera.target_actor_id)
+        {
+            actor_t* target = &core->map->actor[core->camera.target_actor_id - 1];
+
+            core->camera.pos_x  = target->pos_x;
+            core->camera.pos_x -= 88;  // 176 / 2
+            core->camera.pos_y  = target->pos_y;
+            core->camera.pos_y -= 104; // 208 / 2
+        }
+
+        if (core->camera.pos_x < 0)
+        {
+            core->camera.pos_x = 0;
+        }
+
+        restrict_camera(core);
+    }
+}
+
 status_t init_core(const char* title, core_t** core)
 {
     status_t status = CORE_OK;
@@ -125,31 +154,58 @@ status_t update_core(core_t* core)
 {
     status_t     status     = CORE_OK;
     Uint32       delta_time = 0;
-    Uint8        offset     = 7;
     const Uint8* keystate   = SDL_GetKeyboardState(NULL);
     SDL_Event    event;
     SDL_Rect     dst;
+    Sint32       target_index;
 
-    if (keystate[SDL_SCANCODE_5])
+    if (! is_map_loaded(core))
     {
-        offset = 0;
+        return;
     }
+
+    core->time_b = core->time_a;
+    core->time_a = SDL_GetTicks();
+
+    if (core->time_a > core->time_b)
+    {
+        delta_time = core->time_a - core->time_b;
+    }
+    else
+    {
+        delta_time = core->time_b - core->time_a;
+    }
+    core->time_since_last_frame = delta_time;
+
+    target_index                                         = core->camera.target_actor_id - 1;
+    core->map->actor[target_index].show_animation        = SDL_FALSE;
+    core->map->actor[target_index].animation.first_frame = 1;
+    core->map->actor[target_index].animation.fps         = 5;
+    core->map->actor[target_index].animation.length      = 3;
 
     if (keystate[SDL_SCANCODE_UP])
     {
-        core->camera.pos_y -= 1 + offset;
+        core->map->actor[target_index].show_animation      = SDL_TRUE;
+        core->map->actor[target_index].animation.offset_y  = 3;
+        core->map->actor[target_index].pos_y              -= 2;
     }
     if (keystate[SDL_SCANCODE_DOWN])
     {
-        core->camera.pos_y += 1 + offset;
+        core->map->actor[target_index].show_animation      = SDL_TRUE;
+        core->map->actor[target_index].animation.offset_y  = 0;
+        core->map->actor[target_index].pos_y              += 2;
     }
     if (keystate[SDL_SCANCODE_LEFT])
     {
-        core->camera.pos_x -= 1 + offset;
+        core->map->actor[target_index].show_animation      = SDL_TRUE;
+        core->map->actor[target_index].animation.offset_y  = 1;
+        core->map->actor[target_index].pos_x              -= 2;
     }
     if (keystate[SDL_SCANCODE_RIGHT])
     {
-        core->camera.pos_x += 1 + offset;
+        core->map->actor[target_index].show_animation      = SDL_TRUE;
+        core->map->actor[target_index].animation.offset_y  = 2;
+        core->map->actor[target_index].pos_x              += 2;
     }
 
     if (SDL_PollEvent(&event))
@@ -178,27 +234,7 @@ status_t update_core(core_t* core)
         }
     }
 
-    if (! is_map_loaded(core))
-    {
-        return;
-    }
-
-    core->time_b = core->time_a;
-    core->time_a = SDL_GetTicks();
-
-    if (core->time_a > core->time_b)
-    {
-        delta_time = core->time_a - core->time_b;
-    }
-    else
-    {
-        delta_time = core->time_b - core->time_a;
-    }
-    core->time_since_last_frame = delta_time;
-
-    core->camera.pos_x = SDL_clamp(core->camera.pos_x, 0, core->map->width  - 176);
-    core->camera.pos_y = SDL_clamp(core->camera.pos_y, 0, core->map->height - 208);
-
+    update_camera(core);
     status = render_scene(core);
     if (CORE_OK != status)
     {
@@ -266,14 +302,6 @@ status_t load_map(core_t* core)
     {
         goto exit;
     }
-
-    /* DEBUG */
-    core->map->actor[0].show_animation          = SDL_TRUE;
-    core->map->actor[0].animation.first_frame   = 1;
-    core->map->actor[0].animation.fps           = 8;
-    core->map->actor[0].animation.length        = 3;
-    core->map->actor[0].animation.offset_y      = 0;
-    /* DEBUG */
 
     // [4] Tileset.
     status = load_tileset(TILESET_FILE_NAME, core);
