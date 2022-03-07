@@ -8,6 +8,12 @@ The demo is under development and yet unfinished.
 
 ## Licence and Credits
 
+- Packed file loader by [Daniel
+  Monteiro](https://montyontherun.itch.io/).
+
+- CyberPop - Interior Tiles by
+  [MalibuDarby](https://malibudarby.itch.io/cyberpop-interior-tiles).
+
 - This project is licensed under the "The MIT License".  See the file
   [LICENSE.md](LICENSE.md) for details.
 
