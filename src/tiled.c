@@ -247,22 +247,22 @@ static void load_property(const Uint64 name_hash, cute_tiled_property_t* propert
             case CUTE_TILED_PROPERTY_NONE:
                 break;
             case CUTE_TILED_PROPERTY_INT:
-                dbgprint("Loading integer property '%s': %d", properties[index].name.ptr, properties[index].data.integer);
+                SDL_Log("Loading integer property '%s': %d", properties[index].name.ptr, properties[index].data.integer);
 
                 core->map->integer_property = properties[index].data.integer;
                 break;
             case CUTE_TILED_PROPERTY_BOOL:
-                dbgprint("Loading boolean property '%s': %u", properties[index].name.ptr, properties[index].data.boolean);
+                SDL_Log("Loading boolean property '%s': %u", properties[index].name.ptr, properties[index].data.boolean);
 
                 core->map->boolean_property = (SDL_bool)properties[index].data.boolean;
                 break;
             case CUTE_TILED_PROPERTY_FLOAT:
-                dbgprint("Loading decimal property '%s': %f", properties[index].name.ptr, (float)properties[index].data.floating);
+                SDL_Log("Loading decimal property '%s': %f", properties[index].name.ptr, (float)properties[index].data.floating);
 
                 core->map->decimal_property = (float)properties[index].data.floating;
                 break;
             case CUTE_TILED_PROPERTY_STRING:
-                dbgprint("Loading string property '%s': %s", properties[index].name.ptr, properties[index].data.string.ptr);
+                SDL_Log("Loading string property '%s': %s", properties[index].name.ptr, properties[index].data.string.ptr);
 
                 core->map->string_property  = properties[index].data.string.ptr;
                 break;
@@ -284,7 +284,7 @@ static status_t load_texture_from_file(const char* file_name, SDL_Texture** text
     resource_buf = (Uint8*)loadBinaryFileFromPath(file_name);
     if (! resource_buf)
     {
-        dbgprint("Failed to load resource: %s", file_name);
+        SDL_Log("Failed to load resource: %s", file_name);
         return CORE_ERROR;
     }
 
@@ -292,7 +292,7 @@ static status_t load_texture_from_file(const char* file_name, SDL_Texture** text
     if (! resource)
     {
         free(resource_buf);
-        dbgprint("Failed to convert resource %s: %s", file_name, SDL_GetError());
+        SDL_Log("Failed to convert resource %s: %s", file_name, SDL_GetError());
         return CORE_ERROR;
     }
 
@@ -300,30 +300,30 @@ static status_t load_texture_from_file(const char* file_name, SDL_Texture** text
     if (! surface)
     {
         free(resource_buf);
-        dbgprint("Failed to load image: %s", SDL_GetError());
+        SDL_Log("Failed to load image: %s", SDL_GetError());
         return CORE_ERROR;
     }
     free(resource_buf);
 
     if (0 != SDL_SetColorKey(surface, SDL_TRUE, SDL_MapRGB(surface->format, 0xff, 0x00, 0xff)))
     {
-        dbgprint("Failed to set color key for %s: %s", file_name, SDL_GetError());
+        SDL_Log("Failed to set color key for %s: %s", file_name, SDL_GetError());
     }
     if (0 != SDL_SetSurfaceRLE(surface, 1))
     {
-        dbgprint("Could not enable RLE for surface %s: %s", file_name, SDL_GetError());
+        SDL_Log("Could not enable RLE for surface %s: %s", file_name, SDL_GetError());
     }
 
     *texture = SDL_CreateTextureFromSurface(core->renderer, surface);
     if (! *texture)
     {
-        dbgprint("Could not create texture from surface: %s", SDL_GetError());
+        SDL_Log("Could not create texture from surface: %s", SDL_GetError());
         SDL_FreeSurface(surface);
         return CORE_ERROR;
     }
     SDL_FreeSurface(surface);
 
-    dbgprint("Loading image from file: %s.", file_name);
+    SDL_Log("Loading image from file: %s.", file_name);
 
     return CORE_OK;
 }
@@ -342,13 +342,13 @@ static status_t create_and_set_render_target(SDL_Texture** target, core_t* core)
 
     if (! (*target))
     {
-        dbgprint("%s: %s.", FUNCTION_NAME, SDL_GetError());
+        SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
         return CORE_ERROR;
     }
 
     if (0 > SDL_SetRenderTarget(core->renderer, (*target)))
     {
-        dbgprint("%s: %s.", FUNCTION_NAME, SDL_GetError());
+        SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
         SDL_DestroyTexture((*target));
         return CORE_ERROR;
     }
@@ -488,7 +488,7 @@ status_t load_tileset(core_t* core)
 
     if (CORE_OK != load_texture_from_file((const char*)tileset_file_name, &core->map->tileset_texture, core))
     {
-        dbgprint("%s: Error loading image '%s'.", FUNCTION_NAME, tileset_file_name);
+        SDL_Log("%s: Error loading image '%s'.", FUNCTION_NAME, tileset_file_name);
         status = CORE_ERROR;
     }
 
@@ -504,7 +504,7 @@ status_t load_tiled_map(const char* map_file_name, core_t* core)
     resource_buf = (Uint8*)loadBinaryFileFromPath(map_file_name);
     if (! resource_buf)
     {
-        dbgprint("Failed to load resource: %s", map_file_name);
+        SDL_Log("Failed to load resource: %s", map_file_name);
         return CORE_ERROR;
     }
 
@@ -512,7 +512,7 @@ status_t load_tiled_map(const char* map_file_name, core_t* core)
     if (! core->map->handle)
     {
         free(resource_buf);
-        dbgprint("%s: %s.", FUNCTION_NAME, cute_tiled_error_reason);
+        SDL_Log("%s: %s.", FUNCTION_NAME, cute_tiled_error_reason);
         return CORE_WARNING;
     }
     free(resource_buf);
@@ -523,12 +523,12 @@ status_t load_tiled_map(const char* map_file_name, core_t* core)
         if (H_tilelayer == generate_hash((const unsigned char*)layer->type.ptr) && !core->map->hash_id_tilelayer)
         {
             core->map->hash_id_tilelayer = layer->type.hash_id;
-            dbgprint("Set hash ID for tile layer: %llu", core->map->hash_id_tilelayer);
+            SDL_Log("Set hash ID for tile layer: %llu", core->map->hash_id_tilelayer);
         }
         else if (H_objectgroup == generate_hash((const unsigned char*)layer->type.ptr) && !core->map->hash_id_objectgroup)
         {
             core->map->hash_id_objectgroup = layer->type.hash_id;
-            dbgprint("Set hash ID for object group: %llu", core->map->hash_id_objectgroup);
+            SDL_Log("Set hash ID for object group: %llu", core->map->hash_id_objectgroup);
         }
         layer = layer->next;
     }
@@ -573,12 +573,12 @@ status_t load_animated_tiles(core_t* core)
         core->map->animated_tile = (animated_tile_t*)calloc((size_t)animated_tile_count, sizeof(struct animated_tile));
         if (! core->map->animated_tile)
         {
-            dbgprint("%s: error allocating memory.", FUNCTION_NAME);
+            SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
             return CORE_ERROR;
         }
     }
 
-    dbgprint("Load %u animated tile(s).", animated_tile_count);
+    SDL_Log("Load %u animated tile(s).", animated_tile_count);
 
     return CORE_OK;
 }
@@ -597,7 +597,7 @@ status_t alloc_sprites(Sint32 sprite_count, core_t* core)
     core->map->sprite       = (sprite_t*)calloc((size_t)sprite_count, sizeof(struct sprite));
     if (! core->map->sprite)
     {
-        dbgprint("%s: error allocating memory.", FUNCTION_NAME);
+        SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
         status = CORE_ERROR;
     }
 
@@ -615,7 +615,7 @@ status_t load_sprite(const char* sprite_file_name, Sint32 id, core_t* core)
 
     if (CORE_OK != load_texture_from_file(sprite_file_name, &core->map->sprite[id - 1].texture, core))
     {
-        dbgprint("%s: Error loading image '%s'.", FUNCTION_NAME, sprite_file_name);
+        SDL_Log("%s: Error loading image '%s'.", FUNCTION_NAME, sprite_file_name);
         status = CORE_ERROR;
     }
 
@@ -676,12 +676,12 @@ status_t load_actors(core_t* core)
         core->map->actor = (actor_t*)calloc((size_t)core->map->actor_count, sizeof(struct actor));
         if (! core->map->actor)
         {
-            dbgprint("%s: error allocating memory.", FUNCTION_NAME);
+            SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
             return CORE_ERROR;
         }
     }
 
-    dbgprint("Load %u actors:", core->map->actor_count);
+    SDL_Log("Load %u actors:", core->map->actor_count);
 
     layer = get_head_layer(core->map->handle);
     while (layer)
@@ -749,7 +749,7 @@ status_t render_map(core_t* core)
 
         if (0 > SDL_SetRenderTarget(core->renderer, core->map->layer_texture))
         {
-            dbgprint("%s: %s.", FUNCTION_NAME, SDL_GetError());
+            SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
             return CORE_ERROR;
         }
 
@@ -773,7 +773,7 @@ status_t render_map(core_t* core)
 
             if (0 > SDL_RenderCopy(core->renderer, core->map->tileset_texture, &src, &dst))
             {
-                dbgprint("%s: %s.", FUNCTION_NAME, SDL_GetError());
+                SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
                 return CORE_ERROR;
             }
 
@@ -811,7 +811,7 @@ status_t render_map(core_t* core)
 
         if (0 > SDL_RenderCopyEx(core->renderer, core->map->layer_texture, NULL, &dst, 0, NULL, SDL_FLIP_NONE))
         {
-            dbgprint("%s: %s.", FUNCTION_NAME, SDL_GetError());
+            SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
             return CORE_ERROR;
         }
 
@@ -869,7 +869,7 @@ status_t render_map(core_t* core)
 
                     if (0 > SDL_RenderCopyEx(core->renderer, core->map->sprite[actor->sprite_id - 1].texture, &src, &dst, 0, NULL, SDL_FLIP_NONE))
                     {
-                        dbgprint("%s: %s.", FUNCTION_NAME, SDL_GetError());
+                        SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
                         return CORE_ERROR;
                     }
                     index        += 1;
@@ -892,13 +892,13 @@ status_t render_map(core_t* core)
 
     if (! core->map->layer_texture)
     {
-        dbgprint("%s: %s.", FUNCTION_NAME, SDL_GetError());
+        SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
         return CORE_ERROR;
     }
 
     if (0 > SDL_SetRenderTarget(core->renderer, core->map->layer_texture))
     {
-        dbgprint("%s: %s.", FUNCTION_NAME, SDL_GetError());
+        SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
         return CORE_ERROR;
     }
     SDL_RenderClear(core->renderer);
@@ -956,7 +956,7 @@ status_t render_map(core_t* core)
 
                 {
                     const char* layer_name = get_layer_name(layer);
-                    dbgprint("Render map layer: %s", layer_name);
+                    SDL_Log("Render map layer: %s", layer_name);
                 }
             }
         }
@@ -965,7 +965,7 @@ status_t render_map(core_t* core)
 
     if (0 > SDL_SetRenderTarget(core->renderer, core->render_target))
     {
-        dbgprint("%s: %s.", FUNCTION_NAME, SDL_GetError());
+        SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
         return CORE_ERROR;
     }
 

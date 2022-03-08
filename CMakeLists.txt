@@ -11,7 +11,7 @@ project(nrpg C CXX)
 
 include(SDL)
 include(cwalk)
-include(dbgprint)
+#include(dbgprint)
 
 # Use CMake or Visual Studio to enable these settings.
 option(INSTALL_EKA2L1 "Install app for EKA2L1" OFF)
@@ -26,7 +26,7 @@ set(GCC_DEFS      ${GCC_COMN_DEFS} ${GCC_MODE_DEFS})
 
 set(nrpg_libs
     ${CMAKE_CURRENT_BINARY_DIR}/libSDL.a
-    ${CMAKE_CURRENT_BINARY_DIR}/libdbgprint.a
+#    ${CMAKE_CURRENT_BINARY_DIR}/libdbgprint.a
     ${CMAKE_CURRENT_BINARY_DIR}/libcwalk.a
     ${EPOC_PLATFORM}/gcc/lib/gcc-lib/arm-epoc-pe/2.9-psion-98r2/libgcc.a
     ${EPOC_LIB}/egcc.lib
