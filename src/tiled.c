@@ -498,25 +498,24 @@ warning:
 
 status_t load_tiled_map(const char* map_file_name, core_t* core)
 {
-    FILE*               fp = fopen(map_file_name, "r");
     cute_tiled_layer_t* layer;
+    Uint8*              resource_buf;
 
-    if (fp)
+    resource_buf = (Uint8*)loadBinaryFileFromPath(map_file_name);
+    if (! resource_buf)
     {
-        fclose(fp);
-    }
-    else
-    {
-        dbgprint("%s: %s not found.", FUNCTION_NAME, map_file_name);
-        return CORE_WARNING;
+        dbgprint("Failed to load resource: %s", map_file_name);
+        return CORE_ERROR;
     }
 
-    core->map->handle = (cute_tiled_map_t*)cute_tiled_load_map_from_file(map_file_name, NULL);
+    core->map->handle = cute_tiled_load_map_from_memory((const void*)resource_buf, sizeOfFile(map_file_name), NULL);
     if (! core->map->handle)
     {
+        free(resource_buf);
         dbgprint("%s: %s.", FUNCTION_NAME, cute_tiled_error_reason);
         return CORE_WARNING;
     }
+    free(resource_buf);
 
     layer = get_head_layer(core->map->handle);
     while (layer)

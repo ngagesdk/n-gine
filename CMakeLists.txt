@@ -50,9 +50,7 @@ add_library(nrpg STATIC ${nrpg_sources})
 build_exe(nrpg exe ${UID1} ${UID2} ${UID3} "${nrpg_libs}")
 if(INSTALL_EKA2L1)
     copy_file(nrpg.exe ${CMAKE_CURRENT_BINARY_DIR}     ${EKA2L1_E_DRIVE} nrpg.exe)
-    #copy_file(nrpg.exe ${CMAKE_CURRENT_SOURCE_DIR}/res ${EKA2L1_E_DRIVE} splash.bmp)
     copy_file(nrpg.exe ${CMAKE_CURRENT_SOURCE_DIR}/res ${EKA2L1_E_DRIVE} data.pfs)
-    copy_file(nrpg.exe ${CMAKE_CURRENT_SOURCE_DIR}/res ${EKA2L1_E_DRIVE} lowtown.tmj)
 endif()
 
 add_dependencies(
