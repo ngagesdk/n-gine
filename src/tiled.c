@@ -17,12 +17,6 @@
 #define CUTE_TILED_IMPLEMENTATION
 #include <cute_tiled.h>
 
-#define H_objectgroup 0xc0b9d518970be349
-#define H_tilelayer   0x0377d9f70e844fb0
-#define H_width       0x0000003110a3b0a5
-#define H_height      0x0000065301d688de
-#define H_sprite_id   0x0377d8f6e7994748
-
 #define ANIM_TILE_FPS 15
 
 /* PRIVATE FUNCTIONS */
@@ -281,14 +275,14 @@ static status_t load_texture_from_file(const char* file_name, SDL_Texture** text
         return CORE_WARNING;
     }
 
-    resource_buf = (Uint8*)loadBinaryFileFromPath(file_name);
+    resource_buf = (Uint8*)load_binary_file_from_path(file_name);
     if (! resource_buf)
     {
         SDL_Log("Failed to load resource: %s", file_name);
         return CORE_ERROR;
     }
 
-    resource = SDL_RWFromConstMem((Uint8*)resource_buf, sizeOfFile(file_name));
+    resource = SDL_RWFromConstMem((Uint8*)resource_buf, size_of_file(file_name));
     if (! resource)
     {
         free(resource_buf);
@@ -501,14 +495,14 @@ status_t load_tiled_map(const char* map_file_name, core_t* core)
     cute_tiled_layer_t* layer;
     Uint8*              resource_buf;
 
-    resource_buf = (Uint8*)loadBinaryFileFromPath(map_file_name);
+    resource_buf = (Uint8*)load_binary_file_from_path(map_file_name);
     if (! resource_buf)
     {
         SDL_Log("Failed to load resource: %s", map_file_name);
         return CORE_ERROR;
     }
 
-    core->map->handle = cute_tiled_load_map_from_memory((const void*)resource_buf, sizeOfFile(map_file_name), NULL);
+    core->map->handle = cute_tiled_load_map_from_memory((const void*)resource_buf, size_of_file(map_file_name), NULL);
     if (! core->map->handle)
     {
         free(resource_buf);
@@ -583,67 +577,73 @@ status_t load_animated_tiles(core_t* core)
     return CORE_OK;
 }
 
-status_t alloc_sprites(Sint32 sprite_count, core_t* core)
+status_t load_sprites(core_t* core)
 {
-    status_t status = CORE_OK;
+    status_t status            = CORE_OK;
+    char     property_name[17] = { 0 };
+    SDL_bool search_is_running = SDL_TRUE;
+    Sint32   prop_cnt          = get_map_property_count(core->map->handle);
+    Sint32   index;
 
-    if (core->map->sprite_count)
+    core->map->sprite_count = 0;
+
+    while (search_is_running)
     {
-        /* Nothing else to do here. */
+        stbsp_snprintf(property_name, 17, "sprite_sheet_%u", core->map->sprite_count + 1);
+
+        if (get_string_property(generate_hash((const unsigned char*)property_name), core->map->handle->properties, prop_cnt, core))
+        {
+            core->map->sprite_count += 1;
+        }
+        else
+        {
+            search_is_running = SDL_FALSE;
+        }
+    }
+
+    if (0 == core->map->sprite_count)
+    {
         return CORE_OK;
     }
 
-    core->map->sprite_count = sprite_count;
-    core->map->sprite       = (sprite_t*)calloc((size_t)sprite_count, sizeof(struct sprite));
+    core->map->sprite = (sprite_t*)calloc((size_t)core->map->sprite_count, sizeof(struct sprite));
     if (! core->map->sprite)
     {
         SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
-        status = CORE_ERROR;
-    }
-
-    return status;
-}
-
-status_t load_sprite(const char* sprite_file_name, Sint32 id, core_t* core)
-{
-    status_t status = CORE_OK;
-
-    if (id > core->map->sprite_count)
-    {
         return CORE_ERROR;
     }
 
-    if (CORE_OK != load_texture_from_file(sprite_file_name, &core->map->sprite[id - 1].texture, core))
+    for (index = 0; index < core->map->sprite_count; index += 1)
     {
-        SDL_Log("%s: Error loading image '%s'.", FUNCTION_NAME, sprite_file_name);
-        status = CORE_ERROR;
-    }
+        const char* file_name;
+        stbsp_snprintf(property_name, 17, "sprite_sheet_%u", index + 1);
 
-    return status;
-}
+        file_name = get_string_property(generate_hash((const unsigned char*)property_name), core->map->handle->properties, prop_cnt, core);
 
-void dealloc_sprites(core_t* core)
-{
-    Sint32 index;
-
-    if (core->map->sprite_count)
-    {
-        for (index = 0; index < core->map->sprite_count; index += 1)
+        if (file_name)
         {
-            core->map->sprite[index].id = 0;
-
-            if (core->map->sprite[index].texture)
+            Sint32 source_length       = (Sint32)(strlen(file_name) + 1);
+            char*  sprite_image_source = (char*)calloc(1, source_length);
+            if (! sprite_image_source)
             {
-                SDL_DestroyTexture(core->map->sprite[index].texture);
-                core->map->sprite[index].texture = NULL;
+                SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
+                return CORE_ERROR;
+            }
+
+            stbsp_snprintf(sprite_image_source, source_length, "%s", file_name);
+
+            core->map->sprite[index].id = index + 1;
+
+            status = load_texture_from_file(sprite_image_source, &core->map->sprite[index].texture, core);
+            if (CORE_OK != status)
+            {
+                free(sprite_image_source);
+                return status;
             }
         }
     }
 
-    if (core->map->sprite)
-    {
-        free(core->map->sprite);
-    }
+    return status;
 }
 
 status_t load_actors(core_t* core)
@@ -696,13 +696,18 @@ status_t load_actors(core_t* core)
                 cute_tiled_property_t* properties = tiled_object->properties;
                 Sint32                 prop_cnt   = get_object_property_count(tiled_object);
 
-                actor->pos_x     = (double)tiled_object->x;
-                actor->pos_y     = (double)tiled_object->y;
-                actor->handle    = tiled_object;
-                actor->id        = index + 1;
-                actor->width     = get_integer_property(H_width,     properties, prop_cnt, core);
-                actor->height    = get_integer_property(H_height,    properties, prop_cnt, core);
-                actor->sprite_id = get_integer_property(H_sprite_id, properties, prop_cnt, core);
+                actor->pos_x                 = (double)tiled_object->x;
+                actor->pos_y                 = (double)tiled_object->y;
+                actor->handle                = tiled_object;
+                actor->id                    = index + 1;
+                actor->width                 = get_integer_property(H_width,     properties, prop_cnt, core);
+                actor->height                = get_integer_property(H_height,    properties, prop_cnt, core);
+                actor->sprite_id             = get_integer_property(H_sprite_id, properties, prop_cnt, core);
+                actor->show_animation        = SDL_FALSE;
+                actor->animation.first_frame = 1;
+                actor->animation.fps         = 0;
+                actor->animation.length      = 0;
+                actor->animation.offset_y    = 1;
 
                 if (0 >= actor->width)
                 {

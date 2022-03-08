@@ -64,6 +64,18 @@ static void restrict_camera(core_t* core)
 {
     core->camera.pos_x = SDL_clamp(core->camera.pos_x, 0, core->map->width  - 176);
     core->camera.pos_y = SDL_clamp(core->camera.pos_y, 0, core->map->height - 208);
+
+    if (core->camera.target_actor_id)
+    {
+        if (core->camera.target_actor_id < 1)
+        {
+            core->camera.target_actor_id = core->map->actor_count;
+        }
+        else if (core->camera.target_actor_id > core->map->actor_count)
+        {
+            core->camera.target_actor_id = 1;
+        }
+    }
 }
 
 static void update_camera(core_t* core)
@@ -207,6 +219,12 @@ status_t update_core(core_t* core)
                     case SDLK_BACKSPACE:
                         status = CORE_EXIT;
                         goto exit;
+                    case SDLK_1:
+                        core->camera.target_actor_id -= 1;
+                        break;
+                    case SDLK_3:
+                        core->camera.target_actor_id += 1;
+                        break;
                     default:
                         break;
                 }
@@ -255,7 +273,7 @@ void free_core(core_t *core)
     SDL_Quit();
 }
 
-status_t load_map(const char* map_file, core_t* core)
+status_t load_map(const char* resource_file, core_t* core)
 {
     status_t status = CORE_OK;
 
@@ -266,7 +284,7 @@ status_t load_map(const char* map_file, core_t* core)
     }
 
     // Todo: load file name from Tiled map!
-    initFileReader("E:\\data.pfs");
+    init_file_reader(resource_file);
 
     // Load map file and allocate required memory.
 
@@ -279,7 +297,7 @@ status_t load_map(const char* map_file, core_t* core)
     }
 
     // [2] Tiled map.
-    status = load_tiled_map(map_file, core);
+    status = load_tiled_map("entry.tmj", core);
     if (CORE_OK != status)
     {
         free(core->map);
@@ -304,13 +322,7 @@ status_t load_map(const char* map_file, core_t* core)
     // Todo: sprite auto-loader (by parsing the Tiled map)!
 
     // [5] Sprites.
-    status = alloc_sprites(1, core);
-    if (CORE_OK != status)
-    {
-        goto exit;
-    }
-
-    status = load_sprite("morgan.bmp", 1, core);
+    status = load_sprites(core);
     if (CORE_OK != status)
     {
         goto exit;
@@ -336,6 +348,8 @@ exit:
 
 void unload_map(core_t* core)
 {
+    Sint32 index;
+
     if (! is_map_loaded(core))
     {
         SDL_Log("No map has been loaded.");
@@ -367,7 +381,22 @@ void unload_map(core_t* core)
     free(core->map->animated_tile);
 
     // [5] Sprites.
-    dealloc_sprites(core);
+    if (0 < core->map->sprite_count)
+    {
+        for (index = 0; index < core->map->sprite_count; index += 1)
+        {
+            core->map->sprite[index].id = 0;
+
+            if (core->map->sprite[index].texture)
+            {
+                SDL_DestroyTexture(core->map->sprite[index].texture);
+                core->map->sprite[index].texture = NULL;
+            }
+        }
+    }
+
+    free(core->map->sprite);
+    core->map->sprite = NULL;
 
     // [4] Tileset.
     if (core->map->tileset_texture)

@@ -1,10 +1,10 @@
 # N-RPG
 
-A showcase demo in the style of the 16-bit JRPGs of the 1990s.
+A simple game engine in the style of the 16-bit JRPGs of the 1990s.
 
 ## Status
 
-The demo is under development and yet unfinished.
+The engine is under development and yet unfinished.
 
 ## Licence and Credits
 

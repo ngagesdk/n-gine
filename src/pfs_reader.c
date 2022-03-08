@@ -11,12 +11,12 @@
 
 char mDataPath[kDataPath_MaxLength];
 
-void initFileReader(const char * dataFilePath)
+void init_file_reader(const char * dataFilePath)
 {
     sprintf (mDataPath, "%s", dataFilePath);
 }
 
-size_t sizeOfFile(const char * path)
+size_t size_of_file(const char * path)
 {
     FILE   *mDataPack = fopen(mDataPath, "rb");
     char    buffer[85];
@@ -55,7 +55,7 @@ found:
     return size;
 }
 
-Uint8 *loadBinaryFileFromPath(const char * path)
+Uint8 *load_binary_file_from_path(const char * path)
 {
     FILE   *mDataPack = fopen(mDataPath, "rb");
     Uint32  offset    = 0;
@@ -99,7 +99,7 @@ found:
     return toReturn;
 }
 
-FILE *openBinaryFileFromPath(const char * path)
+FILE *open_binary_file_from_path(const char * path)
 {
     FILE   *mDataPack = fopen(mDataPath, "rb");
     Uint32  offset    = 0;

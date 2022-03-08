@@ -14,6 +14,12 @@
 #  endif
 #endif
 
+#define H_objectgroup 0xc0b9d518970be349
+#define H_tilelayer   0x0377d9f70e844fb0
+#define H_width       0x0000003110a3b0a5
+#define H_height      0x0000065301d688de
+#define H_sprite_id   0x0377d8f6e7994748
+
 typedef enum status
 {
     CORE_OK = 0,
@@ -144,7 +150,7 @@ typedef struct core
 status_t init_core(const char* title, core_t** core);
 status_t update_core(core_t* core);
 void     free_core(core_t *core);
-status_t load_map(const char* map_file, core_t* core);
+status_t load_map(const char* resource_file, core_t* core);
 void     unload_map(core_t* core);
 
 #endif /* CORE_H */
