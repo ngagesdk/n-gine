@@ -14,11 +14,16 @@
 #  endif
 #endif
 
-#define H_objectgroup 0xc0b9d518970be349
-#define H_tilelayer   0x0377d9f70e844fb0
-#define H_width       0x0000003110a3b0a5
-#define H_height      0x0000065301d688de
-#define H_sprite_id   0x0377d8f6e7994748
+#define H_objectgroup   0xc0b9d518970be349
+#define H_tilelayer     0x0377d9f70e844fb0
+#define H_width         0x0000003110a3b0a5
+#define H_height        0x0000065301d688de
+#define H_sprite_id     0x0377d8f6e7994748
+#define H_is_solid      0x001ae728dd16b21b
+#define H_aabb_width    0x726fec36b013326a
+#define H_aabb_height   0xc06d730c8f364343
+#define H_aabb_offset_y 0x919668b2f27342a9
+#define H_aabb_offset_x 0x919668b2f27342a8
 
 typedef enum status
 {
@@ -67,6 +72,15 @@ typedef struct animation
 
 } animation_t;
 
+typedef struct aabb
+{
+    Sint32 bottom;
+    Sint32 left;
+    Sint32 right;
+    Sint32 top;
+
+} aabb_t;
+
 typedef struct actor
 {
     Sint32               pos_x;
@@ -79,6 +93,7 @@ typedef struct actor
     Sint32               sprite_id;
     SDL_bool             show_animation;
     animation_t          animation;
+    struct aabb          bb;
 
 } actor_t;
 
@@ -99,6 +114,13 @@ typedef struct animated_tile
     Sint32 id;
 
 } animated_tile_t;
+
+typedef struct tile_desc
+{
+    Sint32   gid;
+    SDL_bool is_solid;
+
+} tile_desc_t;
 
 typedef struct map
 {
@@ -123,12 +145,13 @@ typedef struct map
     float              decimal_property;
     Sint32             integer_property;
     const char*        string_property;
-    Uint32*            tile_properties;
 
     actor_t*           actor;
     Sint32             actor_count;
     sprite_t*          sprite;
     Sint32             sprite_count;
+    tile_desc_t*       tile_desc;
+    Sint32             tile_desc_count;
 
 } map_t;
 
@@ -141,16 +164,17 @@ typedef struct core
     struct camera camera;
     SDL_bool      is_active;
     SDL_bool      is_map_loaded;
+    SDL_bool      debug_mode;
     Uint32        time_since_last_frame;
     Uint32        time_a;
     Uint32        time_b;
 
 } core_t;
 
-status_t init_core(const char* title, core_t** core);
+status_t init_core(const char* resource_file, const char* title, core_t** core);
 status_t update_core(core_t* core);
 void     free_core(core_t *core);
-status_t load_map(const char* resource_file, core_t* core);
+status_t load_map(const char* map_name, core_t* core);
 void     unload_map(core_t* core);
 
 #endif /* CORE_H */

@@ -204,6 +204,26 @@ static SDL_bool tile_has_properties(Sint32 gid, cute_tiled_tile_descriptor_t** t
     return SDL_FALSE;
 }
 
+SDL_bool bb_do_intersect(const aabb_t bb_a, const aabb_t bb_b)
+{
+    Sint32 bb_a_x = bb_b.left - bb_a.right;
+    Sint32 bb_a_y = bb_b.top  - bb_a.bottom;
+    Sint32 bb_b_x = bb_a.left - bb_b.right;
+    Sint32 bb_b_y = bb_a.top  - bb_b.bottom;
+
+    if (0 < bb_a_x || 0 < bb_a_y)
+    {
+        return SDL_FALSE;
+    }
+
+    if (0 < bb_b_x || 0 < bb_b_y)
+    {
+        return SDL_FALSE;
+    }
+
+    return SDL_TRUE;
+}
+
 /* djb2 by Dan Bernstein
  * http://www.cse.yorku.ca/~oz/hash.html
  */
@@ -471,6 +491,58 @@ const char* get_string_property(const Uint64 name_hash, cute_tiled_property_t* p
     core->map->string_property = NULL;
     load_property(name_hash, properties, property_count, core);
     return core->map->string_property;
+}
+
+status_t load_tiles(core_t* core)
+{
+    cute_tiled_layer_t* layer = get_head_layer(core->map->handle);
+
+    core->map->tile_desc_count = (Sint32)(core->map->handle->height * core->map->handle->width);
+
+    if (core->map->tile_desc_count < 0)
+    {
+        return CORE_OK;
+    }
+
+    core->map->tile_desc = (tile_desc_t*)calloc((size_t)core->map->tile_desc_count, sizeof(struct tile_desc));
+    if (! core->map->tile_desc)
+    {
+        SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
+        return CORE_ERROR;
+    }
+
+    while (layer)
+    {
+        if (is_tiled_layer_of_type(TILE_LAYER, layer, core))
+        {
+            Sint32 index_height;
+            Sint32 index_width;
+            for (index_height = 0; index_height < (Sint32)core->map->handle->height; index_height += 1)
+            {
+                for (index_width = 0; index_width < (Sint32)core->map->handle->width; index_width += 1)
+                {
+                    cute_tiled_tileset_t*         tileset       = get_head_tileset(core->map->handle);
+                    cute_tiled_tile_descriptor_t* tile          = tileset->tiles;
+                    Sint32*                       layer_content = get_layer_content(layer);
+                    Sint32                        gid           = remove_gid_flip_bits((Sint32)layer_content[(index_height * (Sint32)core->map->handle->width) + index_width]);
+                    Sint32                        tile_index    = (index_width + 1) * (index_height + 1);
+
+                    if (tile_has_properties(gid, &tile, core->map->handle))
+                    {
+                        Sint32 prop_cnt = get_tile_property_count(tile);
+
+                        if (get_boolean_property(H_is_solid, tile->properties, prop_cnt, core))
+                        {
+                            core->map->tile_desc[tile_index].is_solid = SDL_TRUE;
+                        }
+                    }
+                }
+            }
+        }
+        layer = layer->next;
+    }
+
+    return CORE_OK;
 }
 
 status_t load_tileset(core_t* core)
@@ -835,6 +907,36 @@ status_t render_map(core_t* core)
                     SDL_Rect dst   = { 0 };
                     SDL_Rect src   = { 0 };
 
+                    // Since we are iterating trough all the actors
+                    // anyway, we also update their axis-aligned
+                    // bounding boxes ...
+                    cute_tiled_property_t* properties  = tiled_object->properties;
+                    Sint32                 prop_cnt    = get_object_property_count(tiled_object);
+                    Sint32                 bb_width    = get_integer_property(H_aabb_width,    properties, prop_cnt, core);
+                    Sint32                 bb_height   = get_integer_property(H_aabb_height,   properties, prop_cnt, core);
+                    Sint32                 bb_offset_x = get_integer_property(H_aabb_offset_x, properties, prop_cnt, core);
+                    Sint32                 bb_offset_y = get_integer_property(H_aabb_offset_y, properties, prop_cnt, core);
+
+                    actor->bb.top     = actor->pos_y - (bb_height / 2);
+                    actor->bb.bottom  = actor->pos_y + (bb_height / 2);
+                    actor->bb.left    = actor->pos_x - (bb_width  / 2);
+                    actor->bb.right   = actor->pos_x + (bb_width  / 2);
+                    actor->bb.left   += bb_offset_x;
+                    actor->bb.right  += bb_offset_x;
+                    actor->bb.top    += bb_offset_y;
+                    actor->bb.bottom += bb_offset_y;
+
+                    if (0 >= actor->bb.left)
+                    {
+                        actor->bb.left = 0.0;
+                    }
+
+                    if (0 >= actor->bb.top)
+                    {
+                        actor->bb.top = 0.0;
+                    }
+                    // ... done.
+
                     if (actor->show_animation)
                     {
                         actor->animation.time_since_last_anim_frame += core->time_since_last_frame;
@@ -872,10 +974,33 @@ status_t render_map(core_t* core)
                     dst.w  = actor->width;
                     dst.h  = actor->height;
 
-                    if (0 > SDL_RenderCopyEx(core->renderer, core->map->sprite[actor->sprite_id - 1].texture, &src, &dst, 0, NULL, SDL_FLIP_NONE))
+                    // We do not need to draw actors that are not
+                    // inside the viewport.
+                    if ((dst.x > (0 - actor->width)) && (dst.x < 176))
                     {
-                        SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
-                        return CORE_ERROR;
+                        if ((dst.y > (0 - actor->height)) && (dst.y < 208))
+                        {
+                            SDL_Rect debug;
+
+                            if (0 > SDL_RenderCopyEx(core->renderer, core->map->sprite[actor->sprite_id - 1].texture, &src, &dst, 0, NULL, SDL_FLIP_NONE))
+                            {
+                                SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+                                return CORE_ERROR;
+                            }
+                            if (core->debug_mode)
+                            {
+                                debug.w = bb_width;
+                                debug.h = bb_height;
+                                debug.x = (actor->pos_x - (actor->width  / 2)) + bb_offset_x;
+                                debug.y = (actor->pos_y - (actor->height / 2)) + bb_offset_y;
+
+                                debug.x = debug.x - core->camera.pos_x;
+                                debug.y = debug.y - core->camera.pos_y;
+
+                                SDL_SetRenderDrawColor(core->renderer, 0xaa, 0xaa, 0x00, 0x00);
+                                SDL_RenderDrawRect(core->renderer, &debug);
+                            }
+                        }
                     }
                     index        += 1;
                     tiled_object  = tiled_object->next;

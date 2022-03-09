@@ -101,7 +101,7 @@ static void update_camera(core_t* core)
     }
 }
 
-status_t init_core(const char* title, core_t** core)
+status_t init_core(const char* resource_file, const char* title, core_t** core)
 {
     status_t status = CORE_OK;
 
@@ -145,6 +145,7 @@ status_t init_core(const char* title, core_t** core)
         status = CORE_WARNING;
     }
 
+    init_file_reader(resource_file);
     (*core)->is_active = SDL_TRUE;
 
     return status;
@@ -167,6 +168,7 @@ status_t update_core(core_t* core)
     core->time_b = core->time_a;
     core->time_a = SDL_GetTicks();
 
+    // Calculate delta time.
     if (core->time_a > core->time_b)
     {
         delta_time = core->time_a - core->time_b;
@@ -177,6 +179,7 @@ status_t update_core(core_t* core)
     }
     core->time_since_last_frame = delta_time;
 
+    // Set-up basic controls/events.
     target_index                                         = core->camera.target_actor_id - 1;
     core->map->actor[target_index].show_animation        = SDL_FALSE;
     core->map->actor[target_index].animation.first_frame = 1;
@@ -219,8 +222,8 @@ status_t update_core(core_t* core)
                     case SDLK_BACKSPACE:
                         status = CORE_EXIT;
                         goto exit;
-                    case SDLK_1:
-                        core->camera.target_actor_id -= 1;
+                    case SDLK_9:
+                        core->debug_mode = !core->debug_mode;
                         break;
                     case SDLK_3:
                         core->camera.target_actor_id += 1;
@@ -273,7 +276,7 @@ void free_core(core_t *core)
     SDL_Quit();
 }
 
-status_t load_map(const char* resource_file, core_t* core)
+status_t load_map(const char* map_name, core_t* core)
 {
     status_t status = CORE_OK;
 
@@ -282,9 +285,6 @@ status_t load_map(const char* resource_file, core_t* core)
         SDL_Log("A map has already been loaded: unload map first.");
         return CORE_WARNING;
     }
-
-    // Todo: load file name from Tiled map!
-    init_file_reader(resource_file);
 
     // Load map file and allocate required memory.
 
@@ -297,7 +297,7 @@ status_t load_map(const char* resource_file, core_t* core)
     }
 
     // [2] Tiled map.
-    status = load_tiled_map("entry.tmj", core);
+    status = load_tiled_map(map_name, core);
     if (CORE_OK != status)
     {
         free(core->map);
@@ -305,30 +305,35 @@ status_t load_map(const char* resource_file, core_t* core)
     }
     core->is_map_loaded = SDL_TRUE;
 
-    // [3] Actors.
+    // [3] Tiles.
+    status = load_tiles(core);
+    if (CORE_OK != status)
+    {
+        goto exit;
+    }
+
+    // [4] Actors.
     status = load_actors(core);
     if (CORE_OK != status)
     {
         goto exit;
     }
 
-    // [4] Tileset.
+    // [5] Tileset.
     status = load_tileset(core);
     if (CORE_OK != status)
     {
         goto exit;
     }
 
-    // Todo: sprite auto-loader (by parsing the Tiled map)!
-
-    // [5] Sprites.
+    // [6] Sprites.
     status = load_sprites(core);
     if (CORE_OK != status)
     {
         goto exit;
     }
 
-    // [6] Animated tiles.
+    // [7] Animated tiles.
     status = load_animated_tiles(core);
     if (CORE_OK != status)
     {
@@ -377,10 +382,10 @@ void unload_map(core_t* core)
 
     // Free up allocated memory in reverse order.
 
-    // [6] Animated tiles.
+    // [7] Animated tiles.
     free(core->map->animated_tile);
 
-    // [5] Sprites.
+    // [6] Sprites.
     if (0 < core->map->sprite_count)
     {
         for (index = 0; index < core->map->sprite_count; index += 1)
@@ -398,19 +403,24 @@ void unload_map(core_t* core)
     free(core->map->sprite);
     core->map->sprite = NULL;
 
-    // [4] Tileset.
+    // [5] Tileset.
     if (core->map->tileset_texture)
     {
         SDL_DestroyTexture(core->map->tileset_texture);
         core->map->tileset_texture = NULL;
     }
 
-    // [3] Actors.
+    // [4] Actors.
     free(core->map->actor);
+
+    // [3] Tiles.
+    free(core->map->tile_desc);
+    core->map->tile_desc = NULL;
 
     // [2] Tiled map.
     unload_tiled_map(core);
 
     // [1] Map.
     free(core->map);
+    core->map = NULL;
 }
