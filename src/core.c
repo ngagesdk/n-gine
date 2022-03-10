@@ -185,35 +185,30 @@ status_t update_core(core_t* core)
     core->map->actor[target_index].animation.first_frame = 1;
     core->map->actor[target_index].animation.fps         = 5;
     core->map->actor[target_index].animation.length      = 3;
-    core->map->actor[target_index].dir                   = 0x00;
 
     if (keystate[SDL_SCANCODE_UP])
     {
         core->map->actor[target_index].show_animation      = SDL_TRUE;
         core->map->actor[target_index].animation.offset_y  = 3;
         core->map->actor[target_index].pos_y              -= 2;
-        core->map->actor[target_index].dir                 = core->map->actor[target_index].dir | DIR_UP;
     }
     if (keystate[SDL_SCANCODE_DOWN])
     {
         core->map->actor[target_index].show_animation      = SDL_TRUE;
         core->map->actor[target_index].animation.offset_y  = 0;
         core->map->actor[target_index].pos_y              += 2;
-        core->map->actor[target_index].dir                 = core->map->actor[target_index].dir | DIR_DOWN;
     }
     if (keystate[SDL_SCANCODE_LEFT])
     {
         core->map->actor[target_index].show_animation      = SDL_TRUE;
         core->map->actor[target_index].animation.offset_y  = 1;
         core->map->actor[target_index].pos_x              -= 2;
-        core->map->actor[target_index].dir                 = core->map->actor[target_index].dir | DIR_LEFT;
     }
     if (keystate[SDL_SCANCODE_RIGHT])
     {
         core->map->actor[target_index].show_animation      = SDL_TRUE;
         core->map->actor[target_index].animation.offset_y  = 2;
         core->map->actor[target_index].pos_x              += 2;
-        core->map->actor[target_index].dir                 = core->map->actor[target_index].dir | DIR_RIGHT;
     }
 
     if (SDL_PollEvent(&event))

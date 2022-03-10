@@ -372,12 +372,14 @@ static status_t create_and_set_render_target(SDL_Texture** target, core_t* core)
     return CORE_OK;
 }
 
-static Sint32 get_tile_index(actor_t* actor, core_t* core)
+/* PUBLIC FUNCTIONS */
+
+Sint32 get_tile_index(Sint32 pos_x, Sint32 pos_y, core_t* core)
 {
     Sint32 tile_index;
 
-    tile_index  = actor->pos_x  / get_tile_width(core->map->handle);
-    tile_index += (actor->pos_y / get_tile_height(core->map->handle)) * core->map->handle->width;
+    tile_index  = pos_x  / get_tile_width(core->map->handle);
+    tile_index += (pos_y / get_tile_height(core->map->handle)) * core->map->handle->width;
 
     if (tile_index > (core->map->tile_desc_count - 1))
     {
@@ -386,8 +388,6 @@ static Sint32 get_tile_index(actor_t* actor, core_t* core)
 
     return tile_index;
 }
-
-/* PUBLIC FUNCTIONS */
 
 void unload_tiled_map(core_t* core)
 {
@@ -787,9 +787,9 @@ status_t load_actors(core_t* core)
                 actor->pos_y                 = (double)tiled_object->y;
                 actor->handle                = tiled_object;
                 actor->id                    = index + 1;
-                actor->width                 = get_integer_property(H_width,     properties, prop_cnt, core);
-                actor->height                = get_integer_property(H_height,    properties, prop_cnt, core);
-                actor->sprite_id             = get_integer_property(H_sprite_id, properties, prop_cnt, core);
+                actor->width                 = get_integer_property(H_width,              properties, prop_cnt, core);
+                actor->height                = get_integer_property(H_height,             properties, prop_cnt, core);
+                actor->sprite_id             = get_integer_property(H_sprite_id,          properties, prop_cnt, core);
                 actor->show_animation        = SDL_FALSE;
                 actor->animation.first_frame = 1;
                 actor->animation.fps         = 0;
@@ -922,36 +922,6 @@ status_t update_map(core_t* core)
                     SDL_Rect dst   = { 0 };
                     SDL_Rect src   = { 0 };
 
-                    // Since we are iterating trough all the actors
-                    // anyway, we also update their axis-aligned
-                    // bounding boxes ...
-                    cute_tiled_property_t* properties  = tiled_object->properties;
-                    Sint32                 prop_cnt    = get_object_property_count(tiled_object);
-                    Sint32                 bb_width    = get_integer_property(H_aabb_width,    properties, prop_cnt, core);
-                    Sint32                 bb_height   = get_integer_property(H_aabb_height,   properties, prop_cnt, core);
-                    Sint32                 bb_offset_x = get_integer_property(H_aabb_offset_x, properties, prop_cnt, core);
-                    Sint32                 bb_offset_y = get_integer_property(H_aabb_offset_y, properties, prop_cnt, core);
-
-                    actor->bb.top     = actor->pos_y - (bb_height / 2);
-                    actor->bb.bottom  = actor->pos_y + (bb_height / 2);
-                    actor->bb.left    = actor->pos_x - (bb_width  / 2);
-                    actor->bb.right   = actor->pos_x + (bb_width  / 2);
-                    actor->bb.left   += bb_offset_x;
-                    actor->bb.right  += bb_offset_x;
-                    actor->bb.top    += bb_offset_y;
-                    actor->bb.bottom += bb_offset_y;
-
-                    if (0 >= actor->bb.left)
-                    {
-                        actor->bb.left = 0.0;
-                    }
-
-                    if (0 >= actor->bb.top)
-                    {
-                        actor->bb.top = 0.0;
-                    }
-                    // ... done.
-
                     if (actor->show_animation)
                     {
                         actor->animation.time_since_last_anim_frame += core->time_since_last_frame;
@@ -1002,37 +972,28 @@ status_t update_map(core_t* core)
                             }
                             if (core->debug_mode)
                             {
-                                SDL_Rect debug;
+                                SDL_Rect tile_frame;
                                 Sint32   tile_index;
 
-                                debug.w = bb_width;
-                                debug.h = bb_height;
-                                debug.x = (actor->pos_x - (actor->width  / 2)) + bb_offset_x;
-                                debug.y = (actor->pos_y - (actor->height / 2)) + bb_offset_y;
+                                tile_index = get_tile_index(actor->pos_x, actor->pos_y, core);
 
-                                debug.x = debug.x - core->camera.pos_x;
-                                debug.y = debug.y - core->camera.pos_y;
-                                SDL_SetRenderDrawColor(core->renderer, 0xaa, 0xaa, 0x00, 0x00);
-                                SDL_RenderDrawRect(core->renderer, &debug);
+                                tile_frame.w = get_tile_width(core->map->handle);
+                                tile_frame.h = get_tile_height(core->map->handle);
+                                tile_frame.x = (tile_index % core->map->handle->width) * tile_frame.w;
+                                tile_frame.y = (tile_index / core->map->handle->width) * tile_frame.h;
 
-                                tile_index = get_tile_index(actor, core);
-
-                                debug.w = get_tile_width(core->map->handle);
-                                debug.h = get_tile_height(core->map->handle);
-                                debug.x = (tile_index % core->map->handle->width) * debug.w;
-                                debug.y = (tile_index / core->map->handle->width) * debug.h;
-
-                                debug.x = debug.x - core->camera.pos_x;
-                                debug.y = debug.y - core->camera.pos_y;
-                                SDL_SetRenderDrawColor(core->renderer, 0xff, 0x00, 0x00, 0x00);
-                                SDL_RenderDrawRect(core->renderer, &debug);
+                                tile_frame.x = tile_frame.x - core->camera.pos_x;
+                                tile_frame.y = tile_frame.y - core->camera.pos_y;
 
                                 if (core->map->tile_desc[tile_index].is_solid)
                                 {
+                                    SDL_SetRenderDrawColor(core->renderer, 0xff, 0x00, 0x00, 0x00);
                                 }
                                 else
                                 {
+                                    SDL_SetRenderDrawColor(core->renderer, 0x00, 0xff, 0x00, 0x00);
                                 }
+                                SDL_RenderDrawRect(core->renderer, &tile_frame);
                             }
                         }
                     }

@@ -14,16 +14,12 @@
 #  endif
 #endif
 
-#define H_objectgroup   0xc0b9d518970be349
-#define H_tilelayer     0x0377d9f70e844fb0
-#define H_width         0x0000003110a3b0a5
-#define H_height        0x0000065301d688de
-#define H_sprite_id     0x0377d8f6e7994748
-#define H_is_solid      0x001ae728dd16b21b
-#define H_aabb_width    0x726fec36b013326a
-#define H_aabb_height   0xc06d730c8f364343
-#define H_aabb_offset_y 0x919668b2f27342a9
-#define H_aabb_offset_x 0x919668b2f27342a8
+#define H_objectgroup 0xc0b9d518970be349
+#define H_tilelayer   0x0377d9f70e844fb0
+#define H_width       0x0000003110a3b0a5
+#define H_height      0x0000065301d688de
+#define H_sprite_id   0x0377d8f6e7994748
+#define H_is_solid    0x001ae728dd16b21b
 
 typedef enum status
 {
@@ -40,15 +36,6 @@ typedef enum
     OBJECT_GROUP
 
 } tiled_layer_type;
-
-typedef enum
-{
-    DIR_UP    = 0x01,
-    DIR_DOWN  = 0x02,
-    DIR_LEFT  = 0x04,
-    DIR_RIGHT = 0x08
-
-} direction;
 
 typedef struct camera
 {
@@ -93,8 +80,6 @@ typedef struct actor
     Sint32               sprite_id;
     SDL_bool             show_animation;
     animation_t          animation;
-    struct aabb          bb;
-    direction            dir;
 
 } actor_t;
 
