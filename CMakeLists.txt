@@ -11,7 +11,7 @@ project(nrpg C CXX)
 
 include(SDL)
 include(cwalk)
-#include(dbgprint)
+include(dbgprint)
 
 # Use CMake or Visual Studio to enable these settings.
 option(INSTALL_EKA2L1 "Install app for EKA2L1" OFF)
@@ -26,7 +26,7 @@ set(GCC_DEFS      ${GCC_COMN_DEFS} ${GCC_MODE_DEFS})
 
 set(nrpg_libs
     ${CMAKE_CURRENT_BINARY_DIR}/libSDL.a
-#    ${CMAKE_CURRENT_BINARY_DIR}/libdbgprint.a
+    ${CMAKE_CURRENT_BINARY_DIR}/libdbgprint.a
     ${CMAKE_CURRENT_BINARY_DIR}/libcwalk.a
     ${EPOC_PLATFORM}/gcc/lib/gcc-lib/arm-epoc-pe/2.9-psion-98r2/libgcc.a
     ${EPOC_LIB}/egcc.lib
@@ -38,7 +38,8 @@ set(nrpg_libs
     ${EPOC_LIB}/scdv.lib
     ${EPOC_LIB}/gdi.lib)
 
-set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
+set(SRC_DIR      "${CMAKE_CURRENT_SOURCE_DIR}/src")
+set(RESOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/res")
 
 set(nrpg_sources
     "${SRC_DIR}/main.c"
@@ -46,11 +47,18 @@ set(nrpg_sources
     "${SRC_DIR}/tiled.c"
     "${SRC_DIR}/pfs_reader.c")
 
+set(nrpg_resources
+    "lowtown.bmp"
+    "entry.tmj"
+    "morgan.bmp"
+    "splash.bmp")
+
 add_library(nrpg STATIC ${nrpg_sources})
 build_exe(nrpg exe ${UID1} ${UID2} ${UID3} "${nrpg_libs}")
+pack_assets(${RESOURCE_DIR} "${nrpg_resources}")
 if(INSTALL_EKA2L1)
-    copy_file(nrpg.exe ${CMAKE_CURRENT_BINARY_DIR}     ${EKA2L1_E_DRIVE} nrpg.exe)
-    copy_file(nrpg.exe ${CMAKE_CURRENT_SOURCE_DIR}/res ${EKA2L1_E_DRIVE} data.pfs)
+    copy_file(nrpg.exe ${CMAKE_CURRENT_BINARY_DIR} ${EKA2L1_E_DRIVE} nrpg.exe)
+    copy_file(data.pfs ${RESOURCE_DIR}             ${EKA2L1_E_DRIVE} data.pfs)
 endif()
 
 add_dependencies(

@@ -1,2 +1,6 @@
+data.pfs
+*.bmp
+*.tsx
+*.tmx
 !.gitignore
-!*.pfs
+!splash.bmp
