@@ -524,8 +524,8 @@ status_t load_tiles(core_t* core)
                     cute_tiled_tileset_t*         tileset       = get_head_tileset(core->map->handle);
                     cute_tiled_tile_descriptor_t* tile          = tileset->tiles;
                     Sint32*                       layer_content = get_layer_content(layer);
-                    Sint32                        gid           = remove_gid_flip_bits((Sint32)layer_content[(index_height * (Sint32)core->map->handle->width) + index_width]);
-                    Sint32                        tile_index    = (index_width + 1) * (index_height + 1);
+                    Sint32                        tile_index    = (index_height * (Sint32)core->map->handle->width) + index_width;
+                    Sint32                        gid           = remove_gid_flip_bits((Sint32)layer_content[tile_index]);
 
                     if (tile_has_properties(gid, &tile, core->map->handle))
                     {
@@ -807,7 +807,7 @@ status_t load_actors(core_t* core)
     return CORE_OK;
 }
 
-status_t render_map(core_t* core)
+status_t update_map(core_t* core)
 {
     cute_tiled_layer_t* layer;
     Sint32              index;
@@ -980,8 +980,6 @@ status_t render_map(core_t* core)
                     {
                         if ((dst.y > (0 - actor->height)) && (dst.y < 208))
                         {
-                            SDL_Rect debug;
-
                             if (0 > SDL_RenderCopyEx(core->renderer, core->map->sprite[actor->sprite_id - 1].texture, &src, &dst, 0, NULL, SDL_FLIP_NONE))
                             {
                                 SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
@@ -989,6 +987,9 @@ status_t render_map(core_t* core)
                             }
                             if (core->debug_mode)
                             {
+                                SDL_Rect debug;
+                                Sint32   tile_index;
+
                                 debug.w = bb_width;
                                 debug.h = bb_height;
                                 debug.x = (actor->pos_x - (actor->width  / 2)) + bb_offset_x;
@@ -996,9 +997,38 @@ status_t render_map(core_t* core)
 
                                 debug.x = debug.x - core->camera.pos_x;
                                 debug.y = debug.y - core->camera.pos_y;
-
                                 SDL_SetRenderDrawColor(core->renderer, 0xaa, 0xaa, 0x00, 0x00);
                                 SDL_RenderDrawRect(core->renderer, &debug);
+
+                                tile_index  = actor->pos_x  / get_tile_width(core->map->handle);
+                                tile_index += (actor->pos_y / get_tile_height(core->map->handle)) * core->map->handle->width;
+
+                                if (tile_index > (core->map->tile_desc_count - 1))
+                                {
+                                    tile_index = core->map->tile_desc_count - 1;
+                                }
+
+                                debug.w = get_tile_width(core->map->handle);
+                                debug.h = get_tile_height(core->map->handle);
+                                debug.x = (tile_index % core->map->handle->width) * debug.w;
+                                debug.y = (tile_index / core->map->handle->width) * debug.h;
+
+                                debug.x -= actor->width  / 2;
+                                debug.y -= actor->height / 2;
+                                debug.x += bb_offset_x;
+                                debug.y += bb_offset_y;
+
+                                debug.x = debug.x - core->camera.pos_x;
+                                debug.y = debug.y - core->camera.pos_y;
+                                SDL_SetRenderDrawColor(core->renderer, 0xff, 0x00, 0x00, 0x00);
+                                SDL_RenderDrawRect(core->renderer, &debug);
+
+                                if (core->map->tile_desc[tile_index].is_solid)
+                                {
+                                }
+                                else
+                                {
+                                }
                             }
                         }
                     }

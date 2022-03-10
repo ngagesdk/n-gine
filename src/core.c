@@ -3,12 +3,12 @@
 #include <SDL.h>
 #include "core.h"
 
-static status_t render_scene(core_t* core)
+static status_t update_scene(core_t* core)
 {
     status_t status = CORE_OK;
     Sint32   index;
 
-    status = render_map(core);
+    status = update_map(core);
     if (CORE_OK != status)
     {
         return status;
@@ -244,7 +244,7 @@ status_t update_core(core_t* core)
     }
 
     update_camera(core);
-    status = render_scene(core);
+    status = update_scene(core);
     if (CORE_OK != status)
     {
         goto exit;

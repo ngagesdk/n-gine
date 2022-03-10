@@ -41,15 +41,6 @@ typedef enum
 
 } tiled_layer_type;
 
-typedef enum
-{
-    DIR_DOWN = 0,
-    DIR_UP,
-    DIR_LEFT,
-    DIR_RIGHT
-
-} direction_t;
-
 typedef struct camera
 {
     Sint32   pos_x;
@@ -74,10 +65,10 @@ typedef struct animation
 
 typedef struct aabb
 {
-    Sint32 bottom;
-    Sint32 left;
-    Sint32 right;
-    Sint32 top;
+    Uint8 bottom;
+    Uint8 left;
+    Uint8 right;
+    Uint8 top;
 
 } aabb_t;
 
@@ -117,7 +108,6 @@ typedef struct animated_tile
 
 typedef struct tile_desc
 {
-    Sint32   gid;
     SDL_bool is_solid;
 
 } tile_desc_t;
