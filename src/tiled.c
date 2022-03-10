@@ -372,6 +372,21 @@ static status_t create_and_set_render_target(SDL_Texture** target, core_t* core)
     return CORE_OK;
 }
 
+static Sint32 get_tile_index(actor_t* actor, core_t* core)
+{
+    Sint32 tile_index;
+
+    tile_index  = actor->pos_x  / get_tile_width(core->map->handle);
+    tile_index += (actor->pos_y / get_tile_height(core->map->handle)) * core->map->handle->width;
+
+    if (tile_index > (core->map->tile_desc_count - 1))
+    {
+        tile_index = core->map->tile_desc_count - 1;
+    }
+
+    return tile_index;
+}
+
 /* PUBLIC FUNCTIONS */
 
 void unload_tiled_map(core_t* core)
@@ -1000,23 +1015,12 @@ status_t update_map(core_t* core)
                                 SDL_SetRenderDrawColor(core->renderer, 0xaa, 0xaa, 0x00, 0x00);
                                 SDL_RenderDrawRect(core->renderer, &debug);
 
-                                tile_index  = actor->pos_x  / get_tile_width(core->map->handle);
-                                tile_index += (actor->pos_y / get_tile_height(core->map->handle)) * core->map->handle->width;
-
-                                if (tile_index > (core->map->tile_desc_count - 1))
-                                {
-                                    tile_index = core->map->tile_desc_count - 1;
-                                }
+                                tile_index = get_tile_index(actor, core);
 
                                 debug.w = get_tile_width(core->map->handle);
                                 debug.h = get_tile_height(core->map->handle);
                                 debug.x = (tile_index % core->map->handle->width) * debug.w;
                                 debug.y = (tile_index / core->map->handle->width) * debug.h;
-
-                                debug.x -= actor->width  / 2;
-                                debug.y -= actor->height / 2;
-                                debug.x += bb_offset_x;
-                                debug.y += bb_offset_y;
 
                                 debug.x = debug.x - core->camera.pos_x;
                                 debug.y = debug.y - core->camera.pos_y;

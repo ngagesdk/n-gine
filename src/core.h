@@ -41,6 +41,15 @@ typedef enum
 
 } tiled_layer_type;
 
+typedef enum
+{
+    DIR_UP    = 0x01,
+    DIR_DOWN  = 0x02,
+    DIR_LEFT  = 0x04,
+    DIR_RIGHT = 0x08
+
+} direction;
+
 typedef struct camera
 {
     Sint32   pos_x;
@@ -85,6 +94,7 @@ typedef struct actor
     SDL_bool             show_animation;
     animation_t          animation;
     struct aabb          bb;
+    direction            dir;
 
 } actor_t;
 
