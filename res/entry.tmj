@@ -155,6 +155,24 @@
          "tileheight":16,
          "tiles":[
                 {
+                 "id":8,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":10,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
                  "id":11,
                  "properties":[
                         {
@@ -1586,6 +1604,15 @@
                         }]
                 }, 
                 {
+                 "id":340,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
                  "id":341,
                  "properties":[
                         {
@@ -1677,6 +1704,33 @@
                 }, 
                 {
                  "id":363,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":370,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":373,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":374,
                  "properties":[
                         {
                          "name":"is_solid",
@@ -1875,51 +1929,6 @@
                 }, 
                 {
                  "id":423,
-                 "properties":[
-                        {
-                         "name":"is_solid",
-                         "type":"bool",
-                         "value":true
-                        }]
-                }, 
-                {
-                 "id":424,
-                 "properties":[
-                        {
-                         "name":"is_solid",
-                         "type":"bool",
-                         "value":true
-                        }]
-                }, 
-                {
-                 "id":428,
-                 "properties":[
-                        {
-                         "name":"is_solid",
-                         "type":"bool",
-                         "value":true
-                        }]
-                }, 
-                {
-                 "id":429,
-                 "properties":[
-                        {
-                         "name":"is_solid",
-                         "type":"bool",
-                         "value":true
-                        }]
-                }, 
-                {
-                 "id":430,
-                 "properties":[
-                        {
-                         "name":"is_solid",
-                         "type":"bool",
-                         "value":true
-                        }]
-                }, 
-                {
-                 "id":431,
                  "properties":[
                         {
                          "name":"is_solid",
@@ -2639,6 +2648,24 @@
                         }]
                 }, 
                 {
+                 "id":680,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":684,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
                  "id":688,
                  "properties":[
                         {
@@ -2658,6 +2685,42 @@
                 }, 
                 {
                  "id":690,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":696,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":697,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":699,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":700,
                  "properties":[
                         {
                          "name":"is_solid",
@@ -2694,6 +2757,51 @@
                 }, 
                 {
                  "id":711,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":712,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":713,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":714,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":715,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":716,
                  "properties":[
                         {
                          "name":"is_solid",
@@ -2748,6 +2856,78 @@
                 }, 
                 {
                  "id":739,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":747,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":748,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":750,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":751,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":779,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":780,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":782,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":783,
                  "properties":[
                         {
                          "name":"is_solid",

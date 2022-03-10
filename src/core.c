@@ -101,6 +101,69 @@ static void update_camera(core_t* core)
     }
 }
 
+static void move_actor(actor_t* actor, Sint32 offset_x, Sint32 offset_y, core_t* core)
+{
+    Sint32 tile_index;
+    Sint32 adjacent_tile;
+
+    if (! is_map_loaded(core))
+    {
+        return;
+    }
+
+    tile_index = get_tile_index(actor->pos_x, actor->pos_y, core);
+
+    // Moves right.
+    if (offset_x > 0)
+    {
+        adjacent_tile = tile_index + 1;
+        if (! core->map->tile_desc[adjacent_tile].is_solid)
+        {
+            actor->pos_x += offset_x;
+        }
+    }
+    // Moves left.
+    else if (offset_x < 0)
+    {
+        adjacent_tile = tile_index - 1;
+        if (! core->map->tile_desc[adjacent_tile].is_solid)
+        {
+            actor->pos_x += offset_x;
+        }
+    }
+
+    // Moves down.
+    if (offset_y > 0)
+    {
+        adjacent_tile = tile_index + core->map->handle->width;
+        if (adjacent_tile >= core->map->tile_desc_count)
+        {
+            adjacent_tile = core->map->tile_desc_count - 1;
+        }
+
+        if (! core->map->tile_desc[adjacent_tile].is_solid)
+        {
+            actor->pos_y += offset_y;
+        }
+    }
+    // Moves up.
+    else if (offset_y < 0)
+    {
+        adjacent_tile = tile_index - core->map->handle->width;
+        if (adjacent_tile >= 0)
+        {
+            if (! core->map->tile_desc[adjacent_tile].is_solid)
+            {
+                actor->pos_y += offset_y;
+            }
+        }
+        else
+        {
+            actor->pos_y += offset_y;
+        }
+    }
+}
+
 status_t init_core(const char* resource_file, const char* title, core_t** core)
 {
     status_t status = CORE_OK;
@@ -162,7 +225,7 @@ status_t update_core(core_t* core)
 
     if (! is_map_loaded(core))
     {
-        return;
+        return status;
     }
 
     core->time_b = core->time_a;
@@ -190,25 +253,29 @@ status_t update_core(core_t* core)
     {
         core->map->actor[target_index].show_animation      = SDL_TRUE;
         core->map->actor[target_index].animation.offset_y  = 3;
-        core->map->actor[target_index].pos_y              -= 2;
+
+        move_actor(&core->map->actor[target_index], 0, -2, core);
     }
     if (keystate[SDL_SCANCODE_DOWN])
     {
         core->map->actor[target_index].show_animation      = SDL_TRUE;
         core->map->actor[target_index].animation.offset_y  = 0;
-        core->map->actor[target_index].pos_y              += 2;
+
+        move_actor(&core->map->actor[target_index], 0, 2, core);
     }
     if (keystate[SDL_SCANCODE_LEFT])
     {
         core->map->actor[target_index].show_animation      = SDL_TRUE;
         core->map->actor[target_index].animation.offset_y  = 1;
-        core->map->actor[target_index].pos_x              -= 2;
+
+        move_actor(&core->map->actor[target_index], -2, 0, core);
     }
     if (keystate[SDL_SCANCODE_RIGHT])
     {
         core->map->actor[target_index].show_animation      = SDL_TRUE;
         core->map->actor[target_index].animation.offset_y  = 2;
-        core->map->actor[target_index].pos_x              += 2;
+
+        move_actor(&core->map->actor[target_index], 2, 0, core);
     }
 
     if (SDL_PollEvent(&event))
