@@ -402,12 +402,7 @@ void unload_tiled_map(core_t* core)
 
 SDL_bool is_map_loaded(core_t* core)
 {
-    if (core->is_map_loaded)
-    {
-        return SDL_TRUE;
-    }
-
-    return SDL_FALSE;
+    return core->is_map_loaded;
 }
 
 int get_tile_width(cute_tiled_map_t* tiled_map)
