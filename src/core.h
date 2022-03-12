@@ -43,7 +43,7 @@ typedef struct camera
     Sint32   pos_y;
     Sint32   max_pos_x;
     Sint32   max_pos_y;
-    Sint32   target_actor_id;
+    Sint32   target_entity_id;
     SDL_bool is_locked;
 
 } camera_t;
@@ -68,7 +68,7 @@ typedef struct aabb
 
 } aabb_t;
 
-typedef struct actor
+typedef struct entity
 {
     Sint32               pos_x;
     Sint32               pos_y;
@@ -81,7 +81,7 @@ typedef struct actor
     SDL_bool             show_animation;
     animation_t          animation;
 
-} actor_t;
+} entity_t;
 
 typedef struct sprite
 {
@@ -131,8 +131,8 @@ typedef struct map
     Sint32             integer_property;
     const char*        string_property;
 
-    actor_t*           actor;
-    Sint32             actor_count;
+    entity_t*          entity;
+    Sint32             entity_count;
     sprite_t*          sprite;
     Sint32             sprite_count;
     tile_desc_t*       tile_desc;
@@ -144,6 +144,7 @@ typedef struct core
 {
     SDL_Renderer* renderer;
     SDL_Texture*  render_target;
+    SDL_Texture*  splash;
     SDL_Window*   window;
     map_t*        map;
     struct camera camera;

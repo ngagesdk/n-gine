@@ -251,6 +251,11 @@ static void load_property(const Uint64 name_hash, cute_tiled_property_t* propert
             break;
         }
     }
+    // Entities are allowed to have no properties.
+    if (0 == property_count)
+    {
+        return;
+    }
 
     if (properties[index].name.ptr)
     {
@@ -261,22 +266,22 @@ static void load_property(const Uint64 name_hash, cute_tiled_property_t* propert
             case CUTE_TILED_PROPERTY_NONE:
                 break;
             case CUTE_TILED_PROPERTY_INT:
-                SDL_Log("Loading integer property '%s': %d", properties[index].name.ptr, properties[index].data.integer);
+                dbgprint("Loading integer property '%s': %d", properties[index].name.ptr, properties[index].data.integer);
 
                 core->map->integer_property = properties[index].data.integer;
                 break;
             case CUTE_TILED_PROPERTY_BOOL:
-                SDL_Log("Loading boolean property '%s': %u", properties[index].name.ptr, properties[index].data.boolean);
+                dbgprint("Loading boolean property '%s': %u", properties[index].name.ptr, properties[index].data.boolean);
 
                 core->map->boolean_property = (SDL_bool)properties[index].data.boolean;
                 break;
             case CUTE_TILED_PROPERTY_FLOAT:
-                SDL_Log("Loading decimal property '%s': %f", properties[index].name.ptr, (float)properties[index].data.floating);
+                dbgprint("Loading decimal property '%s': %f", properties[index].name.ptr, (float)properties[index].data.floating);
 
                 core->map->decimal_property = (float)properties[index].data.floating;
                 break;
             case CUTE_TILED_PROPERTY_STRING:
-                SDL_Log("Loading string property '%s': %s", properties[index].name.ptr, properties[index].data.string.ptr);
+                dbgprint("Loading string property '%s': %s", properties[index].name.ptr, properties[index].data.string.ptr);
 
                 core->map->string_property  = properties[index].data.string.ptr;
                 break;
@@ -298,7 +303,7 @@ static status_t load_texture_from_file(const char* file_name, SDL_Texture** text
     resource_buf = (Uint8*)load_binary_file_from_path(file_name);
     if (! resource_buf)
     {
-        SDL_Log("Failed to load resource: %s", file_name);
+        dbgprint("Failed to load resource: %s", file_name);
         return CORE_ERROR;
     }
 
@@ -306,7 +311,7 @@ static status_t load_texture_from_file(const char* file_name, SDL_Texture** text
     if (! resource)
     {
         free(resource_buf);
-        SDL_Log("Failed to convert resource %s: %s", file_name, SDL_GetError());
+        dbgprint("Failed to convert resource %s: %s", file_name, SDL_GetError());
         return CORE_ERROR;
     }
 
@@ -314,30 +319,30 @@ static status_t load_texture_from_file(const char* file_name, SDL_Texture** text
     if (! surface)
     {
         free(resource_buf);
-        SDL_Log("Failed to load image: %s", SDL_GetError());
+        dbgprint("Failed to load image: %s", SDL_GetError());
         return CORE_ERROR;
     }
     free(resource_buf);
 
     if (0 != SDL_SetColorKey(surface, SDL_TRUE, SDL_MapRGB(surface->format, 0xff, 0x00, 0xff)))
     {
-        SDL_Log("Failed to set color key for %s: %s", file_name, SDL_GetError());
+        dbgprint("Failed to set color key for %s: %s", file_name, SDL_GetError());
     }
     if (0 != SDL_SetSurfaceRLE(surface, 1))
     {
-        SDL_Log("Could not enable RLE for surface %s: %s", file_name, SDL_GetError());
+        dbgprint("Could not enable RLE for surface %s: %s", file_name, SDL_GetError());
     }
 
     *texture = SDL_CreateTextureFromSurface(core->renderer, surface);
     if (! *texture)
     {
-        SDL_Log("Could not create texture from surface: %s", SDL_GetError());
+        dbgprint("Could not create texture from surface: %s", SDL_GetError());
         SDL_FreeSurface(surface);
         return CORE_ERROR;
     }
     SDL_FreeSurface(surface);
 
-    SDL_Log("Loading image from file: %s.", file_name);
+    dbgprint("Loading image from file: %s.", file_name);
 
     return CORE_OK;
 }
@@ -356,13 +361,13 @@ static status_t create_and_set_render_target(SDL_Texture** target, core_t* core)
 
     if (! (*target))
     {
-        SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+        dbgprint("%s: %s.", FUNCTION_NAME, SDL_GetError());
         return CORE_ERROR;
     }
 
     if (0 > SDL_SetRenderTarget(core->renderer, (*target)))
     {
-        SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+        dbgprint("%s: %s.", FUNCTION_NAME, SDL_GetError());
         SDL_DestroyTexture((*target));
         return CORE_ERROR;
     }
@@ -517,7 +522,7 @@ status_t load_tiles(core_t* core)
     core->map->tile_desc = (tile_desc_t*)calloc((size_t)core->map->tile_desc_count, sizeof(struct tile_desc));
     if (! core->map->tile_desc)
     {
-        SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
+        dbgprint("%s: error allocating memory.", FUNCTION_NAME);
         return CORE_ERROR;
     }
 
@@ -564,7 +569,7 @@ status_t load_tileset(core_t* core)
 
     if (CORE_OK != load_texture_from_file((const char*)tileset_file_name, &core->map->tileset_texture, core))
     {
-        SDL_Log("%s: Error loading image '%s'.", FUNCTION_NAME, tileset_file_name);
+        dbgprint("%s: Error loading image '%s'.", FUNCTION_NAME, tileset_file_name);
         status = CORE_ERROR;
     }
 
@@ -580,7 +585,7 @@ status_t load_tiled_map(const char* map_file_name, core_t* core)
     resource_buf = (Uint8*)load_binary_file_from_path(map_file_name);
     if (! resource_buf)
     {
-        SDL_Log("Failed to load resource: %s", map_file_name);
+        dbgprint("Failed to load resource: %s", map_file_name);
         return CORE_ERROR;
     }
 
@@ -588,7 +593,7 @@ status_t load_tiled_map(const char* map_file_name, core_t* core)
     if (! core->map->handle)
     {
         free(resource_buf);
-        SDL_Log("%s: %s.", FUNCTION_NAME, cute_tiled_error_reason);
+        dbgprint("%s: %s.", FUNCTION_NAME, cute_tiled_error_reason);
         return CORE_WARNING;
     }
     free(resource_buf);
@@ -599,12 +604,12 @@ status_t load_tiled_map(const char* map_file_name, core_t* core)
         if (H_tilelayer == generate_hash((const unsigned char*)layer->type.ptr) && !core->map->hash_id_tilelayer)
         {
             core->map->hash_id_tilelayer = layer->type.hash_id;
-            SDL_Log("Set hash ID for tile layer: %llu", core->map->hash_id_tilelayer);
+            dbgprint("Set hash ID for tile layer: %llu", core->map->hash_id_tilelayer);
         }
         else if (H_objectgroup == generate_hash((const unsigned char*)layer->type.ptr) && !core->map->hash_id_objectgroup)
         {
             core->map->hash_id_objectgroup = layer->type.hash_id;
-            SDL_Log("Set hash ID for object group: %llu", core->map->hash_id_objectgroup);
+            dbgprint("Set hash ID for object group: %llu", core->map->hash_id_objectgroup);
         }
         layer = layer->next;
     }
@@ -649,12 +654,12 @@ status_t load_animated_tiles(core_t* core)
         core->map->animated_tile = (animated_tile_t*)calloc((size_t)animated_tile_count, sizeof(struct animated_tile));
         if (! core->map->animated_tile)
         {
-            SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
+            dbgprint("%s: error allocating memory.", FUNCTION_NAME);
             return CORE_ERROR;
         }
     }
 
-    SDL_Log("Load %u animated tile(s).", animated_tile_count);
+    dbgprint("Load %u animated tile(s).", animated_tile_count);
 
     return CORE_OK;
 }
@@ -691,7 +696,7 @@ status_t load_sprites(core_t* core)
     core->map->sprite = (sprite_t*)calloc((size_t)core->map->sprite_count, sizeof(struct sprite));
     if (! core->map->sprite)
     {
-        SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
+        dbgprint("%s: error allocating memory.", FUNCTION_NAME);
         return CORE_ERROR;
     }
 
@@ -708,7 +713,7 @@ status_t load_sprites(core_t* core)
             char*  sprite_image_source = (char*)calloc(1, source_length);
             if (! sprite_image_source)
             {
-                SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
+                dbgprint("%s: error allocating memory.", FUNCTION_NAME);
                 return CORE_ERROR;
             }
 
@@ -728,12 +733,12 @@ status_t load_sprites(core_t* core)
     return status;
 }
 
-status_t load_actors(core_t* core)
+status_t load_entities(core_t* core)
 {
     cute_tiled_layer_t*  layer        = get_head_layer(core->map->handle);
     cute_tiled_object_t* tiled_object = NULL;
 
-    if (core->map->actor_count)
+    if (core->map->entity_count)
     {
         /* Nothing else to do here. */
         return CORE_OK;
@@ -746,24 +751,24 @@ status_t load_actors(core_t* core)
             tiled_object = get_head_object(layer, core);
             while (tiled_object)
             {
-                core->map->actor_count += 1;
+                core->map->entity_count += 1;
                 tiled_object            = tiled_object->next;
             }
         }
         layer = layer->next;
     }
 
-    if (core->map->actor_count)
+    if (core->map->entity_count)
     {
-        core->map->actor = (actor_t*)calloc((size_t)core->map->actor_count, sizeof(struct actor));
-        if (! core->map->actor)
+        core->map->entity = (entity_t*)calloc((size_t)core->map->entity_count, sizeof(struct entity));
+        if (! core->map->entity)
         {
-            SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
+            dbgprint("%s: error allocating memory.", FUNCTION_NAME);
             return CORE_ERROR;
         }
     }
 
-    SDL_Log("Load %u actors:", core->map->actor_count);
+    dbgprint("Load %u entities:", core->map->entity_count);
 
     layer = get_head_layer(core->map->handle);
     while (layer)
@@ -774,36 +779,36 @@ status_t load_actors(core_t* core)
             tiled_object = get_head_object(layer, core);
             while (tiled_object)
             {
-                actor_t*               actor      = &core->map->actor[index];
+                entity_t*              entity     = &core->map->entity[index];
                 cute_tiled_property_t* properties = tiled_object->properties;
                 Sint32                 prop_cnt   = get_object_property_count(tiled_object);
 
-                actor->pos_x                 = (double)tiled_object->x;
-                actor->pos_y                 = (double)tiled_object->y;
-                actor->handle                = tiled_object;
-                actor->id                    = index + 1;
-                actor->width                 = get_integer_property(H_width,              properties, prop_cnt, core);
-                actor->height                = get_integer_property(H_height,             properties, prop_cnt, core);
-                actor->sprite_id             = get_integer_property(H_sprite_id,          properties, prop_cnt, core);
-                actor->show_animation        = SDL_FALSE;
-                actor->animation.first_frame = 1;
-                actor->animation.fps         = 0;
-                actor->animation.length      = 0;
-                actor->animation.offset_y    = 1;
+                entity->pos_x                 = (double)tiled_object->x;
+                entity->pos_y                 = (double)tiled_object->y;
+                entity->handle                = tiled_object;
+                entity->id                    = index + 1;
+                entity->width                 = get_integer_property(H_width,              properties, prop_cnt, core);
+                entity->height                = get_integer_property(H_height,             properties, prop_cnt, core);
+                entity->sprite_id             = get_integer_property(H_sprite_id,          properties, prop_cnt, core);
+                entity->show_animation        = SDL_FALSE;
+                entity->animation.first_frame = 1;
+                entity->animation.fps         = 0;
+                entity->animation.length      = 0;
+                entity->animation.offset_y    = 1;
 
-                if (0 >= actor->width)
+                if (entity->width <= 0)
                 {
-                    actor->width = get_tile_width(core->map->handle);
+                    entity->width = get_tile_width(core->map->handle);
                 }
 
-                if (0 >= actor->height)
+                if (entity->height <= 0)
                 {
-                    actor->width = get_tile_height(core->map->handle);
+                    entity->width = get_tile_height(core->map->handle);
                 }
 
-                if (0 == core->camera.target_actor_id)
+                if (0 == core->camera.target_entity_id)
                 {
-                    core->camera.target_actor_id = actor->id;
+                    core->camera.target_entity_id = entity->id;
                     core->camera.is_locked       = SDL_TRUE;
                 }
 
@@ -836,7 +841,7 @@ status_t update_map(core_t* core)
 
         if (0 > SDL_SetRenderTarget(core->renderer, core->map->layer_texture))
         {
-            SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+            dbgprint("%s: %s.", FUNCTION_NAME, SDL_GetError());
             return CORE_ERROR;
         }
 
@@ -860,7 +865,7 @@ status_t update_map(core_t* core)
 
             if (0 > SDL_RenderCopy(core->renderer, core->map->tileset_texture, &src, &dst))
             {
-                SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+                dbgprint("%s: %s.", FUNCTION_NAME, SDL_GetError());
                 return CORE_ERROR;
             }
 
@@ -898,79 +903,84 @@ status_t update_map(core_t* core)
 
         if (0 > SDL_RenderCopyEx(core->renderer, core->map->layer_texture, NULL, &dst, 0, NULL, SDL_FLIP_NONE))
         {
-            SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+            dbgprint("%s: %s.", FUNCTION_NAME, SDL_GetError());
             return CORE_ERROR;
         }
 
-        // Update and render actor entities.
+        // Update and render entity entities.
         index = 0;
-        while (layer && core->map->actor_count)
+        while (layer && core->map->entity_count)
         {
             if (is_tiled_layer_of_type(OBJECT_GROUP, layer, core))
             {
                 cute_tiled_object_t* tiled_object = get_head_object(layer, core);
                 while (tiled_object)
                 {
-                    actor_t* actor = &core->map->actor[index];
-                    Sint32   pos_x = actor->pos_x - core->camera.pos_x;
-                    Sint32   pos_y = actor->pos_y - core->camera.pos_y;
+                    entity_t* entity = &core->map->entity[index];
+                    Sint32   pos_x = entity->pos_x - core->camera.pos_x;
+                    Sint32   pos_y = entity->pos_y - core->camera.pos_y;
                     SDL_Rect dst   = { 0 };
                     SDL_Rect src   = { 0 };
 
-                    if (actor->show_animation)
+                    if (entity->show_animation)
                     {
-                        actor->animation.time_since_last_anim_frame += core->time_since_last_frame;
+                        entity->animation.time_since_last_anim_frame += core->time_since_last_frame;
                     }
 
-                    src.x  = (actor->animation.first_frame - 1) * actor->width;
-                    src.y  = actor->animation.offset_y          * actor->height;
+                    src.x  = (entity->animation.first_frame - 1) * entity->width;
+                    src.y  = entity->animation.offset_y          * entity->height;
 
-                    if (actor->show_animation)
+                    if (entity->show_animation)
                     {
-                        actor->animation.time_since_last_anim_frame += core->time_since_last_frame;
+                        entity->animation.time_since_last_anim_frame += core->time_since_last_frame;
 
-                        if (actor->animation.time_since_last_anim_frame >= (Uint32)(1000 / actor->animation.fps))
+                        if (entity->animation.time_since_last_anim_frame >= (Uint32)(1000 / entity->animation.fps))
                         {
-                            actor->animation.time_since_last_anim_frame  = 0;
-                            actor->animation.current_frame              += 1;
+                            entity->animation.time_since_last_anim_frame  = 0;
+                            entity->animation.current_frame              += 1;
 
-                            if (actor->animation.current_frame >= actor->animation.length)
+                            if (entity->animation.current_frame >= entity->animation.length)
                             {
-                                actor->animation.current_frame = 0;
+                                entity->animation.current_frame = 0;
                             }
                         }
 
-                        src.x += actor->animation.current_frame * actor->width;
+                        src.x += entity->animation.current_frame * entity->width;
                     }
                     else
                     {
-                        actor->animation.current_frame = actor->animation.first_frame;
+                        entity->animation.current_frame = entity->animation.first_frame;
                     }
 
-                    src.w  = actor->width;
-                    src.h  = actor->height;
-                    dst.x  = (Sint32)pos_x - (actor->width  / 2);
-                    dst.y  = (Sint32)pos_y - (actor->height / 2);
-                    dst.w  = actor->width;
-                    dst.h  = actor->height;
+                    src.w  = entity->width;
+                    src.h  = entity->height;
+                    dst.x  = (Sint32)pos_x - (entity->width  / 2);
+                    dst.y  = (Sint32)pos_y - (entity->height / 2);
+                    dst.w  = entity->width;
+                    dst.h  = entity->height;
 
-                    // We do not need to draw actors that are not
+                    // We do not need to draw entities that are not
                     // inside the viewport.
-                    if ((dst.x > (0 - actor->width)) && (dst.x < 176))
+                    if ((dst.x > (0 - entity->width)) && (dst.x < 176))
                     {
-                        if ((dst.y > (0 - actor->height)) && (dst.y < 208))
+                        if ((dst.y > (0 - entity->height)) && (dst.y < 208))
                         {
-                            if (0 > SDL_RenderCopyEx(core->renderer, core->map->sprite[actor->sprite_id - 1].texture, &src, &dst, 0, NULL, SDL_FLIP_NONE))
+                            // We do not draw entities that have no
+                            // sprite either.
+                            if (entity->sprite_id > 0)
                             {
-                                SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
-                                return CORE_ERROR;
+                                if (0 > SDL_RenderCopyEx(core->renderer, core->map->sprite[entity->sprite_id - 1].texture, &src, &dst, 0, NULL, SDL_FLIP_NONE))
+                                {
+                                    dbgprint("%s: %s.", FUNCTION_NAME, SDL_GetError());
+                                    return CORE_ERROR;
+                                }
                             }
                             if (core->debug_mode)
                             {
                                 SDL_Rect tile_frame;
                                 Sint32   tile_index;
 
-                                tile_index = get_tile_index(actor->pos_x, actor->pos_y, core);
+                                tile_index = get_tile_index(entity->pos_x, entity->pos_y, core);
 
                                 tile_frame.w = get_tile_width(core->map->handle);
                                 tile_frame.h = get_tile_height(core->map->handle);
@@ -1012,13 +1022,13 @@ status_t update_map(core_t* core)
 
     if (! core->map->layer_texture)
     {
-        SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+        dbgprint("%s: %s.", FUNCTION_NAME, SDL_GetError());
         return CORE_ERROR;
     }
 
     if (0 > SDL_SetRenderTarget(core->renderer, core->map->layer_texture))
     {
-        SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+        dbgprint("%s: %s.", FUNCTION_NAME, SDL_GetError());
         return CORE_ERROR;
     }
     SDL_RenderClear(core->renderer);
@@ -1076,7 +1086,7 @@ status_t update_map(core_t* core)
 
                 {
                     const char* layer_name = get_layer_name(layer);
-                    SDL_Log("Render map layer: %s", layer_name);
+                    dbgprint("Render map layer: %s", layer_name);
                 }
             }
         }
@@ -1085,7 +1095,7 @@ status_t update_map(core_t* core)
 
     if (0 > SDL_SetRenderTarget(core->renderer, core->render_target))
     {
-        SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+        dbgprint("%s: %s.", FUNCTION_NAME, SDL_GetError());
         return CORE_ERROR;
     }
 

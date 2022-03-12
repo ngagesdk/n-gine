@@ -24,7 +24,7 @@ static status_t draw_scene(core_t* core)
 
     if (0 > SDL_SetRenderTarget(core->renderer, NULL))
     {
-        dbgprint("%s: %s.", FUNCTION_NAME, SDL_GetError());
+        SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
     }
 
     if (! core->is_map_loaded)
@@ -38,7 +38,7 @@ static status_t draw_scene(core_t* core)
 
     if (0 > SDL_RenderCopy(core->renderer, core->render_target, NULL, &dst))
     {
-        dbgprint("%s: %s.", FUNCTION_NAME, SDL_GetError());
+        SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
         return CORE_ERROR;
     }
 
@@ -49,7 +49,7 @@ static status_t draw_scene(core_t* core)
 
     if (0 > SDL_RenderCopy(core->renderer, core->render_target, NULL, &dst))
     {
-        dbgprint("%s: %s.", FUNCTION_NAME, SDL_GetError());
+        SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
         return CORE_ERROR;
     }
 
@@ -70,15 +70,15 @@ static void restrict_camera(core_t* core)
     core->camera.pos_x = SDL_clamp(core->camera.pos_x, 0, core->map->width  - 176);
     core->camera.pos_y = SDL_clamp(core->camera.pos_y, 0, core->map->height - 208);
 
-    if (core->camera.target_actor_id)
+    if (core->camera.target_entity_id)
     {
-        if (core->camera.target_actor_id < 1)
+        if (core->camera.target_entity_id < 1)
         {
-            core->camera.target_actor_id = core->map->actor_count;
+            core->camera.target_entity_id = core->map->entity_count;
         }
-        else if (core->camera.target_actor_id > core->map->actor_count)
+        else if (core->camera.target_entity_id > core->map->entity_count)
         {
-            core->camera.target_actor_id = 1;
+            core->camera.target_entity_id = 1;
         }
     }
 }
@@ -92,9 +92,9 @@ static void update_camera(core_t* core)
 
     if (core->camera.is_locked)
     {
-        if (core->camera.target_actor_id)
+        if (core->camera.target_entity_id)
         {
-            actor_t* target = &core->map->actor[core->camera.target_actor_id - 1];
+            entity_t* target = &core->map->entity[core->camera.target_entity_id - 1];
 
             core->camera.pos_x  = target->pos_x;
             core->camera.pos_x -= 88;  // 176 / 2
@@ -111,7 +111,7 @@ static void update_camera(core_t* core)
     }
 }
 
-static void move_actor(actor_t* actor, Sint32 offset_x, Sint32 offset_y, core_t* core)
+static void move_entity(entity_t* entity, Sint32 offset_x, Sint32 offset_y, core_t* core)
 {
     Sint32 tile_index;
     Sint32 adjacent_tile;
@@ -121,7 +121,7 @@ static void move_actor(actor_t* actor, Sint32 offset_x, Sint32 offset_y, core_t*
         return;
     }
 
-    tile_index = get_tile_index(actor->pos_x, actor->pos_y, core);
+    tile_index = get_tile_index(entity->pos_x, entity->pos_y, core);
 
     // Moves right.
     if (offset_x > 0)
@@ -129,7 +129,7 @@ static void move_actor(actor_t* actor, Sint32 offset_x, Sint32 offset_y, core_t*
         adjacent_tile = tile_index + 1;
         if (! core->map->tile_desc[adjacent_tile].is_solid)
         {
-            actor->pos_x += offset_x;
+            entity->pos_x += offset_x;
         }
     }
     // Moves left.
@@ -138,7 +138,7 @@ static void move_actor(actor_t* actor, Sint32 offset_x, Sint32 offset_y, core_t*
         adjacent_tile = tile_index - 1;
         if (! core->map->tile_desc[adjacent_tile].is_solid)
         {
-            actor->pos_x += offset_x;
+            entity->pos_x += offset_x;
         }
     }
 
@@ -153,7 +153,7 @@ static void move_actor(actor_t* actor, Sint32 offset_x, Sint32 offset_y, core_t*
 
         if (! core->map->tile_desc[adjacent_tile].is_solid)
         {
-            actor->pos_y += offset_y;
+            entity->pos_y += offset_y;
         }
     }
     // Moves up.
@@ -164,12 +164,12 @@ static void move_actor(actor_t* actor, Sint32 offset_x, Sint32 offset_y, core_t*
         {
             if (! core->map->tile_desc[adjacent_tile].is_solid)
             {
-                actor->pos_y += offset_y;
+                entity->pos_y += offset_y;
             }
         }
         else
         {
-            actor->pos_y += offset_y;
+            entity->pos_y += offset_y;
         }
     }
 }
@@ -181,7 +181,7 @@ status_t init_core(const char* resource_file, const char* title, core_t** core)
     *core = (core_t*)calloc(1, sizeof(struct core));
     if (! *core)
     {
-        dbgprint("%s: error allocating memory.", FUNCTION_NAME);
+        SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
         return CORE_ERROR;
     }
 
@@ -189,7 +189,7 @@ status_t init_core(const char* resource_file, const char* title, core_t** core)
 
     if (0 != SDL_Init(SDL_INIT_VIDEO))
     {
-        dbgprint("Unable to initialise SDL: %s", SDL_GetError());
+        SDL_Log("Unable to initialise SDL: %s", SDL_GetError());
         return CORE_ERROR;
     }
 
@@ -201,20 +201,20 @@ status_t init_core(const char* resource_file, const char* title, core_t** core)
         SDL_WINDOW_FULLSCREEN);
     if (! (*core)->window)
     {
-        dbgprint("Could not create window: %s", SDL_GetError());
+        SDL_Log("Could not create window: %s", SDL_GetError());
         return CORE_ERROR;
     }
 
     (*core)->renderer = SDL_CreateRenderer((*core)->window, 0, SDL_RENDERER_SOFTWARE);
     if (! (*core)->renderer)
     {
-        dbgprint("Could not create renderer: %s", SDL_GetError());
+        SDL_Log("Could not create renderer: %s", SDL_GetError());
         SDL_DestroyWindow((*core)->window);
         return CORE_ERROR;
     }
     if (0 != SDL_RenderSetIntegerScale((*core)->renderer, SDL_TRUE))
     {
-        dbgprint("Could not enable integer scale: %s", SDL_GetError());
+        SDL_Log("Could not enable integer scale: %s", SDL_GetError());
         status = CORE_WARNING;
     }
 
@@ -250,39 +250,39 @@ status_t update_core(core_t* core)
     // Set-up basic controls/events.
     if (is_map_loaded(core))
     {
-        target_index                                         = core->camera.target_actor_id - 1;
-        core->map->actor[target_index].show_animation        = SDL_FALSE;
-        core->map->actor[target_index].animation.first_frame = 1;
-        core->map->actor[target_index].animation.fps         = 5;
-        core->map->actor[target_index].animation.length      = 3;
+        target_index                                         = core->camera.target_entity_id - 1;
+        core->map->entity[target_index].show_animation        = SDL_FALSE;
+        core->map->entity[target_index].animation.first_frame = 1;
+        core->map->entity[target_index].animation.fps         = 5;
+        core->map->entity[target_index].animation.length      = 3;
 
         if (keystate[SDL_SCANCODE_UP])
         {
-            core->map->actor[target_index].show_animation      = SDL_TRUE;
-            core->map->actor[target_index].animation.offset_y  = 3;
+            core->map->entity[target_index].show_animation      = SDL_TRUE;
+            core->map->entity[target_index].animation.offset_y  = 3;
 
-            move_actor(&core->map->actor[target_index], 0, -2, core);
+            move_entity(&core->map->entity[target_index], 0, -2, core);
         }
         if (keystate[SDL_SCANCODE_DOWN])
         {
-            core->map->actor[target_index].show_animation      = SDL_TRUE;
-            core->map->actor[target_index].animation.offset_y  = 0;
+            core->map->entity[target_index].show_animation      = SDL_TRUE;
+            core->map->entity[target_index].animation.offset_y  = 0;
 
-            move_actor(&core->map->actor[target_index], 0, 2, core);
+            move_entity(&core->map->entity[target_index], 0, 2, core);
         }
         if (keystate[SDL_SCANCODE_LEFT])
         {
-            core->map->actor[target_index].show_animation      = SDL_TRUE;
-            core->map->actor[target_index].animation.offset_y  = 1;
+            core->map->entity[target_index].show_animation      = SDL_TRUE;
+            core->map->entity[target_index].animation.offset_y  = 1;
 
-            move_actor(&core->map->actor[target_index], -2, 0, core);
+            move_entity(&core->map->entity[target_index], -2, 0, core);
         }
         if (keystate[SDL_SCANCODE_RIGHT])
         {
-            core->map->actor[target_index].show_animation      = SDL_TRUE;
-            core->map->actor[target_index].animation.offset_y  = 2;
+            core->map->entity[target_index].show_animation      = SDL_TRUE;
+            core->map->entity[target_index].animation.offset_y  = 2;
 
-            move_actor(&core->map->actor[target_index], 2, 0, core);
+            move_entity(&core->map->entity[target_index], 2, 0, core);
         }
     }
 
@@ -310,7 +310,7 @@ status_t update_core(core_t* core)
                         core->debug_mode = !core->debug_mode;
                         break;
                     case SDLK_3:
-                        core->camera.target_actor_id += 1;
+                        core->camera.target_entity_id += 1;
                         break;
                     default:
                         break;
@@ -372,7 +372,7 @@ status_t load_map(const char* map_name, core_t* core)
 
     if (is_map_loaded(core))
     {
-        dbgprint("A map has already been loaded: unload map first.");
+        SDL_Log("A map has already been loaded: unload map first.");
         return CORE_WARNING;
     }
 
@@ -382,7 +382,7 @@ status_t load_map(const char* map_name, core_t* core)
     core->map = (map_t*)calloc(1, sizeof(struct map));
     if (! core->map)
     {
-        dbgprint("%s: error allocating memory.", FUNCTION_NAME);
+        SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
         return CORE_WARNING;
     }
 
@@ -402,8 +402,8 @@ status_t load_map(const char* map_name, core_t* core)
         goto exit;
     }
 
-    // [4] Actors.
-    status = load_actors(core);
+    // [4] Entities.
+    status = load_entities(core);
     if (CORE_OK != status)
     {
         goto exit;
@@ -447,7 +447,7 @@ void unload_map(core_t* core)
 
     if (! is_map_loaded(core))
     {
-        dbgprint("No map has been loaded.");
+        SDL_Log("No map has been loaded.");
         return;
     }
     core->is_map_loaded = SDL_FALSE;
@@ -494,8 +494,8 @@ void unload_map(core_t* core)
         core->map->tileset_texture = NULL;
     }
 
-    // [4] Actors.
-    free(core->map->actor);
+    // [4] Entities.
+    free(core->map->entity);
 
     // [3] Tiles.
     free(core->map->tile_desc);
@@ -509,10 +509,10 @@ void unload_map(core_t* core)
     core->map = NULL;
 }
 
-status_t load_map_ex(const char* map_name, Sint32 actor_id, Sint32 pos_x, Sint32 pos_y, core_t* core)
+status_t load_map_ex(const char* map_name, Sint32 entity_id, Sint32 pos_x, Sint32 pos_y, core_t* core)
 {
     status_t status = CORE_OK;
-    actor_t* target_actor;
+    entity_t* target_entity;
 
     status = load_map(map_name, core);
     if (CORE_OK != status)
@@ -520,16 +520,16 @@ status_t load_map_ex(const char* map_name, Sint32 actor_id, Sint32 pos_x, Sint32
         return status;
     }
 
-    if (actor_id > core->map->actor_count)
+    if (entity_id > core->map->entity_count)
     {
         status = CORE_ERROR;
         goto exit;
     }
 
-    core->camera.target_actor_id = actor_id;
-    target_actor                 = &core->map->actor[actor_id - 1];
-    target_actor->pos_x          = pos_x;
-    target_actor->pos_y          = pos_y;
+    core->camera.target_entity_id = entity_id;
+    target_entity                 = &core->map->entity[entity_id - 1];
+    target_entity->pos_x          = pos_x;
+    target_entity->pos_y          = pos_y;
 
 exit:
     return status;
