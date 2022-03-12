@@ -266,22 +266,22 @@ static void load_property(const Uint64 name_hash, cute_tiled_property_t* propert
             case CUTE_TILED_PROPERTY_NONE:
                 break;
             case CUTE_TILED_PROPERTY_INT:
-                SDL_Log("Loading integer property '%s': %d", properties[index].name.ptr, properties[index].data.integer);
+                //SDL_Log("Loading integer property '%s': %d", properties[index].name.ptr, properties[index].data.integer);
 
                 core->map->integer_property = properties[index].data.integer;
                 break;
             case CUTE_TILED_PROPERTY_BOOL:
-                SDL_Log("Loading boolean property '%s': %u", properties[index].name.ptr, properties[index].data.boolean);
+                //SDL_Log("Loading boolean property '%s': %u", properties[index].name.ptr, properties[index].data.boolean);
 
                 core->map->boolean_property = (SDL_bool)properties[index].data.boolean;
                 break;
             case CUTE_TILED_PROPERTY_FLOAT:
-                SDL_Log("Loading decimal property '%s': %f", properties[index].name.ptr, (float)properties[index].data.floating);
+                //SDL_Log("Loading decimal property '%s': %f", properties[index].name.ptr, (float)properties[index].data.floating);
 
                 core->map->decimal_property = (float)properties[index].data.floating;
                 break;
             case CUTE_TILED_PROPERTY_STRING:
-                SDL_Log("Loading string property '%s': %s", properties[index].name.ptr, properties[index].data.string.ptr);
+                //SDL_Log("Loading string property '%s': %s", properties[index].name.ptr, properties[index].data.string.ptr);
 
                 core->map->string_property  = properties[index].data.string.ptr;
                 break;
