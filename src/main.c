@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
         goto quit;
     }
 
-    status = load_map("entry.tmj", core);
+    status = load_map("1.tmj", core);
     if (CORE_OK != status)
     {
         goto quit;

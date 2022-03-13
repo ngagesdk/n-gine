@@ -20,6 +20,11 @@
 #define H_height      0x0000065301d688de
 #define H_sprite_id   0x0377d8f6e7994748
 #define H_is_solid    0x001ae728dd16b21b
+#define H_is_player   0x0377cc4478b16e8d
+#define H_map_right   0x0377d0b4a3693ac0
+#define H_map_left    0x001ae74b4ac1c56d
+#define H_map_up      0x000006530d3ba847
+#define H_map_down    0x001ae74b4abd8f1a
 
 typedef enum status
 {
@@ -43,7 +48,6 @@ typedef struct camera
     Sint32   pos_y;
     Sint32   max_pos_x;
     Sint32   max_pos_y;
-    Sint32   target_entity_id;
     SDL_bool is_locked;
 
 } camera_t;
@@ -70,9 +74,10 @@ typedef struct aabb
 
 typedef struct entity
 {
+    cute_tiled_object_t* handle;
     Sint32               pos_x;
     Sint32               pos_y;
-    cute_tiled_object_t* handle;
+    Sint32               uid;
     Sint32               id;
     Sint32               index;
     Sint32               width;
@@ -133,6 +138,7 @@ typedef struct map
 
     entity_t*          entity;
     Sint32             entity_count;
+    Sint32             active_entity;
     sprite_t*          sprite;
     Sint32             sprite_count;
     tile_desc_t*       tile_desc;

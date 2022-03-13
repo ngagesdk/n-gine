@@ -110,6 +110,11 @@ static Sint32 get_next_animated_tile_id(Sint32 gid, Sint32 current_frame, cute_t
     return 0;
 }
 
+static const int get_object_uid(cute_tiled_object_t* tiled_object)
+{
+    return tiled_object->id;
+}
+
 static const char* get_object_name(cute_tiled_object_t* tiled_object)
 {
     return tiled_object->name.ptr;
@@ -775,18 +780,19 @@ status_t load_entities(core_t* core)
                 cute_tiled_property_t* properties = tiled_object->properties;
                 Sint32                 prop_cnt   = get_object_property_count(tiled_object);
 
-                entity->pos_x                 = (double)tiled_object->x;
-                entity->pos_y                 = (double)tiled_object->y;
                 entity->handle                = tiled_object;
-                entity->id                    = index + 1;
-                entity->width                 = get_integer_property(H_width,              properties, prop_cnt, core);
-                entity->height                = get_integer_property(H_height,             properties, prop_cnt, core);
-                entity->sprite_id             = get_integer_property(H_sprite_id,          properties, prop_cnt, core);
-                entity->show_animation        = SDL_FALSE;
-                entity->animation.first_frame = 1;
-                entity->animation.fps         = 0;
-                entity->animation.length      = 0;
-                entity->animation.offset_y    = 1;
+                entity->pos_x                 = (Sint32)tiled_object->x;
+                entity->pos_y                 = (Sint32)tiled_object->y;
+                entity->uid                   = (Sint32)get_object_uid(tiled_object);
+                entity->id                    = (Sint32)index + 1;
+                entity->width                 = (Sint32)get_integer_property(H_width,     properties, prop_cnt, core);
+                entity->height                = (Sint32)get_integer_property(H_height,    properties, prop_cnt, core);
+                entity->sprite_id             = (Sint32)get_integer_property(H_sprite_id, properties, prop_cnt, core);
+                entity->show_animation        = (SDL_bool)SDL_FALSE;
+                entity->animation.first_frame = (Sint32)1;
+                entity->animation.fps         = (Sint32)0;
+                entity->animation.length      = (Sint32)0;
+                entity->animation.offset_y    = (Sint32)1;
 
                 if (entity->width <= 0)
                 {
@@ -798,10 +804,10 @@ status_t load_entities(core_t* core)
                     entity->width = get_tile_height(core->map->handle);
                 }
 
-                if (0 == core->camera.target_entity_id)
+                if (get_boolean_property(H_is_player, properties, prop_cnt, core))
                 {
-                    core->camera.target_entity_id = entity->id;
-                    core->camera.is_locked       = SDL_TRUE;
+                    core->map->active_entity = entity->id;
+                    core->camera.is_locked   = SDL_TRUE;
                 }
 
                 index        += 1;
