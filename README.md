@@ -2,9 +2,28 @@
 
 A simple game engine in the style of the 16-bit JRPGs of the 1990s.
 
-## Status
+## Documentation
 
-The engine is under development and yet unfinished.
+### General map design rules
+
+- If a transition is to be created from one map to another, these two
+  maps must have the same edge length on the respective side.
+
+- A tileset image is an ordinary `bmp` file with the RGB subtype
+  `RGB565`.  Transparency for maps consisting of several layers can be
+  achieved via the key colour `#ff00ff`.
+
+- Maps must be saved uncompressed (Tile Layer Format CSV) and in JSON
+  format with the tileset embedded.  The file name of the map that is
+  loaded first is `1.tmj`.
+
+- All resources must be combined into a packed file system with the file
+  name `data.pfs`.  To do this, all assets used must be in the same
+  directory as the maps.
+
+### Properties
+
+Tbd.
 
 ## Licence and Credits
 
