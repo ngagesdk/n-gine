@@ -964,13 +964,18 @@ status_t update_map(core_t* core)
                         if ((dst.y > (0 - entity->height)) && (dst.y < 208))
                         {
                             // We do not draw entities that have no
-                            // sprite either.
-                            if (entity->sprite_id > 0)
+                            // sprite either and if the sprite requested
+                            // does not exist, there is also nothing to
+                            // do here.
+                            if ((entity->sprite_id > 0) && &core->map->sprite[entity->sprite_id - 1])
                             {
-                                if (0 > SDL_RenderCopyEx(core->renderer, core->map->sprite[entity->sprite_id - 1].texture, &src, &dst, 0, NULL, SDL_FLIP_NONE))
+                                if (core->map->sprite[entity->sprite_id - 1].texture)
                                 {
-                                    // SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
-                                    return CORE_ERROR;
+                                    if (0 > SDL_RenderCopyEx(core->renderer, core->map->sprite[entity->sprite_id - 1].texture, &src, &dst, 0, NULL, SDL_FLIP_NONE))
+                                    {
+                                        // SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+                                        return CORE_ERROR;
+                                    }
                                 }
                             }
                             if (core->debug_mode)

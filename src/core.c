@@ -116,7 +116,7 @@ static status_t load_map_right(const char* map_name, Sint32 pos_y, core_t* core)
     status_t status = CORE_OK;
     Sint32   player_index;
 
-    status       = load_map(map_name, core);
+    status = load_map(map_name, core);
     if (CORE_OK != status)
     {
         return status;
@@ -135,7 +135,7 @@ static status_t load_map_left(const char* map_name, Sint32 pos_y, core_t* core)
     status_t status = CORE_OK;
     Sint32   player_index;
 
-    status       = load_map(map_name, core);
+    status = load_map(map_name, core);
     if (CORE_OK != status)
     {
         return status;
@@ -144,6 +144,44 @@ static status_t load_map_left(const char* map_name, Sint32 pos_y, core_t* core)
     player_index                          = core->map->active_entity - 1;
     core->map->entity[player_index].pos_x = core->map->width - (core->map->entity[player_index].width / 2);
     core->map->entity[player_index].pos_y = pos_y;
+
+exit:
+    return status;
+}
+
+static status_t load_map_down(const char* map_name, Sint32 pos_x, core_t* core)
+{
+    status_t status = CORE_OK;
+    Sint32   player_index;
+
+    status = load_map(map_name, core);
+    if (CORE_OK != status)
+    {
+        return status;
+    }
+
+    player_index                          = core->map->active_entity - 1;
+    core->map->entity[player_index].pos_x = pos_x;
+    core->map->entity[player_index].pos_y = 0;
+
+exit:
+    return status;
+}
+
+static status_t load_map_up(const char* map_name, Sint32 pos_x, core_t* core)
+{
+    status_t status = CORE_OK;
+    Sint32   player_index;
+
+    status = load_map(map_name, core);
+    if (CORE_OK != status)
+    {
+        return status;
+    }
+
+    player_index                          = core->map->active_entity - 1;
+    core->map->entity[player_index].pos_x = pos_x;
+    core->map->entity[player_index].pos_y = core->map->height - (core->map->entity[player_index].height / 2);
 
 exit:
     return status;
@@ -225,6 +263,22 @@ static void move_entity(entity_t* entity, Sint32 offset_x, Sint32 offset_y, core
         {
             entity->pos_y += offset_y;
         }
+        else if((entity->pos_y / get_tile_height(core->map->handle)) >= (core->map->handle->height - 1))
+        {
+            entity->pos_y += offset_y;
+        }
+
+        if (entity->pos_y >= (core->map->height + (entity->height / 2)))
+        {
+            if (get_string_map_property(H_map_down, core))
+            {
+                char map_name[16] = { 0 };
+                stbsp_snprintf(map_name, 16, "%s", core->map->string_property);
+                unload_map(core);
+                load_map_down(map_name, entity->pos_x, core);
+                return;
+            }
+        }
     }
     // Moves up.
     else if (offset_y < 0)
@@ -240,6 +294,18 @@ static void move_entity(entity_t* entity, Sint32 offset_x, Sint32 offset_y, core
         else
         {
             entity->pos_y += offset_y;
+        }
+
+        if (entity->pos_y <= (0 - (entity->height / 2)))
+        {
+            if (get_string_map_property(H_map_up, core))
+            {
+                char map_name[16] = { 0 };
+                stbsp_snprintf(map_name, 16, "%s", core->map->string_property);
+                unload_map(core);
+                load_map_up(map_name, entity->pos_x, core);
+                return;
+            }
         }
     }
 }
