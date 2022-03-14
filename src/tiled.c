@@ -1099,3 +1099,35 @@ status_t update_map(core_t* core)
 
     return CORE_OK;
 }
+
+// https://github.com/ngagesdk/nrpg/issues/2
+status_t update_map_ex(core_t* core)
+{
+    status_t status = CORE_OK;
+
+    if (! core->is_map_loaded)
+    {
+        return CORE_OK;
+    }
+
+    if (! core->map->layer_texture)
+    {
+        core->map->layer_texture = SDL_CreateTexture(
+            core->renderer,
+            SDL_PIXELFORMAT_RGB444,
+            SDL_TEXTUREACCESS_TARGET,
+            256, 256);
+
+        if (! core->map->layer_texture)
+        {
+            // SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+            status = CORE_ERROR;
+            goto exit;
+        }
+    }
+
+    // tbd.
+
+exit:
+    return status;
+}
