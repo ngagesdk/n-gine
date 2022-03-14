@@ -48,8 +48,12 @@ set(nrpg_sources
     "${SRC_DIR}/pfs_reader.c")
 
 set(nrpg_resources
+    "1.tmj"
+    "2.tmj"
+    "3.tmj"
+    "4.tmj"
     "lowtown.bmp"
-    "entry.tmj"
+    "midtown.bmp"
     "morgan.bmp"
     "splash.bmp")
 
