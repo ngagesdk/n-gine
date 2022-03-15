@@ -1,6 +1,9 @@
-# N-RPG
+# N-Gine
 
-A simple game engine in the style of the 16-bit JRPGs of the 1990s.
+N-Gine (/ˈendʒɪn/) is a portable game engine which is being developed
+specifically for the Nokia N-Gage.
+
+[![N-Gine preview](https://raw.githubusercontent.com/ngagesdk/n-gine/master/media/n-gine-preview.gif)](https://raw.githubusercontent.com/ngagesdk/n-gine/master/media/n-gine-preview.gif?raw=true "N-Gine preview")
 
 ## Documentation
 
@@ -15,7 +18,7 @@ A simple game engine in the style of the 16-bit JRPGs of the 1990s.
 
 - Maps must be saved uncompressed (Tile Layer Format CSV) and in JSON
   format with the tileset embedded.  The file name of the map that is
-  loaded first is `1.tmj`.
+  loaded first is `entry.tmj`.
 
 - All resources must be combined into a packed file system with the file
   name `data.pfs`.  To do this, all assets used must be in the same
@@ -23,7 +26,9 @@ A simple game engine in the style of the 16-bit JRPGs of the 1990s.
 
 ### Properties
 
-Tbd.
+The game content is largely defined by properties that are specified in
+[Tiled](https://www.mapeditor.org) which is used by this engine as the
+main tool. A detailed list of all valid properties follows.
 
 ## Licence and Credits
 
@@ -32,6 +37,9 @@ Tbd.
 
 - CyberPop - Interior Tiles by
   [MalibuDarby](https://malibudarby.itch.io/cyberpop-interior-tiles).
+
+- ASCII Bitmap Font "cellphone" by
+  [domsson](https://opengameart.org/content/ascii-bitmap-font-cellphone).
 
 - This project is licensed under the "The MIT License".  See the file
   [LICENSE.md](LICENSE.md) for details.

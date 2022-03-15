@@ -3,6 +3,7 @@
 #include <SDL.h>
 #include <cwalk.h>
 #include "core.h"
+#include "utils.h"
 
 #define STB_SPRINTF_IMPLEMENTATION
 #include <stb_sprintf.h>
@@ -209,42 +210,6 @@ static SDL_bool tile_has_properties(Sint32 gid, cute_tiled_tile_descriptor_t** t
     return SDL_FALSE;
 }
 
-SDL_bool bb_do_intersect(const aabb_t bb_a, const aabb_t bb_b)
-{
-    Sint32 bb_a_x = bb_b.left - bb_a.right;
-    Sint32 bb_a_y = bb_b.top  - bb_a.bottom;
-    Sint32 bb_b_x = bb_a.left - bb_b.right;
-    Sint32 bb_b_y = bb_a.top  - bb_b.bottom;
-
-    if (0 < bb_a_x || 0 < bb_a_y)
-    {
-        return SDL_FALSE;
-    }
-
-    if (0 < bb_b_x || 0 < bb_b_y)
-    {
-        return SDL_FALSE;
-    }
-
-    return SDL_TRUE;
-}
-
-/* djb2 by Dan Bernstein
- * http://www.cse.yorku.ca/~oz/hash.html
- */
-static Uint64 generate_hash(const unsigned char* name)
-{
-    Uint64 hash = 5381;
-    Uint32 c;
-
-    while ((c = *name++))
-    {
-        hash = ((hash << 5) + hash) + c;
-    }
-
-    return hash;
-}
-
 static void load_property(const Uint64 name_hash, cute_tiled_property_t* properties, Sint32 property_count, core_t* core)
 {
     int index = 0;
@@ -284,64 +249,6 @@ static void load_property(const Uint64 name_hash, cute_tiled_property_t* propert
                 break;
         }
     }
-}
-
-static status_t load_texture_from_file(const char* file_name, SDL_Texture** texture, core_t* core)
-{
-    Uint8*       resource_buf;
-    SDL_RWops*   resource;
-    SDL_Surface* surface;
-
-    if (! file_name)
-    {
-        return CORE_WARNING;
-    }
-
-    resource_buf = (Uint8*)load_binary_file_from_path(file_name);
-    if (! resource_buf)
-    {
-        // SDL_Log("Failed to load resource: %s", file_name);
-        return CORE_ERROR;
-    }
-
-    resource = SDL_RWFromConstMem((Uint8*)resource_buf, size_of_file(file_name));
-    if (! resource)
-    {
-        free(resource_buf);
-        // SDL_Log("Failed to convert resource %s: %s", file_name, SDL_GetError());
-        return CORE_ERROR;
-    }
-
-    surface = SDL_LoadBMP_RW(resource, SDL_TRUE);
-    if (! surface)
-    {
-        free(resource_buf);
-        // SDL_Log("Failed to load image: %s", SDL_GetError());
-        return CORE_ERROR;
-    }
-    free(resource_buf);
-
-    if (0 != SDL_SetColorKey(surface, SDL_TRUE, SDL_MapRGB(surface->format, 0xff, 0x00, 0xff)))
-    {
-        // SDL_Log("Failed to set color key for %s: %s", file_name, SDL_GetError());
-    }
-    if (0 != SDL_SetSurfaceRLE(surface, 1))
-    {
-        // SDL_Log("Could not enable RLE for surface %s: %s", file_name, SDL_GetError());
-    }
-
-    *texture = SDL_CreateTextureFromSurface(core->renderer, surface);
-    if (! *texture)
-    {
-        // SDL_Log("Could not create texture from surface: %s", SDL_GetError());
-        SDL_FreeSurface(surface);
-        return CORE_ERROR;
-    }
-    SDL_FreeSurface(surface);
-
-    // SDL_Log("Loading image from file: %s.", file_name);
-
-    return CORE_OK;
 }
 
 static status_t create_and_set_render_target(SDL_Texture** target, core_t* core)

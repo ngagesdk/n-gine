@@ -1,0 +1,34 @@
+{
+    "maps": [
+        {
+            "fileName": "entry.tmj",
+            "height": 208,
+            "width": 704,
+            "x": 0,
+            "y": -416
+        },
+        {
+            "fileName": "lowtown-1.tmj",
+            "height": 208,
+            "width": 704,
+            "x": 0,
+            "y": -208
+        },
+        {
+            "fileName": "midtown-1.tmj",
+            "height": 208,
+            "width": 176,
+            "x": 704,
+            "y": -416
+        },
+        {
+            "fileName": "lowtown-2.tmj",
+            "height": 208,
+            "width": 176,
+            "x": 704,
+            "y": -208
+        }
+    ],
+    "onlyShowAdjacentMaps": false,
+    "type": "world"
+}

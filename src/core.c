@@ -2,6 +2,8 @@
 
 #include <SDL.h>
 #include "core.h"
+#include "utils.h"
+#include "types.h"
 
 static status_t update_scene(core_t* core)
 {

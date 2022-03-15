@@ -7,7 +7,7 @@ else()
     message(FATAL_ERROR "The environment variable NGAGESDK needs to be defined.")
 endif()
 
-project(nrpg C CXX)
+project(ngine C CXX)
 
 include(SDL)
 include(cwalk)
@@ -18,13 +18,13 @@ option(INSTALL_EKA2L1 "Install app for EKA2L1" OFF)
 
 set(UID1 0x1000007a) # KExecutableImageUidValue, e32uid.h
 set(UID2 0x100039ce) # KAppUidValue16, apadef.h
-set(UID3 0x10005bbb) # nrpg UID
+set(UID3 0x10005bbb) # ngine UID
 
 set(GCC_COMN_DEFS -D__SYMBIAN32__ -D__GCC32__ -D__EPOC32__ -D__MARM__ -D__MARM_ARMI__)
 set(GCC_MODE_DEFS -DNDEBUG -D_UNICODE)
 set(GCC_DEFS      ${GCC_COMN_DEFS} ${GCC_MODE_DEFS})
 
-set(nrpg_libs
+set(ngine_libs
     ${CMAKE_CURRENT_BINARY_DIR}/libSDL.a
     ${CMAKE_CURRENT_BINARY_DIR}/libdbgprint.a
     ${CMAKE_CURRENT_BINARY_DIR}/libcwalk.a
@@ -41,40 +41,42 @@ set(nrpg_libs
 set(SRC_DIR      "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(RESOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/res")
 
-set(nrpg_sources
+set(ngine_sources
     "${SRC_DIR}/main.c"
     "${SRC_DIR}/core.c"
     "${SRC_DIR}/tiled.c"
+    "${SRC_DIR}/utils.c"
     "${SRC_DIR}/pfs_reader.c")
 
-set(nrpg_resources
-    "1.tmj"
-    "2.tmj"
-    "3.tmj"
-    "4.tmj"
+set(ngine_resources
+    "entry.tmj"
+    "lowtown-1.tmj"
+    "lowtown-2.tmj"
+    "midtown-1.tmj"
+    "font.bmp"
     "lowtown.bmp"
     "midtown.bmp"
     "morgan.bmp"
     "splash.bmp")
 
-add_library(nrpg STATIC ${nrpg_sources})
-build_exe(nrpg exe ${UID1} ${UID2} ${UID3} "${nrpg_libs}")
-pack_assets(${RESOURCE_DIR} "${nrpg_resources}")
+add_library(ngine STATIC ${ngine_sources})
+build_exe(ngine exe ${UID1} ${UID2} ${UID3} "${ngine_libs}")
+pack_assets(${RESOURCE_DIR} "${ngine_resources}")
 if(INSTALL_EKA2L1)
-    copy_file(nrpg.exe ${CMAKE_CURRENT_BINARY_DIR} ${EKA2L1_E_DRIVE} nrpg.exe)
+    copy_file(ngine.exe ${CMAKE_CURRENT_BINARY_DIR} ${EKA2L1_E_DRIVE} ngine.exe)
     copy_file(data.pfs ${RESOURCE_DIR}             ${EKA2L1_E_DRIVE} data.pfs)
 endif()
 
 add_dependencies(
-    nrpg.exe
-    nrpg)
+    ngine.exe
+    ngine)
 
 add_dependencies(
-    nrpg
+    ngine
     SDL)
 
 target_compile_definitions(
-    nrpg
+    ngine
     PUBLIC
     __EXE__
     ${GCC_DEFS}
@@ -83,12 +85,12 @@ target_compile_definitions(
     UID3=${UID3})
 
 target_compile_options(
-    nrpg
+    ngine
     PUBLIC
     -O3)
 
 target_include_directories(
-    nrpg
+    ngine
     PUBLIC
     ${SRC_DIR}
     ${SDL_INC_DIR}
