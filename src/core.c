@@ -38,12 +38,6 @@ static status_t draw_scene(core_t* core)
         return CORE_OK;
     }
 
-    if (0 > SDL_RenderCopy(core->renderer, core->render_target, NULL, &dst))
-    {
-        // SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
-        return CORE_ERROR;
-    }
-
     dst.x = 0;
     dst.y = 0;
     dst.w = 176;
@@ -357,6 +351,12 @@ status_t init_core(const char* resource_file, const char* title, core_t** core)
     }
 
     init_file_reader(resource_file);
+
+    if (CORE_OK != load_font((*core)))
+    {
+        return CORE_ERROR;
+    }
+
     (*core)->is_active = SDL_TRUE;
 
     return status;
@@ -467,6 +467,12 @@ exit:
 
 void free_core(core_t *core)
 {
+    if (core->font_texture)
+    {
+        SDL_DestroyTexture(core->font_texture);
+        core->font_texture = NULL;
+    }
+
     if (core->render_target)
     {
         SDL_DestroyTexture(core->render_target);

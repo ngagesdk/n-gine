@@ -412,6 +412,20 @@ const char* get_string_property(const Uint64 name_hash, cute_tiled_property_t* p
     return core->map->string_property;
 }
 
+status_t load_font(core_t* core)
+{
+    status_t status = CORE_OK;
+
+    if (CORE_OK != load_texture_from_file((const char*)"font.bmp", &core->font_texture, core))
+    {
+        // SDL_Log("%s: Error loading image '%s'.", FUNCTION_NAME, tileset_file_name);
+        status = CORE_ERROR;
+    }
+
+warning:
+    return status;
+}
+
 status_t load_tiles(core_t* core)
 {
     cute_tiled_layer_t* layer = get_head_layer(core->map->handle);

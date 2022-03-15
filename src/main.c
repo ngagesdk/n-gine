@@ -13,13 +13,13 @@ int main(int argc, char *argv[])
     int     status = 0;
     core_t *core   = NULL;
 
-    status = init_core(RES_FILE, "nrpg", &core);
+    status = init_core(RES_FILE, "ngine", &core);
     if (CORE_OK != status)
     {
         goto quit;
     }
 
-    status = load_map("1.tmj", core);
+    status = load_map("entry.tmj", core);
     if (CORE_OK != status)
     {
         goto quit;
