@@ -1,6 +1,6 @@
-# N-Gine
+# N-GINE
 
-N-Gine (/ˈendʒɪn/) is a portable game engine which is being developed
+N-GINE (/ˈendʒɪn/) is a portable game engine which is being developed
 specifically for the Nokia N-Gage.
 
 [![N-Gine preview](https://raw.githubusercontent.com/ngagesdk/n-gine/master/media/n-gine-preview.gif)](https://raw.githubusercontent.com/ngagesdk/n-gine/master/media/n-gine-preview.gif?raw=true "N-Gine preview")
