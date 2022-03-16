@@ -193,6 +193,11 @@ static void move_entity(entity_t* entity, Sint32 offset_x, Sint32 offset_y, core
         return;
     }
 
+    if (core->show_textbox)
+    {
+        return;
+    }
+
     tile_index = get_tile_index(entity->pos_x, entity->pos_y, core);
 
     // Moves right.
@@ -435,6 +440,9 @@ status_t update_core(core_t* core)
                     case SDLK_BACKSPACE:
                         status = CORE_EXIT;
                         goto exit;
+                    case SDLK_5:
+                        core->show_textbox = !core->show_textbox;
+                        break;
                     case SDLK_9:
                         core->debug_mode = !core->debug_mode;
                         break;
@@ -467,6 +475,11 @@ exit:
 
 void free_core(core_t *core)
 {
+    if (core->display_text)
+    {
+        free(core->display_text);
+    }
+
     if (core->font_texture)
     {
         SDL_DestroyTexture(core->font_texture);

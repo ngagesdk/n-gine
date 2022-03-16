@@ -118,20 +118,30 @@ typedef struct map
 
 typedef struct core
 {
-    SDL_Renderer* renderer;
-    SDL_Texture*  render_target;
-    SDL_Texture*  font_texture;
-    SDL_Window*   window;
-    map_t*        map;
-    struct camera camera;
-    SDL_bool      show_textbox;
-    SDL_bool      is_active;
-    SDL_bool      is_map_loaded;
-    SDL_bool      debug_mode;
-    Uint32        time_since_last_frame;
-    Uint32        time_a;
-    Uint32        time_b;
+    SDL_Renderer*  renderer;
+    SDL_Texture*   render_target;
+    SDL_Texture*   font_texture;
+    unsigned char* display_text;
+    SDL_Window*    window;
+    map_t*         map;
+    struct camera  camera;
+    SDL_bool       show_textbox;
+    SDL_bool       is_active;
+    SDL_bool       is_map_loaded;
+    SDL_bool       debug_mode;
+    Uint32         time_since_last_frame;
+    Uint32         time_a;
+    Uint32         time_b;
 
 } core_t;
+
+/*
+typedef struct window
+{
+    SDL_Renderer* renderer;
+    SDL_Window*   window;
+
+} window_t;
+*/
 
 #endif /* CORE_H */

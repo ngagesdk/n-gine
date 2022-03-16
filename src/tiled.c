@@ -281,6 +281,24 @@ static status_t create_and_set_render_target(SDL_Texture** target, core_t* core)
     return CORE_OK;
 }
 
+static void get_character_position(const unsigned char character, int* pos_x, int* pos_y)
+{
+    Sint32 index = 0;
+
+    // If the character is not valid, select space.
+    if ((character < 0x20) || (character > 0x7e))
+    {
+        index = 0;
+    }
+    else
+    {
+        index = character - 0x20;
+    }
+
+    *pos_x = (index % 18) * 7;
+    *pos_y = (index / 18) * 9;
+}
+
 /* PUBLIC FUNCTIONS */
 
 Sint32 get_tile_index(Sint32 pos_x, Sint32 pos_y, core_t* core)
@@ -420,6 +438,13 @@ status_t load_font(core_t* core)
     {
         // SDL_Log("%s: Error loading image '%s'.", FUNCTION_NAME, tileset_file_name);
         status = CORE_ERROR;
+    }
+
+    core->display_text = (unsigned char*)calloc(145, sizeof(unsigned char));
+    if (! core->display_text)
+    {
+        // SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
+        return CORE_ERROR;
     }
 
 warning:
@@ -849,7 +874,7 @@ status_t update_map(core_t* core)
                     src.x  = (entity->animation.first_frame - 1) * entity->width;
                     src.y  = entity->animation.offset_y          * entity->height;
 
-                    if (entity->show_animation)
+                    if (entity->show_animation && !core->show_textbox)
                     {
                         entity->animation.time_since_last_anim_frame += core->time_since_last_frame;
 
@@ -931,6 +956,49 @@ status_t update_map(core_t* core)
                 }
             }
             layer = layer->next;
+        }
+
+        if (core->show_textbox && core->display_text)
+        {
+            SDL_Rect textbox      = { 0, 144, 176, 64 };
+            SDL_Rect border_a     = { 0, 144, 176, 64 };
+            SDL_Rect border_b     = { 2, 146, 172, 60 };
+            SDL_Rect src          = { 0,   0,   7,  9 };
+            SDL_Rect dst          = { 4, 149,   7,  9 };
+            int      string_index = 0;
+            int      col, row;
+
+            SDL_SetRenderDrawColor(core->renderer, 0xff, 0xff, 0xff, 0x00);
+            SDL_RenderFillRect(core->renderer, &textbox);
+            SDL_RenderDrawRect(core->renderer, &textbox);
+            SDL_SetRenderDrawColor(core->renderer, 0x00, 0x00, 0x00, 0x00);
+            SDL_RenderDrawRect(core->renderer, &border_a);
+            SDL_RenderDrawRect(core->renderer, &border_b);
+
+            for (row = 0; row < 6; row += 1)
+            {
+                dst.x = 4;
+                for (col = 0; col < 24; col += 1)
+                {
+                    if ('\0' == core->display_text[string_index])
+                    {
+                        goto no_text_left;
+                    }
+                    get_character_position(core->display_text[string_index], &src.x, &src.y);
+
+                    if (' ' == core->display_text[string_index] && (4 == dst.x))
+                    {
+                        dst.x -= 7;
+                        col   -= 1;
+                    }
+                    string_index += 1;
+
+                    SDL_RenderCopy(core->renderer, core->font_texture, &src, &dst);
+                    dst.x += 7;
+                }
+                dst.y += 9;
+            }
+        no_text_left:
         }
 
         return CORE_OK;
