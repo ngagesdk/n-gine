@@ -125,8 +125,6 @@ typedef struct core
     SDL_Window*    window;
     map_t*         map;
     struct camera  camera;
-    SDL_bool       show_textbox;
-    SDL_bool       is_active;
     SDL_bool       is_map_loaded;
     SDL_bool       debug_mode;
     Uint32         time_since_last_frame;

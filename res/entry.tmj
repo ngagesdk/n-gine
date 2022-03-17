@@ -99,6 +99,60 @@
                  "width":0,
                  "x":88,
                  "y":136
+                }, 
+                {
+                 "height":0,
+                 "id":2,
+                 "name":"Bin",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"display_text",
+                         "type":"string",
+                         "value":"Yikes!"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":200,
+                 "y":168
+                }, 
+                {
+                 "height":0,
+                 "id":3,
+                 "name":"Pong",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"display_text",
+                         "type":"string",
+                         "value":"Oh, Pong! I love that game!"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":472,
+                 "y":136
+                }, 
+                {
+                 "height":0,
+                 "id":4,
+                 "name":"Chuck",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"display_text",
+                         "type":"string",
+                         "value":"Chuck, is that really you?"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":376,
+                 "y":88
                 }],
          "opacity":1,
          "properties":[
@@ -118,7 +172,7 @@
          "y":0
         }],
  "nextlayerid":7,
- "nextobjectid":2,
+ "nextobjectid":5,
  "orientation":"orthogonal",
  "properties":[
         {
@@ -148,6 +202,12 @@
          "imagewidth":256,
          "margin":0,
          "name":"midtown",
+         "properties":[
+                {
+                 "name":"is_solid",
+                 "type":"bool",
+                 "value":true
+                }],
          "spacing":0,
          "tilecount":1008,
          "tileheight":16,
@@ -3178,6 +3238,15 @@
                 }, 
                 {
                  "id":883,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":905,
                  "properties":[
                         {
                          "name":"is_solid",

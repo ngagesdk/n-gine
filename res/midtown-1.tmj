@@ -2903,6 +2903,15 @@
                         }]
                 }, 
                 {
+                 "id":738,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
                  "id":739,
                  "properties":[
                         {
@@ -3183,6 +3192,15 @@
                 }, 
                 {
                  "id":883,
+                 "properties":[
+                        {
+                         "name":"is_solid",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
+                 "id":905,
                  "properties":[
                         {
                          "name":"is_solid",

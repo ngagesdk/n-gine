@@ -99,6 +99,78 @@
                  "width":0,
                  "x":304,
                  "y":96
+                }, 
+                {
+                 "height":0,
+                 "id":6,
+                 "name":"Arena",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"display_text",
+                         "type":"string",
+                         "value":"N-GAGE Arena. Closed for maintenance."
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":488,
+                 "y":56
+                }, 
+                {
+                 "height":0,
+                 "id":7,
+                 "name":"Game guide",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"display_text",
+                         "type":"string",
+                         "value":"The Pathway to Glory Prima Game Guide. What a classic!"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":520,
+                 "y":168
+                }, 
+                {
+                 "height":0,
+                 "id":8,
+                 "name":"",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"display_text",
+                         "type":"string",
+                         "value":"Ohlala!"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":648,
+                 "y":360
+                }, 
+                {
+                 "height":0,
+                 "id":9,
+                 "name":"",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"display_text",
+                         "type":"string",
+                         "value":"No one there! Or the feature is simply not implemented yet, who knows for sure?"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":120,
+                 "y":104
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -107,7 +179,7 @@
          "y":0
         }],
  "nextlayerid":8,
- "nextobjectid":5,
+ "nextobjectid":10,
  "orientation":"orthogonal",
  "properties":[
         {

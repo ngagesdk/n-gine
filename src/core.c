@@ -5,20 +5,6 @@
 #include "utils.h"
 #include "types.h"
 
-static status_t update_scene(core_t* core)
-{
-    status_t status = CORE_OK;
-    Sint32   index;
-
-    status = update_map(core);
-    if (CORE_OK != status)
-    {
-        return status;
-    }
-
-    return status;
-}
-
 static status_t draw_scene(core_t* core)
 {
     SDL_Rect dst;
@@ -193,7 +179,7 @@ static void move_entity(entity_t* entity, Sint32 offset_x, Sint32 offset_y, core
         return;
     }
 
-    if (core->show_textbox)
+    if (core->display_text)
     {
         return;
     }
@@ -362,8 +348,6 @@ status_t init_core(const char* resource_file, const char* title, core_t** core)
         return CORE_ERROR;
     }
 
-    (*core)->is_active = SDL_TRUE;
-
     return status;
 }
 
@@ -393,6 +377,8 @@ status_t update_core(core_t* core)
     // Set-up basic controls/events.
     if (is_map_loaded(core))
     {
+        // TODO: This should not be hard-coded!
+        // Add scripting language?
         player_index                                          = core->map->active_entity - 1;
         core->map->entity[player_index].show_animation        = SDL_FALSE;
         core->map->entity[player_index].animation.first_frame = 1;
@@ -427,12 +413,15 @@ status_t update_core(core_t* core)
 
             move_entity(&core->map->entity[player_index], 2, 0, core);
         }
+        // TODO: See above.
     }
 
     if (SDL_PollEvent(&event))
     {
         switch (event.type)
         {
+            SDL_bool action_state = SDL_FALSE;
+
             case SDL_KEYDOWN:
             {
                 switch (event.key.keysym.sym)
@@ -441,12 +430,13 @@ status_t update_core(core_t* core)
                         status = CORE_EXIT;
                         goto exit;
                     case SDLK_5:
-                        core->show_textbox = !core->show_textbox;
+                        trigger_action(core);
                         break;
                     case SDLK_9:
                         core->debug_mode = !core->debug_mode;
                         break;
                     default:
+                        core->display_text = NULL;
                         break;
                 }
             }
@@ -462,7 +452,7 @@ status_t update_core(core_t* core)
     }
 
     update_camera(core);
-    status = update_scene(core);
+    status = render_scene(core);
     if (CORE_OK != status)
     {
         goto exit;

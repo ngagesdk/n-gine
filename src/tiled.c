@@ -430,6 +430,72 @@ const char* get_string_property(const Uint64 name_hash, cute_tiled_property_t* p
     return core->map->string_property;
 }
 
+status_t set_display_text(const char* text, core_t* core)
+{
+    size_t text_length = strlen(text);
+
+    if (text_length > 144)
+    {
+        text_length = 144;
+    }
+
+    core->display_text = (unsigned char*)calloc(text_length + 1, sizeof(unsigned char));
+    if (! core->display_text)
+    {
+        // SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
+        return CORE_ERROR;
+    }
+
+    stbsp_snprintf(core->display_text, text_length + 1, "%s", text);
+
+    return CORE_OK;
+}
+
+void trigger_action(core_t* core)
+{
+    cute_tiled_layer_t*  layer;
+    cute_tiled_object_t* tiled_object = NULL;
+
+    if (! is_map_loaded(core))
+    {
+        // SDL_Log("No map has been loaded.");
+        return;
+    }
+
+    layer = get_head_layer(core->map->handle);
+
+    while (layer && core->map->entity_count)
+    {
+        if (is_tiled_layer_of_type(OBJECT_GROUP, layer, core))
+        {
+            Sint32 index = 0;
+            tiled_object = get_head_object(layer, core);
+            while (tiled_object)
+            {
+                cute_tiled_property_t* properties   = tiled_object->properties;
+                Sint32                 prop_cnt     = get_object_property_count(tiled_object);
+                entity_t*              entity_a     = &core->map->entity[index];
+                entity_t*              entity_b     = &core->map->entity[core->map->active_entity - 1];
+                Sint32                 tile_index_a = get_tile_index(entity_a->pos_x, entity_a->pos_y, core);
+                Sint32                 tile_index_b = get_tile_index(entity_b->pos_x, entity_b->pos_y, core);
+
+                if (tile_index_a == tile_index_b)
+                {
+                    if (get_string_property(H_display_text, properties, prop_cnt, core))
+                    {
+                        set_display_text(core->map->string_property, core);
+                        break;
+                    }
+                }
+
+                index        += 1;
+                tiled_object = tiled_object->next;
+            }
+        }
+        layer = layer->next;
+    }
+}
+
 status_t load_font(core_t* core)
 {
     status_t status = CORE_OK;
@@ -440,12 +506,7 @@ status_t load_font(core_t* core)
         status = CORE_ERROR;
     }
 
-    core->display_text = (unsigned char*)calloc(145, sizeof(unsigned char));
-    if (! core->display_text)
-    {
-        // SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
-        return CORE_ERROR;
-    }
+    core->display_text = NULL;
 
 warning:
     return status;
@@ -766,7 +827,7 @@ status_t load_entities(core_t* core)
     return CORE_OK;
 }
 
-status_t update_map(core_t* core)
+status_t render_scene(core_t* core)
 {
     cute_tiled_layer_t* layer;
     Sint32              index;
@@ -874,7 +935,7 @@ status_t update_map(core_t* core)
                     src.x  = (entity->animation.first_frame - 1) * entity->width;
                     src.y  = entity->animation.offset_y          * entity->height;
 
-                    if (entity->show_animation && !core->show_textbox)
+                    if (entity->show_animation && !core->display_text)
                     {
                         entity->animation.time_since_last_anim_frame += core->time_since_last_frame;
 
@@ -958,7 +1019,7 @@ status_t update_map(core_t* core)
             layer = layer->next;
         }
 
-        if (core->show_textbox && core->display_text)
+        if (core->display_text)
         {
             SDL_Rect textbox      = { 0, 144, 176, 64 };
             SDL_Rect border_a     = { 0, 144, 176, 64 };
@@ -1095,7 +1156,7 @@ status_t update_map(core_t* core)
 }
 
 // https://github.com/ngagesdk/nrpg/issues/2
-status_t update_map_ex(core_t* core)
+status_t render_scene_ex(core_t* core)
 {
     status_t status = CORE_OK;
 

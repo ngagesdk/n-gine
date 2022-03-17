@@ -26,6 +26,7 @@
 #define H_map_left       0x001ae74b4ac1c56d
 #define H_map_up         0x000006530d3ba847
 #define H_map_down       0x001ae74b4abd8f1a
+#define H_display_text   0xd064eba5e9b9b1df
 // Could be fun if the engine supports platformer games.
 #define H_meter_in_pixel 0xfbbc8a6d4a407cf9
 #define H_gravity        0x0000d0b30d77f26b
