@@ -2,7 +2,7 @@
 
 #include <SDL.h>
 #include <cwalk.h>
-#include "core.h"
+#include "ngine.h"
 #include "utils.h"
 
 #define STB_SPRINTF_IMPLEMENTATION
@@ -32,7 +32,7 @@ static cute_tiled_layer_t* get_head_layer(cute_tiled_map_t* tiled_map)
     return tiled_map->layers;
 }
 
-static SDL_bool is_tiled_layer_of_type(const tiled_layer_type tiled_type, cute_tiled_layer_t* tiled_layer, core_t* core)
+static SDL_bool is_tiled_layer_of_type(const tiled_layer_type tiled_type, cute_tiled_layer_t* tiled_layer, ngine_t* core)
 {
     switch (tiled_type)
     {
@@ -53,7 +53,7 @@ static SDL_bool is_tiled_layer_of_type(const tiled_layer_type tiled_type, cute_t
     return SDL_FALSE;
 }
 
-static cute_tiled_object_t* get_head_object(cute_tiled_layer_t* tiled_layer, core_t* core)
+static cute_tiled_object_t* get_head_object(cute_tiled_layer_t* tiled_layer, ngine_t* core)
 {
     if (is_tiled_layer_of_type(OBJECT_GROUP, tiled_layer, core))
     {
@@ -210,7 +210,7 @@ static SDL_bool tile_has_properties(Sint32 gid, cute_tiled_tile_descriptor_t** t
     return SDL_FALSE;
 }
 
-static void load_property(const Uint64 name_hash, cute_tiled_property_t* properties, Sint32 property_count, core_t* core)
+static void load_property(const Uint64 name_hash, cute_tiled_property_t* properties, Sint32 property_count, ngine_t* core)
 {
     int index = 0;
 
@@ -251,7 +251,7 @@ static void load_property(const Uint64 name_hash, cute_tiled_property_t* propert
     }
 }
 
-static status_t create_and_set_render_target(SDL_Texture** target, core_t* core)
+static status_t create_and_set_render_target(SDL_Texture** target, ngine_t* core)
 {
     if (! (*target))
     {
@@ -266,42 +266,22 @@ static status_t create_and_set_render_target(SDL_Texture** target, core_t* core)
     if (! (*target))
     {
         // SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
-        return CORE_ERROR;
+        return NG_ERROR;
     }
 
     if (0 > SDL_SetRenderTarget(core->renderer, (*target)))
     {
         // SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
         SDL_DestroyTexture((*target));
-        return CORE_ERROR;
+        return NG_ERROR;
     }
 
     SDL_RenderClear(core->renderer);
 
-    return CORE_OK;
+    return NG_OK;
 }
 
-static void get_character_position(const unsigned char character, int* pos_x, int* pos_y)
-{
-    Sint32 index = 0;
-
-    // If the character is not valid, select space.
-    if ((character < 0x20) || (character > 0x7e))
-    {
-        index = 0;
-    }
-    else
-    {
-        index = character - 0x20;
-    }
-
-    *pos_x = (index % 18) * 7;
-    *pos_y = (index / 18) * 9;
-}
-
-/* PUBLIC FUNCTIONS */
-
-Sint32 get_tile_index(Sint32 pos_x, Sint32 pos_y, core_t* core)
+Sint32 get_tile_index(Sint32 pos_x, Sint32 pos_y, ngine_t* core)
 {
     Sint32 tile_index;
 
@@ -316,7 +296,7 @@ Sint32 get_tile_index(Sint32 pos_x, Sint32 pos_y, core_t* core)
     return tile_index;
 }
 
-void unload_tiled_map(core_t* core)
+void unload_tiled_map(ngine_t* core)
 {
     core->map->hash_id_objectgroup = 0;
     core->map->hash_id_tilelayer   = 0;
@@ -327,7 +307,7 @@ void unload_tiled_map(core_t* core)
     }
 }
 
-SDL_bool is_map_loaded(core_t* core)
+SDL_bool is_map_loaded(ngine_t* core)
 {
     return core->is_map_loaded;
 }
@@ -342,7 +322,7 @@ int get_tile_height(cute_tiled_map_t* tiled_map)
     return tiled_map->tilesets->tileheight;
 }
 
-SDL_bool get_boolean_map_property(const Uint64 name_hash, core_t* core)
+SDL_bool get_boolean_map_property(const Uint64 name_hash, ngine_t* core)
 {
     Sint32 prop_cnt;
 
@@ -357,7 +337,7 @@ SDL_bool get_boolean_map_property(const Uint64 name_hash, core_t* core)
     return core->map->boolean_property;
 }
 
-float get_decimal_map_property(const Uint64 name_hash, core_t* core)
+float get_decimal_map_property(const Uint64 name_hash, ngine_t* core)
 {
     Sint32 prop_cnt;
 
@@ -372,7 +352,7 @@ float get_decimal_map_property(const Uint64 name_hash, core_t* core)
     return core->map->decimal_property;
 }
 
-Sint32 get_integer_map_property(const Uint64 name_hash, core_t* core)
+Sint32 get_integer_map_property(const Uint64 name_hash, ngine_t* core)
 {
     Sint32 prop_cnt;
 
@@ -387,7 +367,7 @@ Sint32 get_integer_map_property(const Uint64 name_hash, core_t* core)
     return core->map->integer_property;
 }
 
-const char* get_string_map_property(const Uint64 name_hash, core_t* core)
+const char* get_string_map_property(const Uint64 name_hash, ngine_t* core)
 {
     Sint32 prop_cnt;
 
@@ -402,56 +382,35 @@ const char* get_string_map_property(const Uint64 name_hash, core_t* core)
     return core->map->string_property;
 }
 
-SDL_bool get_boolean_property(const Uint64 name_hash, cute_tiled_property_t* properties, Sint32 property_count, core_t* core)
+SDL_bool get_boolean_property(const Uint64 name_hash, cute_tiled_property_t* properties, Sint32 property_count, ngine_t* core)
 {
     core->map->boolean_property = SDL_FALSE;
     load_property(name_hash, properties, property_count, core);
     return core->map->boolean_property;
 }
 
-float get_decimal_property(const Uint64 name_hash, cute_tiled_property_t* properties, Sint32 property_count, core_t* core)
+float get_decimal_property(const Uint64 name_hash, cute_tiled_property_t* properties, Sint32 property_count, ngine_t* core)
 {
     core->map->decimal_property = 0.0;
     load_property(name_hash, properties, property_count, core);
     return core->map->decimal_property;
 }
 
-int32_t get_integer_property(const Uint64 name_hash, cute_tiled_property_t* properties, Sint32 property_count, core_t* core)
+int32_t get_integer_property(const Uint64 name_hash, cute_tiled_property_t* properties, Sint32 property_count, ngine_t* core)
 {
     core->map->integer_property = 0;
     load_property(name_hash, properties, property_count, core);
     return core->map->integer_property;
 }
 
-const char* get_string_property(const Uint64 name_hash, cute_tiled_property_t* properties, Sint32 property_count, core_t* core)
+const char* get_string_property(const Uint64 name_hash, cute_tiled_property_t* properties, Sint32 property_count, ngine_t* core)
 {
     core->map->string_property = NULL;
     load_property(name_hash, properties, property_count, core);
     return core->map->string_property;
 }
 
-status_t set_display_text(const char* text, core_t* core)
-{
-    size_t text_length = strlen(text);
-
-    if (text_length > 144)
-    {
-        text_length = 144;
-    }
-
-    core->display_text = (unsigned char*)calloc(text_length + 1, sizeof(unsigned char));
-    if (! core->display_text)
-    {
-        // SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
-        return CORE_ERROR;
-    }
-
-    stbsp_snprintf(core->display_text, text_length + 1, "%s", text);
-
-    return CORE_OK;
-}
-
-void trigger_action(core_t* core)
+void trigger_action(ngine_t* core)
 {
     cute_tiled_layer_t*  layer;
     cute_tiled_object_t* tiled_object = NULL;
@@ -496,23 +455,23 @@ void trigger_action(core_t* core)
     }
 }
 
-status_t load_font(core_t* core)
+status_t load_font(ngine_t* core)
 {
-    status_t status = CORE_OK;
+    status_t status = NG_OK;
 
-    if (CORE_OK != load_texture_from_file((const char*)"font.bmp", &core->font_texture, core))
+    if (NG_OK != load_texture_from_file((const char*)"font.bmp", &core->font_texture, core))
     {
         // SDL_Log("%s: Error loading image '%s'.", FUNCTION_NAME, tileset_file_name);
-        status = CORE_ERROR;
+        status = NG_ERROR;
     }
 
-    core->display_text = NULL;
+    clear_display_text(core);
 
 warning:
     return status;
 }
 
-status_t load_tiles(core_t* core)
+status_t load_tiles(ngine_t* core)
 {
     cute_tiled_layer_t* layer = get_head_layer(core->map->handle);
 
@@ -520,14 +479,14 @@ status_t load_tiles(core_t* core)
 
     if (core->map->tile_desc_count < 0)
     {
-        return CORE_OK;
+        return NG_OK;
     }
 
     core->map->tile_desc = (tile_desc_t*)calloc((size_t)core->map->tile_desc_count, sizeof(struct tile_desc));
     if (! core->map->tile_desc)
     {
         // SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
-        return CORE_ERROR;
+        return NG_ERROR;
     }
 
     while (layer)
@@ -561,27 +520,27 @@ status_t load_tiles(core_t* core)
         layer = layer->next;
     }
 
-    return CORE_OK;
+    return NG_OK;
 }
 
-status_t load_tileset(core_t* core)
+status_t load_tileset(ngine_t* core)
 {
-    status_t status                = CORE_OK;
+    status_t status                = NG_OK;
     char     tileset_file_name[16] = { 0 };
 
     stbsp_snprintf(tileset_file_name, 16, "%s", core->map->handle->tilesets->image.ptr);
 
-    if (CORE_OK != load_texture_from_file((const char*)tileset_file_name, &core->map->tileset_texture, core))
+    if (NG_OK != load_texture_from_file((const char*)tileset_file_name, &core->map->tileset_texture, core))
     {
         // SDL_Log("%s: Error loading image '%s'.", FUNCTION_NAME, tileset_file_name);
-        status = CORE_ERROR;
+        status = NG_ERROR;
     }
 
 warning:
     return status;
 }
 
-status_t load_tiled_map(const char* map_file_name, core_t* core)
+status_t load_tiled_map(const char* map_file_name, ngine_t* core)
 {
     cute_tiled_layer_t* layer;
     Uint8*              resource_buf;
@@ -590,7 +549,7 @@ status_t load_tiled_map(const char* map_file_name, core_t* core)
     if (! resource_buf)
     {
         // SDL_Log("Failed to load resource: %s", map_file_name);
-        return CORE_ERROR;
+        return NG_ERROR;
     }
 
     core->map->handle = cute_tiled_load_map_from_memory((const void*)resource_buf, size_of_file(map_file_name), NULL);
@@ -598,7 +557,7 @@ status_t load_tiled_map(const char* map_file_name, core_t* core)
     {
         free(resource_buf);
         // SDL_Log("%s: %s.", FUNCTION_NAME, cute_tiled_error_reason);
-        return CORE_WARNING;
+        return NG_WARNING;
     }
     free(resource_buf);
 
@@ -618,10 +577,10 @@ status_t load_tiled_map(const char* map_file_name, core_t* core)
         layer = layer->next;
     }
 
-    return CORE_OK;
+    return NG_OK;
 }
 
-status_t load_animated_tiles(core_t* core)
+status_t load_animated_tiles(ngine_t* core)
 {
     cute_tiled_layer_t* layer               = get_head_layer(core->map->handle);
     Sint32              animated_tile_count = 0;
@@ -651,7 +610,7 @@ status_t load_animated_tiles(core_t* core)
 
     if (0 >= animated_tile_count)
     {
-        return CORE_OK;
+        return NG_OK;
     }
     else
     {
@@ -659,18 +618,18 @@ status_t load_animated_tiles(core_t* core)
         if (! core->map->animated_tile)
         {
             // SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
-            return CORE_ERROR;
+            return NG_ERROR;
         }
     }
 
     // SDL_Log("Load %u animated tile(s).", animated_tile_count);
 
-    return CORE_OK;
+    return NG_OK;
 }
 
-status_t load_sprites(core_t* core)
+status_t load_sprites(ngine_t* core)
 {
-    status_t status            = CORE_OK;
+    status_t status            = NG_OK;
     char     property_name[17] = { 0 };
     SDL_bool search_is_running = SDL_TRUE;
     Sint32   prop_cnt          = get_map_property_count(core->map->handle);
@@ -694,14 +653,14 @@ status_t load_sprites(core_t* core)
 
     if (0 == core->map->sprite_count)
     {
-        return CORE_OK;
+        return NG_OK;
     }
 
     core->map->sprite = (sprite_t*)calloc((size_t)core->map->sprite_count, sizeof(struct sprite));
     if (! core->map->sprite)
     {
         // SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
-        return CORE_ERROR;
+        return NG_ERROR;
     }
 
     for (index = 0; index < core->map->sprite_count; index += 1)
@@ -718,7 +677,7 @@ status_t load_sprites(core_t* core)
             if (! sprite_image_source)
             {
                 // SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
-                return CORE_ERROR;
+                return NG_ERROR;
             }
 
             stbsp_snprintf(sprite_image_source, source_length, "%s", file_name);
@@ -726,7 +685,7 @@ status_t load_sprites(core_t* core)
             core->map->sprite[index].id = index + 1;
 
             status = load_texture_from_file(sprite_image_source, &core->map->sprite[index].texture, core);
-            if (CORE_OK != status)
+            if (NG_OK != status)
             {
                 free(sprite_image_source);
                 return status;
@@ -737,7 +696,7 @@ status_t load_sprites(core_t* core)
     return status;
 }
 
-status_t load_entities(core_t* core)
+status_t load_entities(ngine_t* core)
 {
     cute_tiled_layer_t*  layer        = get_head_layer(core->map->handle);
     cute_tiled_object_t* tiled_object = NULL;
@@ -745,7 +704,7 @@ status_t load_entities(core_t* core)
     if (core->map->entity_count)
     {
         /* Nothing else to do here. */
-        return CORE_OK;
+        return NG_OK;
     }
 
     while (layer)
@@ -768,7 +727,7 @@ status_t load_entities(core_t* core)
         if (! core->map->entity)
         {
             // SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
-            return CORE_ERROR;
+            return NG_ERROR;
         }
     }
 
@@ -824,17 +783,22 @@ status_t load_entities(core_t* core)
         layer = layer->next;
     }
 
-    return CORE_OK;
+    return NG_OK;
 }
 
-status_t render_scene(core_t* core)
+status_t render_scene(ngine_t* core)
 {
     cute_tiled_layer_t* layer;
     Sint32              index;
 
     if (! core->is_map_loaded)
     {
-        return CORE_OK;
+        return NG_OK;
+    }
+
+    if (NG_OK != create_and_set_render_target(&core->render_target, core))
+    {
+        return NG_ERROR;
     }
 
     // Update and render animated tiles.
@@ -847,7 +811,7 @@ status_t render_scene(core_t* core)
         if (0 > SDL_SetRenderTarget(core->renderer, core->map->layer_texture))
         {
             // SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
-            return CORE_ERROR;
+            return NG_ERROR;
         }
 
         for (index = 0; core->map->animated_tile_index > index; index += 1)
@@ -871,7 +835,7 @@ status_t render_scene(core_t* core)
             if (0 > SDL_RenderCopy(core->renderer, core->map->tileset_texture, &src, &dst))
             {
                 // SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
-                return CORE_ERROR;
+                return NG_ERROR;
             }
 
             core->map->animated_tile[index].current_frame += 1;
@@ -889,16 +853,11 @@ status_t render_scene(core_t* core)
 
     layer = get_head_layer(core->map->handle);
 
-    if (CORE_OK != create_and_set_render_target(&core->render_target, core))
-    {
-        return CORE_ERROR;
-    }
-
     // Texture has already been rendered.
     if (core->map->layer_texture)
     {
-        Sint32   render_pos_x = core->map->pos_x - core->camera.pos_x;
-        Sint32   render_pos_y = core->map->pos_y - core->camera.pos_y;
+        Sint32   render_pos_x = 0 - core->camera.pos_x;
+        Sint32   render_pos_y = 0 - core->camera.pos_y;
         SDL_Rect dst          = {
             (Sint32)render_pos_x,
             (Sint32)render_pos_y,
@@ -909,7 +868,7 @@ status_t render_scene(core_t* core)
         if (0 > SDL_RenderCopyEx(core->renderer, core->map->layer_texture, NULL, &dst, 0, NULL, SDL_FLIP_NONE))
         {
             // SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
-            return CORE_ERROR;
+            return NG_ERROR;
         }
 
         // Update and render entity entities.
@@ -981,7 +940,7 @@ status_t render_scene(core_t* core)
                                     if (0 > SDL_RenderCopyEx(core->renderer, core->map->sprite[entity->sprite_id - 1].texture, &src, &dst, 0, NULL, SDL_FLIP_NONE))
                                     {
                                         // SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
-                                        return CORE_ERROR;
+                                        return NG_ERROR;
                                     }
                                 }
                             }
@@ -1021,48 +980,10 @@ status_t render_scene(core_t* core)
 
         if (core->display_text)
         {
-            SDL_Rect textbox      = { 0, 144, 176, 64 };
-            SDL_Rect border_a     = { 0, 144, 176, 64 };
-            SDL_Rect border_b     = { 2, 146, 172, 60 };
-            SDL_Rect src          = { 0,   0,   7,  9 };
-            SDL_Rect dst          = { 4, 149,   7,  9 };
-            int      string_index = 0;
-            int      col, row;
-
-            SDL_SetRenderDrawColor(core->renderer, 0xff, 0xff, 0xff, 0x00);
-            SDL_RenderFillRect(core->renderer, &textbox);
-            SDL_RenderDrawRect(core->renderer, &textbox);
-            SDL_SetRenderDrawColor(core->renderer, 0x00, 0x00, 0x00, 0x00);
-            SDL_RenderDrawRect(core->renderer, &border_a);
-            SDL_RenderDrawRect(core->renderer, &border_b);
-
-            for (row = 0; row < 6; row += 1)
-            {
-                dst.x = 4;
-                for (col = 0; col < 24; col += 1)
-                {
-                    if ('\0' == core->display_text[string_index])
-                    {
-                        goto no_text_left;
-                    }
-                    get_character_position(core->display_text[string_index], &src.x, &src.y);
-
-                    if (' ' == core->display_text[string_index] && (4 == dst.x))
-                    {
-                        dst.x -= 7;
-                        col   -= 1;
-                    }
-                    string_index += 1;
-
-                    SDL_RenderCopy(core->renderer, core->font_texture, &src, &dst);
-                    dst.x += 7;
-                }
-                dst.y += 9;
-            }
-        no_text_left:
+            render_text(core);
         }
 
-        return CORE_OK;
+        return NG_OK;
     }
 
     // Texture does not yet exist. Render it!
@@ -1076,13 +997,13 @@ status_t render_scene(core_t* core)
     if (! core->map->layer_texture)
     {
         // SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
-        return CORE_ERROR;
+        return NG_ERROR;
     }
 
     if (0 > SDL_SetRenderTarget(core->renderer, core->map->layer_texture))
     {
         // SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
-        return CORE_ERROR;
+        return NG_ERROR;
     }
     SDL_RenderClear(core->renderer);
 
@@ -1149,20 +1070,20 @@ status_t render_scene(core_t* core)
     if (0 > SDL_SetRenderTarget(core->renderer, core->render_target))
     {
         // SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
-        return CORE_ERROR;
+        return NG_ERROR;
     }
 
-    return CORE_OK;
+    return NG_OK;
 }
 
 // https://github.com/ngagesdk/nrpg/issues/2
-status_t render_scene_ex(core_t* core)
+status_t render_scene_ex(ngine_t* core)
 {
-    status_t status = CORE_OK;
+    status_t status = NG_OK;
 
     if (! core->is_map_loaded)
     {
-        return CORE_OK;
+        return NG_OK;
     }
 
     if (! core->map->layer_texture)
@@ -1176,7 +1097,7 @@ status_t render_scene_ex(core_t* core)
         if (! core->map->layer_texture)
         {
             // SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
-            status = CORE_ERROR;
+            status = NG_ERROR;
             goto exit;
         }
     }

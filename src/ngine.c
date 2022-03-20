@@ -1,13 +1,13 @@
 // Spdx-License-Identifier: MIT
 
 #include <SDL.h>
-#include "core.h"
+#include "ngine.h"
 #include "utils.h"
 #include "types.h"
 
-static status_t draw_scene(core_t* core)
+static status_t draw_scene(ngine_t* core)
 {
-    SDL_Rect dst;
+    SDL_Rect dst = { 0, 0, 176, 208 };
     Sint32   index;
 
     if (0 > SDL_SetRenderTarget(core->renderer, NULL))
@@ -21,28 +21,23 @@ static status_t draw_scene(core_t* core)
         SDL_RenderPresent(core->renderer);
         SDL_RenderClear(core->renderer);
 
-        return CORE_OK;
+        return NG_OK;
     }
-
-    dst.x = 0;
-    dst.y = 0;
-    dst.w = 176;
-    dst.h = 208;
 
     if (0 > SDL_RenderCopy(core->renderer, core->render_target, NULL, &dst))
     {
         // SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
-        return CORE_ERROR;
+        return NG_ERROR;
     }
 
     SDL_SetRenderDrawColor(core->renderer, 0x00, 0x00, 0x00, 0x00);
     SDL_RenderPresent(core->renderer);
     SDL_RenderClear(core->renderer);
 
-    return CORE_OK;
+    return NG_OK;
 }
 
-static void restrict_camera(core_t* core)
+static void restrict_camera(ngine_t* core)
 {
     if (! is_map_loaded(core))
     {
@@ -65,7 +60,7 @@ static void restrict_camera(core_t* core)
     }
 }
 
-static void update_camera(core_t* core)
+static void update_camera(ngine_t* core)
 {
     if (! is_map_loaded(core))
     {
@@ -93,13 +88,13 @@ static void update_camera(core_t* core)
     }
 }
 
-static status_t load_map_right(const char* map_name, Sint32 pos_y, core_t* core)
+static status_t load_map_right(const char* map_name, Sint32 pos_y, ngine_t* core)
 {
-    status_t status = CORE_OK;
+    status_t status = NG_OK;
     Sint32   player_index;
 
-    status = load_map(map_name, core);
-    if (CORE_OK != status)
+    status = ng_load_map(map_name, core);
+    if (NG_OK != status)
     {
         return status;
     }
@@ -112,13 +107,13 @@ exit:
     return status;
 }
 
-static status_t load_map_left(const char* map_name, Sint32 pos_y, core_t* core)
+static status_t load_map_left(const char* map_name, Sint32 pos_y, ngine_t* core)
 {
-    status_t status = CORE_OK;
+    status_t status = NG_OK;
     Sint32   player_index;
 
-    status = load_map(map_name, core);
-    if (CORE_OK != status)
+    status = ng_load_map(map_name, core);
+    if (NG_OK != status)
     {
         return status;
     }
@@ -131,13 +126,13 @@ exit:
     return status;
 }
 
-static status_t load_map_down(const char* map_name, Sint32 pos_x, core_t* core)
+static status_t load_map_down(const char* map_name, Sint32 pos_x, ngine_t* core)
 {
-    status_t status = CORE_OK;
+    status_t status = NG_OK;
     Sint32   player_index;
 
-    status = load_map(map_name, core);
-    if (CORE_OK != status)
+    status = ng_load_map(map_name, core);
+    if (NG_OK != status)
     {
         return status;
     }
@@ -150,13 +145,13 @@ exit:
     return status;
 }
 
-static status_t load_map_up(const char* map_name, Sint32 pos_x, core_t* core)
+static status_t load_map_up(const char* map_name, Sint32 pos_x, ngine_t* core)
 {
-    status_t status = CORE_OK;
+    status_t status = NG_OK;
     Sint32   player_index;
 
-    status = load_map(map_name, core);
-    if (CORE_OK != status)
+    status = ng_load_map(map_name, core);
+    if (NG_OK != status)
     {
         return status;
     }
@@ -169,7 +164,7 @@ exit:
     return status;
 }
 
-static void move_entity(entity_t* entity, Sint32 offset_x, Sint32 offset_y, core_t* core)
+static void move_entity(entity_t* entity, Sint32 offset_x, Sint32 offset_y, ngine_t* core)
 {
     Sint32 tile_index;
     Sint32 adjacent_tile;
@@ -205,7 +200,7 @@ static void move_entity(entity_t* entity, Sint32 offset_x, Sint32 offset_y, core
             {
                 char map_name[16] = { 0 };
                 stbsp_snprintf(map_name, 16, "%s", core->map->string_property);
-                unload_map(core);
+                ng_unload_map(core);
                 load_map_right(map_name, entity->pos_y, core);
                 return;
             }
@@ -230,7 +225,7 @@ static void move_entity(entity_t* entity, Sint32 offset_x, Sint32 offset_y, core
             {
                 char map_name[16] = { 0 };
                 stbsp_snprintf(map_name, 16, "%s", core->map->string_property);
-                unload_map(core);
+                ng_unload_map(core);
                 load_map_left(map_name, entity->pos_y, core);
                 return;
             }
@@ -261,7 +256,7 @@ static void move_entity(entity_t* entity, Sint32 offset_x, Sint32 offset_y, core
             {
                 char map_name[16] = { 0 };
                 stbsp_snprintf(map_name, 16, "%s", core->map->string_property);
-                unload_map(core);
+                ng_unload_map(core);
                 load_map_down(map_name, entity->pos_x, core);
                 return;
             }
@@ -289,7 +284,7 @@ static void move_entity(entity_t* entity, Sint32 offset_x, Sint32 offset_y, core
             {
                 char map_name[16] = { 0 };
                 stbsp_snprintf(map_name, 16, "%s", core->map->string_property);
-                unload_map(core);
+                ng_unload_map(core);
                 load_map_up(map_name, entity->pos_x, core);
                 return;
             }
@@ -297,15 +292,15 @@ static void move_entity(entity_t* entity, Sint32 offset_x, Sint32 offset_y, core
     }
 }
 
-status_t init_core(const char* resource_file, const char* title, core_t** core)
+status_t ng_init(const char* resource_file, const char* title, ngine_t** core)
 {
-    status_t status = CORE_OK;
+    status_t status = NG_OK;
 
-    *core = (core_t*)calloc(1, sizeof(struct core));
+    *core = (ngine_t*)calloc(1, sizeof(struct ngine));
     if (! *core)
     {
         // SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
-        return CORE_ERROR;
+        return NG_ERROR;
     }
 
     SDL_SetMainReady();
@@ -313,7 +308,7 @@ status_t init_core(const char* resource_file, const char* title, core_t** core)
     if (0 != SDL_Init(SDL_INIT_VIDEO))
     {
         // SDL_Log("Unable to initialise SDL: %s", SDL_GetError());
-        return CORE_ERROR;
+        return NG_ERROR;
     }
 
     (*core)->window = SDL_CreateWindow(
@@ -325,7 +320,7 @@ status_t init_core(const char* resource_file, const char* title, core_t** core)
     if (! (*core)->window)
     {
         // SDL_Log("Could not create window: %s", SDL_GetError());
-        return CORE_ERROR;
+        return NG_ERROR;
     }
 
     (*core)->renderer = SDL_CreateRenderer((*core)->window, 0, SDL_RENDERER_SOFTWARE);
@@ -333,27 +328,27 @@ status_t init_core(const char* resource_file, const char* title, core_t** core)
     {
         // SDL_Log("Could not create renderer: %s", SDL_GetError());
         SDL_DestroyWindow((*core)->window);
-        return CORE_ERROR;
+        return NG_ERROR;
     }
     if (0 != SDL_RenderSetIntegerScale((*core)->renderer, SDL_TRUE))
     {
         // SDL_Log("Could not enable integer scale: %s", SDL_GetError());
-        status = CORE_WARNING;
+        status = NG_WARNING;
     }
 
     init_file_reader(resource_file);
 
-    if (CORE_OK != load_font((*core)))
+    if (NG_OK != load_font((*core)))
     {
-        return CORE_ERROR;
+        return NG_ERROR;
     }
 
     return status;
 }
 
-status_t update_core(core_t* core)
+status_t ng_update(ngine_t* core)
 {
-    status_t     status     = CORE_OK;
+    status_t     status     = NG_OK;
     Uint32       delta_time = 0;
     const Uint8* keystate   = SDL_GetKeyboardState(NULL);
     SDL_Event    event;
@@ -420,14 +415,12 @@ status_t update_core(core_t* core)
     {
         switch (event.type)
         {
-            SDL_bool action_state = SDL_FALSE;
-
             case SDL_KEYDOWN:
             {
                 switch (event.key.keysym.sym)
                 {
                     case SDLK_BACKSPACE:
-                        status = CORE_EXIT;
+                        status = NG_EXIT;
                         goto exit;
                     case SDLK_5:
                         trigger_action(core);
@@ -436,7 +429,7 @@ status_t update_core(core_t* core)
                         core->debug_mode = !core->debug_mode;
                         break;
                     default:
-                        core->display_text = NULL;
+                        clear_display_text(core);
                         break;
                 }
             }
@@ -453,7 +446,7 @@ status_t update_core(core_t* core)
 
     update_camera(core);
     status = render_scene(core);
-    if (CORE_OK != status)
+    if (NG_OK != status)
     {
         goto exit;
     }
@@ -463,11 +456,12 @@ exit:
     return status;
 }
 
-void free_core(core_t *core)
+void ng_free(ngine_t *core)
 {
     if (core->display_text)
     {
         free(core->display_text);
+        core->display_text = NULL;
     }
 
     if (core->font_texture)
@@ -501,14 +495,14 @@ void free_core(core_t *core)
     SDL_Quit();
 }
 
-status_t load_map(const char* map_name, core_t* core)
+status_t ng_load_map(const char* map_name, ngine_t* core)
 {
-    status_t status = CORE_OK;
+    status_t status = NG_OK;
 
     if (is_map_loaded(core))
     {
         // SDL_Log("A map has already been loaded: unload map first.");
-        return CORE_WARNING;
+        return NG_WARNING;
     }
 
     // Load map file and allocate required memory.
@@ -518,49 +512,48 @@ status_t load_map(const char* map_name, core_t* core)
     if (! core->map)
     {
         // SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
-        return CORE_WARNING;
+        return NG_WARNING;
     }
 
     // [2] Tiled map.
     status = load_tiled_map(map_name, core);
-    if (CORE_OK != status)
+    if (NG_OK != status)
     {
         free(core->map);
         goto exit;
     }
-    core->is_map_loaded = SDL_TRUE;
 
     // [3] Tiles.
     status = load_tiles(core);
-    if (CORE_OK != status)
+    if (NG_OK != status)
     {
         goto exit;
     }
 
     // [4] Entities.
     status = load_entities(core);
-    if (CORE_OK != status)
+    if (NG_OK != status)
     {
         goto exit;
     }
 
     // [5] Tileset.
     status = load_tileset(core);
-    if (CORE_OK != status)
+    if (NG_OK != status)
     {
         goto exit;
     }
 
     // [6] Sprites.
     status = load_sprites(core);
-    if (CORE_OK != status)
+    if (NG_OK != status)
     {
         goto exit;
     }
 
     // [7] Animated tiles.
     status = load_animated_tiles(core);
-    if (CORE_OK != status)
+    if (NG_OK != status)
     {
         goto exit;
     }
@@ -569,14 +562,17 @@ status_t load_map(const char* map_name, core_t* core)
     core->map->width  = (Sint32)((Sint32)core->map->handle->width  * get_tile_width(core->map->handle));
 
 exit:
-    if (CORE_OK != status)
+    if (NG_OK != status)
     {
-        unload_map(core);
+        ng_unload_map(core);
     }
+
+    clear_display_text(core);
+    core->is_map_loaded = SDL_TRUE;
     return status;
 }
 
-void unload_map(core_t* core)
+void ng_unload_map(ngine_t* core)
 {
     Sint32 index;
 

@@ -1,7 +1,7 @@
 // Spdx-License-Identifier: MIT
 
-#ifndef CORE_H
-#define CORE_H
+#ifndef NGINE_H
+#define NGINE_H
 
 #include <SDL.h>
 #include "cute_tiled.h"
@@ -31,10 +31,27 @@
 #define H_meter_in_pixel 0xfbbc8a6d4a407cf9
 #define H_gravity        0x0000d0b30d77f26b
 
-status_t init_core(const char* resource_file, const char* title, core_t** core);
-status_t update_core(core_t* core);
-void     free_core(core_t *core);
-status_t load_map(const char* map_name, core_t* core);
-void     unload_map(core_t* core);
+typedef struct ngine
+{
+    SDL_Renderer*  renderer;
+    SDL_Texture*   render_target;
+    SDL_Texture*   font_texture;
+    unsigned char* display_text;
+    SDL_Window*    window;
+    map_t*         map;
+    struct camera  camera;
+    SDL_bool       is_map_loaded;
+    SDL_bool       debug_mode;
+    Uint32         time_since_last_frame;
+    Uint32         time_a;
+    Uint32         time_b;
 
-#endif /* CORE_H */
+} ngine_t;
+
+status_t ng_init_core(const char* resource_file, const char* title, ngine_t** core);
+status_t ng_update_core(ngine_t* core);
+void     ng_free_core(ngine_t *core);
+status_t ng_load_map(const char* map_name, ngine_t* core);
+void     ng_unload_map(ngine_t* core);
+
+#endif /* NGINE_H */

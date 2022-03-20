@@ -1,6 +1,6 @@
 // Spdx-License-Identifier: MIT
 
-#include "core.h"
+#include "ngine.h"
 
 #if defined __SYMBIAN32__
 #define RES_FILE "E:\\data.pfs"
@@ -10,33 +10,33 @@
 
 int main(int argc, char *argv[])
 {
-    int     status = 0;
-    core_t *core   = NULL;
+    int      status = 0;
+    ngine_t *core   = NULL;
 
-    status = init_core(RES_FILE, "ngine", &core);
-    if (CORE_OK != status)
+    status = ng_init(RES_FILE, "ngine", &core);
+    if (NG_OK != status)
     {
         goto quit;
     }
 
-    status = load_map("entry.tmj", core);
-    if (CORE_OK != status)
+    status = ng_load_map("entry.tmj", core);
+    if (NG_OK != status)
     {
         goto quit;
     }
 
-    while (CORE_OK == status)
+    while (NG_OK == status)
     {
-        status = update_core(core);
-        if (CORE_EXIT == status)
+        status = ng_update(core);
+        if (NG_EXIT == status)
         {
-            status = CORE_OK;
+            status = NG_OK;
             goto quit;
         }
     }
 
     quit:
-    unload_map(core);
-    free_core(core);
+    ng_unload_map(core);
+    ng_free(core);
     return status;
 }

@@ -7,10 +7,10 @@
 
 typedef enum status
 {
-    CORE_OK = 0,
-    CORE_WARNING,
-    CORE_ERROR,
-    CORE_EXIT
+    NG_OK = 0,
+    NG_WARNING,
+    NG_ERROR,
+    NG_EXIT
 
 } status_t;
 
@@ -90,8 +90,6 @@ typedef struct map
 
     Sint32             width;
     Sint32             height;
-    Sint32             pos_x;
-    Sint32             pos_y;
 
     animated_tile_t*   animated_tile;
     Sint32             animated_tile_index;
@@ -115,31 +113,5 @@ typedef struct map
     Sint32             tile_desc_count;
 
 } map_t;
-
-typedef struct core
-{
-    SDL_Renderer*  renderer;
-    SDL_Texture*   render_target;
-    SDL_Texture*   font_texture;
-    unsigned char* display_text;
-    SDL_Window*    window;
-    map_t*         map;
-    struct camera  camera;
-    SDL_bool       is_map_loaded;
-    SDL_bool       debug_mode;
-    Uint32         time_since_last_frame;
-    Uint32         time_a;
-    Uint32         time_b;
-
-} core_t;
-
-/*
-typedef struct window
-{
-    SDL_Renderer* renderer;
-    SDL_Window*   window;
-
-} window_t;
-*/
 
 #endif /* CORE_H */
