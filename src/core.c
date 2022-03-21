@@ -1160,8 +1160,8 @@ status_t draw_scene(ngine_t* core)
     {
         SDL_SetRenderDrawColor(core->renderer, 0x22, 0x33, 0x44, 0x00);
         SDL_RenderClear(core->renderer);
-        set_display_text("Loading", core);
-        render_text(core);
+        //set_display_text("Loading", core);
+        //render_text(core);
         SDL_RenderPresent(core->renderer);
 
         return NG_OK;
@@ -1344,7 +1344,7 @@ void move_entity(entity_t* entity, Sint32 offset_x, Sint32 offset_y, ngine_t* co
                 char map_name[16] = { 0 };
                 stbsp_snprintf(map_name, 16, "%s", core->map->string_property);
                 ng_unload_map(core);
-                draw_scene(core);
+                //draw_scene(core);
                 load_map_right(map_name, entity->pos_y, core);
                 return;
             }
@@ -1370,7 +1370,7 @@ void move_entity(entity_t* entity, Sint32 offset_x, Sint32 offset_y, ngine_t* co
                 char map_name[16] = { 0 };
                 stbsp_snprintf(map_name, 16, "%s", core->map->string_property);
                 ng_unload_map(core);
-                draw_scene(core);
+                //draw_scene(core);
                 load_map_left(map_name, entity->pos_y, core);
                 return;
             }
@@ -1402,7 +1402,7 @@ void move_entity(entity_t* entity, Sint32 offset_x, Sint32 offset_y, ngine_t* co
                 char map_name[16] = { 0 };
                 stbsp_snprintf(map_name, 16, "%s", core->map->string_property);
                 ng_unload_map(core);
-                draw_scene(core);
+                //draw_scene(core);
                 load_map_down(map_name, entity->pos_x, core);
                 return;
             }
@@ -1431,7 +1431,7 @@ void move_entity(entity_t* entity, Sint32 offset_x, Sint32 offset_y, ngine_t* co
                 char map_name[16] = { 0 };
                 stbsp_snprintf(map_name, 16, "%s", core->map->string_property);
                 ng_unload_map(core);
-                draw_scene(core);
+                //draw_scene(core);
                 load_map_up(map_name, entity->pos_x, core);
                 return;
             }
