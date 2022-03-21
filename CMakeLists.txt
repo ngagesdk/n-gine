@@ -62,7 +62,7 @@ build_exe(ngine exe ${UID1} ${UID2} ${UID3} "${ngine_libs}")
 pack_assets(${RESOURCE_DIR} "${ngine_resources}")
 if(INSTALL_EKA2L1)
     copy_file(ngine.exe ${CMAKE_CURRENT_BINARY_DIR} ${EKA2L1_E_DRIVE} ngine.exe)
-    copy_file(data.pfs ${RESOURCE_DIR}             ${EKA2L1_E_DRIVE} data.pfs)
+    copy_file(data.pfs ${RESOURCE_DIR}              ${EKA2L1_E_DRIVE} data.pfs)
 endif()
 
 add_dependencies(
