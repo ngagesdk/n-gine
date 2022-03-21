@@ -99,24 +99,6 @@
                  "width":0,
                  "x":48,
                  "y":48
-                }, 
-                {
-                 "height":0,
-                 "id":2,
-                 "name":"Shop",
-                 "point":true,
-                 "properties":[
-                        {
-                         "name":"display_text",
-                         "type":"string",
-                         "value":"No one there! Or the feature is simply not implemented yet, who knows for sure?"
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":120,
-                 "y":72
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -125,7 +107,7 @@
          "y":0
         }],
  "nextlayerid":8,
- "nextobjectid":3,
+ "nextobjectid":2,
  "orientation":"orthogonal",
  "properties":[
         {
