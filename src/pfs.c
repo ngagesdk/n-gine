@@ -1,5 +1,16 @@
-// Spdx-License-Identifier: BSD-2-Clause
-// Copyright (c) 2019, Daniel Monteiro
+/** @file pfs.c
+ *
+ *  N-GINE, a portable game engine which is being developed specifically
+ *  for the Nokia N-Gage.
+ *
+ *  Packed file system implementation.
+ *  Adapted version, originally from The Mistral Report:
+ *  https://montyontherun.itch.io/the-mistral-report
+ *
+ *  Copyright (c) 2019, Daniel Monteiro. All rights reserved.
+ *  SPDX-License-Identifier: BSD-2-Clause
+ *
+ **/
 
 #include <SDL.h>
 #include <stdio.h>

@@ -1,9 +1,18 @@
-// SPDX-License-Identifier: MIT
+/** @file utils.c
+ *
+ *  N-GINE, a portable game engine which is being developed specifically
+ *  for the Nokia N-Gage.
+ *
+ *  Utility functions.
+ *
+ *  Copyright (c) 2022, Michael Fitzmayer. All rights reserved.
+ *  SPDX-License-Identifier: MIT
+ *
+ **/
 
 #include <SDL.h>
+#include <stb_sprintf.h>
 #include "ngine.h"
-#include "utils.h"
-#include "types.h"
 
 static void get_character_position(const unsigned char character, int* pos_x, int* pos_y)
 {
@@ -41,22 +50,6 @@ SDL_bool bb_do_intersect(const aabb_t bb_a, const aabb_t bb_b)
     }
 
     return SDL_TRUE;
-}
-
-/* djb2 by Dan Bernstein
- * http://www.cse.yorku.ca/~oz/hash.html
- */
-Uint64 generate_hash(const unsigned char* name)
-{
-    Uint64 hash = 5381;
-    Uint32 c;
-
-    while ((c = *name++))
-    {
-        hash = ((hash << 5) + hash) + c;
-    }
-
-    return hash;
 }
 
 status_t load_texture_from_file(const char* file_name, SDL_Texture** texture, ngine_t* core)

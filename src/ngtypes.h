@@ -1,8 +1,19 @@
-// Spdx-License-Identifier: MIT
+/** @file ngtypes.h
+ *
+ *  N-GINE, a portable game engine which is being developed specifically
+ *  for the Nokia N-Gage.
+ *
+ *  Internal type definitions.
+ *
+ *  Copyright (c) 2022, Michael Fitzmayer. All rights reserved.
+ *  SPDX-License-Identifier: MIT
+ *
+ **/
 
-#ifndef TYPES_H
-#define TYPES_H
+#ifndef NGTYPES_H
+#define NGTYPES_H
 
+#include <SDL.h>
 #include <cute_tiled.h>
 
 typedef enum status
@@ -20,6 +31,15 @@ typedef enum
     OBJECT_GROUP
 
 } tiled_layer_type;
+
+typedef struct aabb
+{
+    Uint8 bottom;
+    Uint8 left;
+    Uint8 right;
+    Uint8 top;
+
+} aabb_t;
 
 typedef struct camera
 {
@@ -114,4 +134,21 @@ typedef struct map
 
 } map_t;
 
-#endif /* CORE_H */
+typedef struct ngine
+{
+    SDL_Renderer*  renderer;
+    SDL_Texture*   render_target;
+    SDL_Texture*   font_texture;
+    unsigned char* display_text;
+    SDL_Window*    window;
+    map_t*         map;
+    struct camera  camera;
+    SDL_bool       is_map_loaded;
+    SDL_bool       debug_mode;
+    Uint32         time_since_last_frame;
+    Uint32         time_a;
+    Uint32         time_b;
+
+} ngine_t;
+
+#endif /* NGTYPES_H */

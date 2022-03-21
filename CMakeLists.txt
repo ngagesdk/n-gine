@@ -10,7 +10,6 @@ endif()
 project(ngine C CXX)
 
 include(SDL)
-include(cwalk)
 include(dbgprint)
 
 # Use CMake or Visual Studio to enable these settings.
@@ -27,7 +26,6 @@ set(GCC_DEFS      ${GCC_COMN_DEFS} ${GCC_MODE_DEFS})
 set(ngine_libs
     ${CMAKE_CURRENT_BINARY_DIR}/libSDL.a
     ${CMAKE_CURRENT_BINARY_DIR}/libdbgprint.a
-    ${CMAKE_CURRENT_BINARY_DIR}/libcwalk.a
     ${EPOC_PLATFORM}/gcc/lib/gcc-lib/arm-epoc-pe/2.9-psion-98r2/libgcc.a
     ${EPOC_LIB}/egcc.lib
     ${EPOC_LIB}/euser.lib
@@ -42,19 +40,19 @@ set(SRC_DIR      "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(RESOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/res")
 
 set(ngine_sources
-    "${SRC_DIR}/main.c"
     "${SRC_DIR}/core.c"
-    "${SRC_DIR}/tiled.c"
-    "${SRC_DIR}/utils.c"
-    "${SRC_DIR}/pfs_reader.c")
+    "${SRC_DIR}/main.c"
+    "${SRC_DIR}/ngine.c"
+    "${SRC_DIR}/pfs.c"
+    "${SRC_DIR}/utils.c")
 
 set(ngine_resources
     "entry.tmj"
+    "font.bmp"
     "lowtown-1.tmj"
     "lowtown-2.tmj"
-    "midtown-1.tmj"
-    "font.bmp"
     "lowtown.bmp"
+    "midtown-1.tmj"
     "midtown.bmp"
     "morgan.bmp"
     "splash.bmp")
@@ -79,6 +77,7 @@ target_compile_definitions(
     ngine
     PUBLIC
     __EXE__
+    FUNCTION_NAME=__FUNCTION__
     ${GCC_DEFS}
     UID1=${UID1}
     UID2=${UID2}
@@ -93,5 +92,4 @@ target_include_directories(
     ngine
     PUBLIC
     ${SRC_DIR}
-    ${SDL_INC_DIR}
-    ${CWALK_INC_DIR})
+    ${SDL_INC_DIR})

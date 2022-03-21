@@ -1,4 +1,14 @@
-// Spdx-License-Identifier: MIT
+/** @file main.c
+ *
+ *  N-GINE, a portable game engine which is being developed specifically
+ *  for the Nokia N-Gage.
+ *
+ *  Minimal launcher implementation.
+ *
+ *  Copyright (c) 2022, Michael Fitzmayer. All rights reserved.
+ *  SPDX-License-Identifier: MIT
+ *
+ **/
 
 #include "ngine.h"
 

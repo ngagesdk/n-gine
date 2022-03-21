@@ -1,9 +1,18 @@
-// SPDX-License-Identifier: MIT
+/** @file core.c
+ *
+ *  N-GINE, a portable game engine which is being developed specifically
+ *  for the Nokia N-Gage.
+ *
+ *  Engine core implementation.
+ *
+ *  Copyright (c) 2022, Michael Fitzmayer. All rights reserved.
+ *  SPDX-License-Identifier: MIT
+ *
+ **/
 
 #include <SDL.h>
-#include <cwalk.h>
 #include "ngine.h"
-#include "utils.h"
+#include "ngtypes.h"
 
 #define STB_SPRINTF_IMPLEMENTATION
 #include <stb_sprintf.h>
@@ -18,21 +27,34 @@
 #define CUTE_TILED_IMPLEMENTATION
 #include <cute_tiled.h>
 
-#define ANIM_TILE_FPS 15
+#define ANIM_TILE_FPS    15
+#define H_objectgroup    0xc0b9d518970be349
+#define H_tilelayer      0x0377d9f70e844fb0
+#define H_width          0x0000003110a3b0a5
+#define H_height         0x0000065301d688de
+#define H_sprite_id      0x0377d8f6e7994748
+#define H_is_solid       0x001ae728dd16b21b
+#define H_is_player      0x0377cc4478b16e8d
+#define H_display_text   0xd064eba5e9b9b1df
+#define H_map_right      0x0377d0b4a3693ac0
+#define H_map_left       0x001ae74b4ac1c56d
+#define H_map_up         0x000006530d3ba847
+#define H_map_down       0x001ae74b4abd8f1a
+// Could be fun if the engine supports platformer games.
+#define H_meter_in_pixel 0xfbbc8a6d4a407cf9
+#define H_gravity        0x0000d0b30d77f26b
 
-/* PRIVATE FUNCTIONS */
-
-static Sint32 get_first_gid(cute_tiled_map_t* tiled_map)
+Sint32 get_first_gid(cute_tiled_map_t* tiled_map)
 {
     return tiled_map->tilesets->firstgid;
 }
 
-static cute_tiled_layer_t* get_head_layer(cute_tiled_map_t* tiled_map)
+cute_tiled_layer_t* get_head_layer(cute_tiled_map_t* tiled_map)
 {
     return tiled_map->layers;
 }
 
-static SDL_bool is_tiled_layer_of_type(const tiled_layer_type tiled_type, cute_tiled_layer_t* tiled_layer, ngine_t* core)
+SDL_bool is_tiled_layer_of_type(const tiled_layer_type tiled_type, cute_tiled_layer_t* tiled_layer, ngine_t* core)
 {
     switch (tiled_type)
     {
@@ -53,7 +75,7 @@ static SDL_bool is_tiled_layer_of_type(const tiled_layer_type tiled_type, cute_t
     return SDL_FALSE;
 }
 
-static cute_tiled_object_t* get_head_object(cute_tiled_layer_t* tiled_layer, ngine_t* core)
+cute_tiled_object_t* get_head_object(cute_tiled_layer_t* tiled_layer, ngine_t* core)
 {
     if (is_tiled_layer_of_type(OBJECT_GROUP, tiled_layer, core))
     {
@@ -63,38 +85,38 @@ static cute_tiled_object_t* get_head_object(cute_tiled_layer_t* tiled_layer, ngi
     return NULL;
 }
 
-static cute_tiled_tileset_t* get_head_tileset(cute_tiled_map_t* tiled_map)
+cute_tiled_tileset_t* get_head_tileset(cute_tiled_map_t* tiled_map)
 {
     return tiled_map->tilesets;
 }
 
-static Sint32* get_layer_content(cute_tiled_layer_t* tiled_layer)
+Sint32* get_layer_content(cute_tiled_layer_t* tiled_layer)
 {
     return (Sint32*)tiled_layer->data;
 }
 
-static const char* get_layer_name(cute_tiled_layer_t* tiled_layer)
+const char* get_layer_name(cute_tiled_layer_t* tiled_layer)
 {
     return tiled_layer->name.ptr;
 }
 
-static Sint32 get_layer_property_count(cute_tiled_layer_t* tiled_layer)
+Sint32 get_layer_property_count(cute_tiled_layer_t* tiled_layer)
 {
     return tiled_layer->property_count;
 }
 
-static Sint32 get_local_id(Sint32 gid, cute_tiled_map_t* tiled_map)
+Sint32 get_local_id(Sint32 gid, cute_tiled_map_t* tiled_map)
 {
     Sint32 local_id = gid - get_first_gid(tiled_map);
     return local_id >= 0 ? local_id : 0;
 }
 
-static Sint32 get_map_property_count(cute_tiled_map_t* tiled_map)
+Sint32 get_map_property_count(cute_tiled_map_t* tiled_map)
 {
     return tiled_map->property_count;
 }
 
-static Sint32 get_next_animated_tile_id(Sint32 gid, Sint32 current_frame, cute_tiled_map_t* tiled_map)
+Sint32 get_next_animated_tile_id(Sint32 gid, Sint32 current_frame, cute_tiled_map_t* tiled_map)
 {
     cute_tiled_tileset_t*         tileset = get_head_tileset(tiled_map);
     cute_tiled_tile_descriptor_t* tile    = tileset->tiles;
@@ -111,27 +133,27 @@ static Sint32 get_next_animated_tile_id(Sint32 gid, Sint32 current_frame, cute_t
     return 0;
 }
 
-static const int get_object_uid(cute_tiled_object_t* tiled_object)
+const int get_object_uid(cute_tiled_object_t* tiled_object)
 {
     return tiled_object->id;
 }
 
-static const char* get_object_name(cute_tiled_object_t* tiled_object)
+const char* get_object_name(cute_tiled_object_t* tiled_object)
 {
     return tiled_object->name.ptr;
 }
 
-static Sint32 get_object_property_count(cute_tiled_object_t* tiled_object)
+Sint32 get_object_property_count(cute_tiled_object_t* tiled_object)
 {
     return tiled_object->property_count;
 }
 
-static const char* get_object_type_name(cute_tiled_object_t* tiled_object)
+const char* get_object_type_name(cute_tiled_object_t* tiled_object)
 {
     return tiled_object->type.ptr;
 }
 
-static void get_tile_position(Sint32 gid, Sint32* pos_x, Sint32* pos_y, cute_tiled_map_t* tiled_map)
+void get_tile_position(Sint32 gid, Sint32* pos_x, Sint32* pos_y, cute_tiled_map_t* tiled_map)
 {
     cute_tiled_tileset_t* tileset  = tiled_map->tilesets;
     Sint32                local_id = get_local_id(gid, tiled_map);
@@ -140,12 +162,12 @@ static void get_tile_position(Sint32 gid, Sint32* pos_x, Sint32* pos_y, cute_til
     *pos_y = (local_id / tileset->columns) * get_tile_height(tiled_map);
 }
 
-static Sint32 get_tile_property_count(cute_tiled_tile_descriptor_t* tiled_tile)
+Sint32 get_tile_property_count(cute_tiled_tile_descriptor_t* tiled_tile)
 {
     return tiled_tile->property_count;
 }
 
-static SDL_bool is_gid_valid(Sint32 gid, cute_tiled_map_t* tiled_map)
+SDL_bool is_gid_valid(Sint32 gid, cute_tiled_map_t* tiled_map)
 {
     if (gid)
     {
@@ -155,7 +177,7 @@ static SDL_bool is_gid_valid(Sint32 gid, cute_tiled_map_t* tiled_map)
     return SDL_FALSE;
 }
 
-static SDL_bool is_tile_animated(Sint32 gid, Sint32* animation_length, Sint32* id, cute_tiled_map_t* tiled_map)
+SDL_bool is_tile_animated(Sint32 gid, Sint32* animation_length, Sint32* id, cute_tiled_map_t* tiled_map)
 {
     Sint32                        local_id = get_local_id(gid, tiled_map);
     cute_tiled_tileset_t*         tileset  = tiled_map->tilesets;
@@ -184,12 +206,12 @@ static SDL_bool is_tile_animated(Sint32 gid, Sint32* animation_length, Sint32* i
     return SDL_FALSE;
 }
 
-static Sint32 remove_gid_flip_bits(Sint32 gid)
+Sint32 remove_gid_flip_bits(Sint32 gid)
 {
     return cute_tiled_unset_flags(gid);
 }
 
-static SDL_bool tile_has_properties(Sint32 gid, cute_tiled_tile_descriptor_t** tile, cute_tiled_map_t* tiled_map)
+SDL_bool tile_has_properties(Sint32 gid, cute_tiled_tile_descriptor_t** tile, cute_tiled_map_t* tiled_map)
 {
     Sint32 local_id;
 
@@ -210,7 +232,23 @@ static SDL_bool tile_has_properties(Sint32 gid, cute_tiled_tile_descriptor_t** t
     return SDL_FALSE;
 }
 
-static void load_property(const Uint64 name_hash, cute_tiled_property_t* properties, Sint32 property_count, ngine_t* core)
+/* djb2 by Dan Bernstein
+ * http://www.cse.yorku.ca/~oz/hash.html
+ */
+Uint64 generate_hash(const unsigned char* name)
+{
+    Uint64 hash = 5381;
+    Uint32 c;
+
+    while ((c = *name++))
+    {
+        hash = ((hash << 5) + hash) + c;
+    }
+
+    return hash;
+}
+
+void load_property(const Uint64 name_hash, cute_tiled_property_t* properties, Sint32 property_count, ngine_t* core)
 {
     int index = 0;
 
@@ -251,7 +289,7 @@ static void load_property(const Uint64 name_hash, cute_tiled_property_t* propert
     }
 }
 
-static status_t create_and_set_render_target(SDL_Texture** target, ngine_t* core)
+status_t create_and_set_render_target(SDL_Texture** target, ngine_t* core)
 {
     if (! (*target))
     {
@@ -453,22 +491,6 @@ void trigger_action(ngine_t* core)
         }
         layer = layer->next;
     }
-}
-
-status_t load_font(ngine_t* core)
-{
-    status_t status = NG_OK;
-
-    if (NG_OK != load_texture_from_file((const char*)"font.bmp", &core->font_texture, core))
-    {
-        // SDL_Log("%s: Error loading image '%s'.", FUNCTION_NAME, tileset_file_name);
-        status = NG_ERROR;
-    }
-
-    clear_display_text(core);
-
-warning:
-    return status;
 }
 
 status_t load_tiles(ngine_t* core)
@@ -784,6 +806,22 @@ status_t load_entities(ngine_t* core)
     }
 
     return NG_OK;
+}
+
+status_t load_font(ngine_t* core)
+{
+    status_t status = NG_OK;
+
+    if (NG_OK != load_texture_from_file((const char*)"font.bmp", &core->font_texture, core))
+    {
+        // SDL_Log("%s: Error loading image '%s'.", FUNCTION_NAME, tileset_file_name);
+        status = NG_ERROR;
+    }
+
+    clear_display_text(core);
+
+warning:
+    return status;
 }
 
 status_t render_scene(ngine_t* core)
@@ -1106,4 +1144,297 @@ status_t render_scene_ex(ngine_t* core)
 
 exit:
     return status;
+}
+
+status_t draw_scene(ngine_t* core)
+{
+    SDL_Rect dst = { 0, 0, 176, 208 };
+    Sint32   index;
+
+    if (0 > SDL_SetRenderTarget(core->renderer, NULL))
+    {
+        // SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+    }
+
+    if (! core->is_map_loaded)
+    {
+        SDL_SetRenderDrawColor(core->renderer, 0x22, 0x33, 0x44, 0x00);
+        SDL_RenderClear(core->renderer);
+        set_display_text("Loading", core);
+        render_text(core);
+        SDL_RenderPresent(core->renderer);
+
+        return NG_OK;
+    }
+
+    if (0 > SDL_RenderCopy(core->renderer, core->render_target, NULL, &dst))
+    {
+        // SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+        return NG_ERROR;
+    }
+
+    SDL_SetRenderDrawColor(core->renderer, 0x00, 0x00, 0x00, 0x00);
+    SDL_RenderPresent(core->renderer);
+    SDL_RenderClear(core->renderer);
+
+    return NG_OK;
+}
+
+void restrict_camera(ngine_t* core)
+{
+    if (! is_map_loaded(core))
+    {
+        return;
+    }
+
+    core->camera.pos_x = SDL_clamp(core->camera.pos_x, 0, core->map->width  - 176);
+    core->camera.pos_y = SDL_clamp(core->camera.pos_y, 0, core->map->height - 208);
+
+    if (core->map->active_entity)
+    {
+        if (core->map->active_entity < 1)
+        {
+            core->map->active_entity = core->map->entity_count;
+        }
+        else if (core->map->active_entity > core->map->entity_count)
+        {
+            core->map->active_entity = 1;
+        }
+    }
+}
+
+void update_camera(ngine_t* core)
+{
+    if (! is_map_loaded(core))
+    {
+        return;
+    }
+
+    if (core->camera.is_locked)
+    {
+        if (core->map->active_entity)
+        {
+            entity_t* target = &core->map->entity[core->map->active_entity - 1];
+
+            core->camera.pos_x  = target->pos_x;
+            core->camera.pos_x -= 88;  // 176 / 2
+            core->camera.pos_y  = target->pos_y;
+            core->camera.pos_y -= 104; // 208 / 2
+        }
+
+        if (core->camera.pos_x < 0)
+        {
+            core->camera.pos_x = 0;
+        }
+
+        restrict_camera(core);
+    }
+}
+
+status_t load_map_right(const char* map_name, Sint32 pos_y, ngine_t* core)
+{
+    status_t status = NG_OK;
+    Sint32   player_index;
+
+    status = ng_load_map(map_name, core);
+    if (NG_OK != status)
+    {
+        return status;
+    }
+
+    player_index                          = core->map->active_entity - 1;
+    core->map->entity[player_index].pos_x = (core->map->entity[player_index].width / 2);
+    core->map->entity[player_index].pos_y = pos_y;
+
+exit:
+    return status;
+}
+
+status_t load_map_left(const char* map_name, Sint32 pos_y, ngine_t* core)
+{
+    status_t status = NG_OK;
+    Sint32   player_index;
+
+    status = ng_load_map(map_name, core);
+    if (NG_OK != status)
+    {
+        return status;
+    }
+
+    player_index                          = core->map->active_entity - 1;
+    core->map->entity[player_index].pos_x = core->map->width - (core->map->entity[player_index].width / 2);
+    core->map->entity[player_index].pos_y = pos_y;
+
+exit:
+    return status;
+}
+
+status_t load_map_down(const char* map_name, Sint32 pos_x, ngine_t* core)
+{
+    status_t status = NG_OK;
+    Sint32   player_index;
+
+    status = ng_load_map(map_name, core);
+    if (NG_OK != status)
+    {
+        return status;
+    }
+
+    player_index                          = core->map->active_entity - 1;
+    core->map->entity[player_index].pos_x = pos_x;
+    core->map->entity[player_index].pos_y = 0;
+
+exit:
+    return status;
+}
+
+status_t load_map_up(const char* map_name, Sint32 pos_x, ngine_t* core)
+{
+    status_t status = NG_OK;
+    Sint32   player_index;
+
+    status = ng_load_map(map_name, core);
+    if (NG_OK != status)
+    {
+        return status;
+    }
+
+    player_index                          = core->map->active_entity - 1;
+    core->map->entity[player_index].pos_x = pos_x;
+    core->map->entity[player_index].pos_y = core->map->height - (core->map->entity[player_index].height / 2);
+
+exit:
+    return status;
+}
+
+void move_entity(entity_t* entity, Sint32 offset_x, Sint32 offset_y, ngine_t* core)
+{
+    Sint32 tile_index;
+    Sint32 adjacent_tile;
+
+    if (! is_map_loaded(core))
+    {
+        return;
+    }
+
+    if (core->display_text)
+    {
+        return;
+    }
+
+    tile_index = get_tile_index(entity->pos_x, entity->pos_y, core);
+
+    // Moves right.
+    if (offset_x > 0)
+    {
+        adjacent_tile = tile_index + 1;
+        if (! core->map->tile_desc[adjacent_tile].is_solid)
+        {
+            entity->pos_x += offset_x;
+        }
+        else if((entity->pos_x / get_tile_width(core->map->handle)) >= (core->map->handle->width - 1))
+        {
+            entity->pos_x += offset_x;
+        }
+
+        if (entity->pos_x >= (core->map->width + (entity->width / 2)))
+        {
+            if (get_string_map_property(H_map_right, core))
+            {
+                char map_name[16] = { 0 };
+                stbsp_snprintf(map_name, 16, "%s", core->map->string_property);
+                ng_unload_map(core);
+                draw_scene(core);
+                load_map_right(map_name, entity->pos_y, core);
+                return;
+            }
+        }
+    }
+    // Moves left.
+    else if (offset_x < 0)
+    {
+        adjacent_tile = tile_index - 1;
+        if (! core->map->tile_desc[adjacent_tile].is_solid)
+        {
+            entity->pos_x += offset_x;
+        }
+        else if((entity->pos_x / get_tile_width(core->map->handle)) <= 0)
+        {
+            entity->pos_x += offset_x;
+        }
+
+        if (entity->pos_x <= (0 - (entity->width / 2)))
+        {
+            if (get_string_map_property(H_map_left, core))
+            {
+                char map_name[16] = { 0 };
+                stbsp_snprintf(map_name, 16, "%s", core->map->string_property);
+                ng_unload_map(core);
+                draw_scene(core);
+                load_map_left(map_name, entity->pos_y, core);
+                return;
+            }
+        }
+    }
+
+    // Moves down.
+    if (offset_y > 0)
+    {
+        adjacent_tile = tile_index + core->map->handle->width;
+        if (adjacent_tile >= core->map->tile_desc_count)
+        {
+            adjacent_tile = core->map->tile_desc_count - 1;
+        }
+
+        if (! core->map->tile_desc[adjacent_tile].is_solid)
+        {
+            entity->pos_y += offset_y;
+        }
+        else if((entity->pos_y / get_tile_height(core->map->handle)) >= (core->map->handle->height - 1))
+        {
+            entity->pos_y += offset_y;
+        }
+
+        if (entity->pos_y >= (core->map->height + (entity->height / 2)))
+        {
+            if (get_string_map_property(H_map_down, core))
+            {
+                char map_name[16] = { 0 };
+                stbsp_snprintf(map_name, 16, "%s", core->map->string_property);
+                ng_unload_map(core);
+                draw_scene(core);
+                load_map_down(map_name, entity->pos_x, core);
+                return;
+            }
+        }
+    }
+    // Moves up.
+    else if (offset_y < 0)
+    {
+        adjacent_tile = tile_index - core->map->handle->width;
+        if (adjacent_tile >= 0)
+        {
+            if (! core->map->tile_desc[adjacent_tile].is_solid)
+            {
+                entity->pos_y += offset_y;
+            }
+        }
+        else
+        {
+            entity->pos_y += offset_y;
+        }
+
+        if (entity->pos_y <= (0 - (entity->height / 2)))
+        {
+            if (get_string_map_property(H_map_up, core))
+            {
+                char map_name[16] = { 0 };
+                stbsp_snprintf(map_name, 16, "%s", core->map->string_property);
+                ng_unload_map(core);
+                draw_scene(core);
+                load_map_up(map_name, entity->pos_x, core);
+                return;
+            }
+        }
+    }
 }
