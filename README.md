@@ -35,6 +35,9 @@ main tool. A detailed list of all valid properties follows.
 - Packed file loader by [Daniel
   Monteiro](https://montyontherun.itch.io/).
 
+- Tiny RPG - Forest by [Luis
+  Zuno](https://www.patreon.com/ansimuz). Public domain.
+
 - CyberPop - Interior Tiles by
   [MalibuDarby](https://malibudarby.itch.io/cyberpop-interior-tiles).
 
