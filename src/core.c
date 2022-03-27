@@ -834,11 +834,6 @@ status_t render_scene(ngine_t* core)
         return NG_OK;
     }
 
-    if (NG_OK != create_and_set_render_target(&core->render_target, core))
-    {
-        return NG_ERROR;
-    }
-
     // Update and render animated tiles.
     core->map->time_since_last_anim_frame += core->time_since_last_frame;
 
@@ -887,6 +882,11 @@ status_t render_scene(ngine_t* core)
 
             core->map->animated_tile[index].id = next_tile_id;
         }
+    }
+
+    if (NG_OK != create_and_set_render_target(&core->render_target, core))
+    {
+        return NG_ERROR;
     }
 
     layer = get_head_layer(core->map->handle);
