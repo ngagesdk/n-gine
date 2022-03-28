@@ -35,16 +35,16 @@ main tool. A detailed list of all valid properties follows.
 - Packed file loader by [Daniel
   Monteiro](https://montyontherun.itch.io/).
 
-- Tiny RPG Forest by [Luis
-  Zuno](http://ansimuz.com/site/portfolio/tiny-rpg-forest/).  Public
-  domain.
+- [Tiny RPG Forest](http://ansimuz.com/site/portfolio/tiny-rpg-forest/)
+  by Luis Zuno.
 
-- Tiny RPG Stranger Forst by [Luis
-  Zuno](http://ansimuz.com/site/portfolio/tinyrpg-stranger-forest-pack/).
-  Public domain.
+- [Tiny RPG Stranger
+  Forst](http://ansimuz.com/site/portfolio/tinyrpg-stranger-forest-pack/)
+  by Luis Zuno.
 
-- ASCII Bitmap Font "cellphone" by
-  [domsson](https://opengameart.org/content/ascii-bitmap-font-cellphone).
+- [ASCII Bitmap Font
+  "cellphone"](https://opengameart.org/content/ascii-bitmap-font-cellphone)
+  by domsson.
 
 - This project is licensed under the "The MIT License".  See the file
   [LICENSE.md](LICENSE.md) for details.
