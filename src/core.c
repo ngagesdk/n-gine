@@ -27,22 +27,40 @@
 #define CUTE_TILED_IMPLEMENTATION
 #include <cute_tiled.h>
 
-#define ANIM_TILE_FPS    15
-#define H_objectgroup    0xc0b9d518970be349
-#define H_tilelayer      0x0377d9f70e844fb0
-#define H_width          0x0000003110a3b0a5
-#define H_height         0x0000065301d688de
-#define H_sprite_id      0x0377d8f6e7994748
-#define H_is_solid       0x001ae728dd16b21b
-#define H_is_player      0x0377cc4478b16e8d
-#define H_display_text   0xd064eba5e9b9b1df
-#define H_map_right      0x0377d0b4a3693ac0
-#define H_map_left       0x001ae74b4ac1c56d
-#define H_map_up         0x000006530d3ba847
-#define H_map_down       0x001ae74b4abd8f1a
+#define ANIM_TILE_FPS           15
+#define H_anim_idle_down_index  0x66ea76e9fc6fd195
+#define H_anim_idle_down_len    0x280eca46bcffe9bc
+#define H_anim_idle_left_index  0x66ebbb28ad663a28
+#define H_anim_idle_left_len    0x280eca92f60d118f
+#define H_anim_idle_right_index 0x44846fb424c8da3b
+#define H_anim_idle_right_len   0x29e824c6561290e2
+#define H_anim_idle_up_index    0x280ecaef820b1782
+#define H_anim_idle_up_len      0x534121551546d069
+#define H_anim_walk_down_index  0xf4edbbfc5e4b5586
+#define H_anim_walk_down_len    0x6a0291af9997bd6d
+#define H_anim_walk_left_index  0xf4ef003b0f41be19
+#define H_anim_walk_left_len    0x6a0291fbd2a4e540
+#define H_anim_walk_right_index 0x92f05712c214dc4c
+#define H_anim_walk_right_len   0xaa54d94ac5a4dab3
+#define H_anim_walk_up_index    0x6a0292585ea2eb33
+#define H_anim_walk_up_len      0x538cd069ddc403da
+#define H_display_text          0xd064eba5e9b9b1df
+#define H_height                0x0000065301d688de
+#define H_is_player             0x0377cc4478b16e8d
+#define H_is_solid              0x001ae728dd16b21b
+#define H_map_down              0x001ae74b4abd8f1a
+#define H_map_left              0x001ae74b4ac1c56d
+#define H_map_right             0x0377d0b4a3693ac0
+#define H_map_up                0x000006530d3ba847
+#define H_objectgroup           0xc0b9d518970be349
+#define H_sprite_cols           0xc0d1f24f33052c2c
+#define H_sprite_id             0x0377d8f6e7994748
+#define H_sprite_rows           0xc0d1f24f330d6746
+#define H_tilelayer             0x0377d9f70e844fb0
+#define H_width                 0x0000003110a3b0a5
 // Could be fun if the engine supports platformer games.
-#define H_meter_in_pixel 0xfbbc8a6d4a407cf9
-#define H_gravity        0x0000d0b30d77f26b
+#define H_meter_in_pixel        0xfbbc8a6d4a407cf9
+#define H_gravity               0x0000d0b30d77f26b
 
 Sint32 get_first_gid(cute_tiled_map_t* tiled_map)
 {

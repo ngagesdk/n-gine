@@ -35,11 +35,13 @@ main tool. A detailed list of all valid properties follows.
 - Packed file loader by [Daniel
   Monteiro](https://montyontherun.itch.io/).
 
-- Tiny RPG - Forest by [Luis
-  Zuno](https://www.patreon.com/ansimuz). Public domain.
+- Tiny RPG Forest by [Luis
+  Zuno](http://ansimuz.com/site/portfolio/tiny-rpg-forest/).  Public
+  domain.
 
-- CyberPop - Interior Tiles by
-  [MalibuDarby](https://malibudarby.itch.io/cyberpop-interior-tiles).
+- Tiny RPG Stranger Forst by [Luis
+  Zuno](http://ansimuz.com/site/portfolio/tinyrpg-stranger-forest-pack/).
+  Public domain.
 
 - ASCII Bitmap Font "cellphone" by
   [domsson](https://opengameart.org/content/ascii-bitmap-font-cellphone).
