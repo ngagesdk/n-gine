@@ -49,12 +49,8 @@ set(ngine_sources
 set(ngine_resources
     "entry.tmj"
     "font.bmp"
-    "lowtown-1.tmj"
-    "lowtown-2.tmj"
-    "lowtown.bmp"
-    "midtown-1.tmj"
-    "midtown.bmp"
-    "morgan.bmp"
+    "forest.bmp"
+    "hero.bmp"
     "splash.bmp")
 
 add_library(ngine STATIC ${ngine_sources})
