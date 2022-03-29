@@ -1,0 +1,34 @@
+{
+    "maps": [
+        {
+            "fileName": "entry.tmj",
+            "height": 416,
+            "width": 352,
+            "x": 0,
+            "y": 0
+        },
+        {
+            "fileName": "",
+            "height": 208,
+            "width": 352,
+            "x": 0,
+            "y": -208
+        },
+        {
+            "fileName": "big_boulder.tmj",
+            "height": 416,
+            "width": 176,
+            "x": -176,
+            "y": 0
+        },
+        {
+            "fileName": "acid_falls.tmj",
+            "height": 208,
+            "width": 352,
+            "x": 0,
+            "y": -208
+        }
+    ],
+    "onlyShowAdjacentMaps": false,
+    "type": "world"
+}
