@@ -1,9 +1,9 @@
+[![N-GINE](https://raw.githubusercontent.com/ngagesdk/n-gine/master/media/n-gine-02@1x.png)](https://raw.githubusercontent.com/ngagesdk/n-gine/master/media/n-gine-02@2x.png?raw=true "N-GINE")
+
 # N-GINE
 
 N-GINE (/ˈendʒɪn/) is a portable game engine which is being developed
 specifically for the Nokia N-Gage.
-
-[![N-Gine preview](https://raw.githubusercontent.com/ngagesdk/n-gine/master/media/n-gine-preview.gif)](https://raw.githubusercontent.com/ngagesdk/n-gine/master/media/n-gine-preview.gif?raw=true "N-Gine preview")
 
 ## Documentation
 
@@ -49,7 +49,7 @@ main tool. A detailed list of all valid properties follows.
 - This project is licensed under the "The MIT License".  See the file
   [LICENSE.md](LICENSE.md) for details.
 
-- The [N-Gage SDK logo](media/) by [Dan Whelan](https://danwhelan.ie) is
+- The [N-GINE logo](media/) by [Dan Whelan](https://danwhelan.ie) is
   licensed under a Creative Commons [Attribution-ShareAlike 4.0
   International (CC BY-SA
   4.0)](https://creativecommons.org/licenses/by-sa/4.0/) license.
