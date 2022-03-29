@@ -16,6 +16,10 @@
 #include <SDL.h>
 #include <cute_tiled.h>
 
+#define CLR_STATE(var, pos) var &= ~(1UL << pos)
+#define SET_STATE(var, pos) var |=   1UL << pos
+#define IS_STATE_SET(var, pos) ((0U == (var & (1 << pos))) ? 0U : 1U)
+
 typedef enum status
 {
     NG_OK = 0,
@@ -31,6 +35,17 @@ typedef enum
     OBJECT_GROUP
 
 } tiled_layer_type;
+
+typedef enum
+{
+    S_IDLE,
+    S_WALK,
+    S_RIGHT,
+    S_LEFT,
+    S_UP,
+    S_DOWN
+
+} state_t;
 
 typedef struct aabb
 {
@@ -65,6 +80,7 @@ typedef struct animation
 typedef struct entity
 {
     cute_tiled_object_t* handle;
+    state_t              state;
     Sint32               pos_x;
     Sint32               pos_y;
     Sint32               uid;
@@ -73,7 +89,6 @@ typedef struct entity
     Sint32               width;
     Sint32               height;
     Sint32               sprite_id;
-    SDL_bool             show_animation;
     animation_t          animation;
 
 } entity_t;

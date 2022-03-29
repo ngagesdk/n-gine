@@ -20,7 +20,7 @@ status_t ng_init(const char* resource_file, const char* title, ngine_t** core)
     *core = (ngine_t*)calloc(1, sizeof(struct ngine));
     if (! *core)
     {
-        // SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
+        //SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
         return NG_ERROR;
     }
 
@@ -28,7 +28,7 @@ status_t ng_init(const char* resource_file, const char* title, ngine_t** core)
 
     if (0 != SDL_Init(SDL_INIT_VIDEO))
     {
-        // SDL_Log("Unable to initialise SDL: %s", SDL_GetError());
+        //SDL_Log("Unable to initialise SDL: %s", SDL_GetError());
         return NG_ERROR;
     }
 
@@ -40,20 +40,20 @@ status_t ng_init(const char* resource_file, const char* title, ngine_t** core)
         SDL_WINDOW_FULLSCREEN);
     if (! (*core)->window)
     {
-        // SDL_Log("Could not create window: %s", SDL_GetError());
+        //SDL_Log("Could not create window: %s", SDL_GetError());
         return NG_ERROR;
     }
 
     (*core)->renderer = SDL_CreateRenderer((*core)->window, 0, SDL_RENDERER_SOFTWARE);
     if (! (*core)->renderer)
     {
-        // SDL_Log("Could not create renderer: %s", SDL_GetError());
+        //SDL_Log("Could not create renderer: %s", SDL_GetError());
         SDL_DestroyWindow((*core)->window);
         return NG_ERROR;
     }
     if (0 != SDL_RenderSetIntegerScale((*core)->renderer, SDL_TRUE))
     {
-        // SDL_Log("Could not enable integer scale: %s", SDL_GetError());
+        //SDL_Log("Could not enable integer scale: %s", SDL_GetError());
         status = NG_WARNING;
     }
 
@@ -93,43 +93,45 @@ status_t ng_update(ngine_t* core)
     // Set-up basic controls/events.
     if (is_map_loaded(core))
     {
-        // TODO: This should not be hard-coded!
-        // Add scripting language?
-        player_index                                          = core->map->active_entity - 1;
-        core->map->entity[player_index].show_animation        = SDL_FALSE;
-        core->map->entity[player_index].animation.first_frame = 1;
-        core->map->entity[player_index].animation.fps         = 5;
-        core->map->entity[player_index].animation.length      = 3;
+        player_index = core->map->active_entity - 1;
+        CLR_STATE(core->map->entity[player_index].state, S_WALK);
 
         if (keystate[SDL_SCANCODE_UP])
         {
-            core->map->entity[player_index].show_animation      = SDL_TRUE;
-            core->map->entity[player_index].animation.offset_y  = 3;
-
+            SET_STATE(core->map->entity[player_index].state, S_WALK);
+            SET_STATE(core->map->entity[player_index].state, S_UP);
+            CLR_STATE(core->map->entity[player_index].state, S_DOWN);
+            CLR_STATE(core->map->entity[player_index].state, S_LEFT);
+            CLR_STATE(core->map->entity[player_index].state, S_RIGHT);
             move_entity(&core->map->entity[player_index], 0, -2, core);
         }
         if (keystate[SDL_SCANCODE_DOWN])
         {
-            core->map->entity[player_index].show_animation      = SDL_TRUE;
-            core->map->entity[player_index].animation.offset_y  = 0;
-
+            SET_STATE(core->map->entity[player_index].state, S_WALK);
+            SET_STATE(core->map->entity[player_index].state, S_DOWN);
+            CLR_STATE(core->map->entity[player_index].state, S_UP);
+            CLR_STATE(core->map->entity[player_index].state, S_LEFT);
+            CLR_STATE(core->map->entity[player_index].state, S_RIGHT);
             move_entity(&core->map->entity[player_index], 0, 2, core);
         }
         if (keystate[SDL_SCANCODE_LEFT])
         {
-            core->map->entity[player_index].show_animation      = SDL_TRUE;
-            core->map->entity[player_index].animation.offset_y  = 1;
-
+            SET_STATE(core->map->entity[player_index].state, S_WALK);
+            SET_STATE(core->map->entity[player_index].state, S_LEFT);
+            CLR_STATE(core->map->entity[player_index].state, S_RIGHT);
+            CLR_STATE(core->map->entity[player_index].state, S_UP);
+            CLR_STATE(core->map->entity[player_index].state, S_DOWN);
             move_entity(&core->map->entity[player_index], -2, 0, core);
         }
         if (keystate[SDL_SCANCODE_RIGHT])
         {
-            core->map->entity[player_index].show_animation      = SDL_TRUE;
-            core->map->entity[player_index].animation.offset_y  = 2;
-
+            SET_STATE(core->map->entity[player_index].state, S_WALK);
+            SET_STATE(core->map->entity[player_index].state, S_RIGHT);
+            CLR_STATE(core->map->entity[player_index].state, S_LEFT);
+            CLR_STATE(core->map->entity[player_index].state, S_UP);
+            CLR_STATE(core->map->entity[player_index].state, S_DOWN);
             move_entity(&core->map->entity[player_index], 2, 0, core);
         }
-        // TODO: See above.
     }
 
     if (SDL_PollEvent(&event))
@@ -222,7 +224,7 @@ status_t ng_load_map(const char* map_name, ngine_t* core)
 
     if (is_map_loaded(core))
     {
-        // SDL_Log("A map has already been loaded: unload map first.");
+        //SDL_Log("A map has already been loaded: unload map first.");
         return NG_WARNING;
     }
 
@@ -232,7 +234,7 @@ status_t ng_load_map(const char* map_name, ngine_t* core)
     core->map = (map_t*)calloc(1, sizeof(struct map));
     if (! core->map)
     {
-        // SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
+        //SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
         return NG_WARNING;
     }
 
@@ -299,7 +301,7 @@ void ng_unload_map(ngine_t* core)
 
     if (! is_map_loaded(core))
     {
-        // SDL_Log("No map has been loaded.");
+        //SDL_Log("No map has been loaded.");
         return;
     }
     core->is_map_loaded = SDL_FALSE;

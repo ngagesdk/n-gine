@@ -30,6 +30,8 @@ The game content is largely defined by properties that are specified in
 [Tiled](https://www.mapeditor.org) which is used by this engine as the
 main tool. A detailed list of all valid properties follows.
 
+For now, the demo map can be used as a reference.
+
 ## Licence and Credits
 
 - Packed file loader by [Daniel

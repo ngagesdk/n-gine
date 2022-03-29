@@ -47,6 +47,8 @@ set(ngine_sources
     "${SRC_DIR}/utils.c")
 
 set(ngine_resources
+    "acid_falls.tmj"
+    "big_boulder.tmj"
     "entry.tmj"
     "font.bmp"
     "forest.bmp"

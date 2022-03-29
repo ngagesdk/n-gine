@@ -28,6 +28,7 @@
 #include <cute_tiled.h>
 
 #define ANIM_TILE_FPS           15
+#define H_anim_fps              0x001ae6d81102fff2
 #define H_anim_idle_down_index  0x66ea76e9fc6fd195
 #define H_anim_idle_down_len    0x280eca46bcffe9bc
 #define H_anim_idle_left_index  0x66ebbb28ad663a28
@@ -55,7 +56,6 @@
 #define H_objectgroup           0xc0b9d518970be349
 #define H_sprite_cols           0xc0d1f24f33052c2c
 #define H_sprite_id             0x0377d8f6e7994748
-#define H_sprite_rows           0xc0d1f24f330d6746
 #define H_tilelayer             0x0377d9f70e844fb0
 #define H_width                 0x0000003110a3b0a5
 // Could be fun if the engine supports platformer games.
@@ -180,6 +180,12 @@ void get_tile_position(Sint32 gid, Sint32* pos_x, Sint32* pos_y, cute_tiled_map_
     *pos_y = (local_id / tileset->columns) * get_tile_height(tiled_map);
 }
 
+void get_frame_position(Sint32 frame_index, Sint32 width, Sint32 height, int* pos_x, int* pos_y, Sint32 column_count)
+{
+    *pos_x = (frame_index % column_count) * width;
+    *pos_y = (frame_index / column_count) * height;
+}
+
 Sint32 get_tile_property_count(cute_tiled_tile_descriptor_t* tiled_tile)
 {
     return tiled_tile->property_count;
@@ -268,15 +274,23 @@ Uint64 generate_hash(const unsigned char* name)
 
 void load_property(const Uint64 name_hash, cute_tiled_property_t* properties, Sint32 property_count, ngine_t* core)
 {
-    int index = 0;
+    int      index      = 0;
+    SDL_bool prop_found = SDL_FALSE;
 
     for (index = 0; index < property_count; index += 1)
     {
         if (name_hash == generate_hash((const unsigned char*)properties[index].name.ptr))
         {
+            prop_found = SDL_TRUE;
             break;
         }
     }
+
+    if (! prop_found)
+    {
+        return;
+    }
+
     // Entities are allowed to have no properties.
     if (0 == property_count)
     {
@@ -321,13 +335,13 @@ status_t create_and_set_render_target(SDL_Texture** target, ngine_t* core)
 
     if (! (*target))
     {
-        // SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+        //SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
         return NG_ERROR;
     }
 
     if (0 > SDL_SetRenderTarget(core->renderer, (*target)))
     {
-        // SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+        //SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
         SDL_DestroyTexture((*target));
         return NG_ERROR;
     }
@@ -473,7 +487,7 @@ void trigger_action(ngine_t* core)
 
     if (! is_map_loaded(core))
     {
-        // SDL_Log("No map has been loaded.");
+        //SDL_Log("No map has been loaded.");
         return;
     }
 
@@ -525,7 +539,7 @@ status_t load_tiles(ngine_t* core)
     core->map->tile_desc = (tile_desc_t*)calloc((size_t)core->map->tile_desc_count, sizeof(struct tile_desc));
     if (! core->map->tile_desc)
     {
-        // SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
+        //SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
         return NG_ERROR;
     }
 
@@ -572,7 +586,7 @@ status_t load_tileset(ngine_t* core)
 
     if (NG_OK != load_texture_from_file((const char*)tileset_file_name, &core->map->tileset_texture, core))
     {
-        // SDL_Log("%s: Error loading image '%s'.", FUNCTION_NAME, tileset_file_name);
+        //SDL_Log("%s: Error loading image '%s'.", FUNCTION_NAME, tileset_file_name);
         status = NG_ERROR;
     }
 
@@ -588,7 +602,7 @@ status_t load_tiled_map(const char* map_file_name, ngine_t* core)
     resource_buf = (Uint8*)load_binary_file_from_path(map_file_name);
     if (! resource_buf)
     {
-        // SDL_Log("Failed to load resource: %s", map_file_name);
+        //SDL_Log("Failed to load resource: %s", map_file_name);
         return NG_ERROR;
     }
 
@@ -596,7 +610,7 @@ status_t load_tiled_map(const char* map_file_name, ngine_t* core)
     if (! core->map->handle)
     {
         free(resource_buf);
-        // SDL_Log("%s: %s.", FUNCTION_NAME, cute_tiled_error_reason);
+        //SDL_Log("%s: %s.", FUNCTION_NAME, cute_tiled_error_reason);
         return NG_WARNING;
     }
     free(resource_buf);
@@ -607,12 +621,12 @@ status_t load_tiled_map(const char* map_file_name, ngine_t* core)
         if (H_tilelayer == generate_hash((const unsigned char*)layer->type.ptr) && !core->map->hash_id_tilelayer)
         {
             core->map->hash_id_tilelayer = layer->type.hash_id;
-            // SDL_Log("Set hash ID for tile layer: %llu", core->map->hash_id_tilelayer);
+            //SDL_Log("Set hash ID for tile layer: %llu", core->map->hash_id_tilelayer);
         }
         else if (H_objectgroup == generate_hash((const unsigned char*)layer->type.ptr) && !core->map->hash_id_objectgroup)
         {
             core->map->hash_id_objectgroup = layer->type.hash_id;
-            // SDL_Log("Set hash ID for object group: %llu", core->map->hash_id_objectgroup);
+            //SDL_Log("Set hash ID for object group: %llu", core->map->hash_id_objectgroup);
         }
         layer = layer->next;
     }
@@ -657,12 +671,12 @@ status_t load_animated_tiles(ngine_t* core)
         core->map->animated_tile = (animated_tile_t*)calloc((size_t)animated_tile_count, sizeof(struct animated_tile));
         if (! core->map->animated_tile)
         {
-            // SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
+            //SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
             return NG_ERROR;
         }
     }
 
-    // SDL_Log("Load %u animated tile(s).", animated_tile_count);
+    //SDL_Log("Load %u animated tile(s).", animated_tile_count);
 
     return NG_OK;
 }
@@ -699,7 +713,7 @@ status_t load_sprites(ngine_t* core)
     core->map->sprite = (sprite_t*)calloc((size_t)core->map->sprite_count, sizeof(struct sprite));
     if (! core->map->sprite)
     {
-        // SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
+        //SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
         return NG_ERROR;
     }
 
@@ -716,7 +730,7 @@ status_t load_sprites(ngine_t* core)
             char*  sprite_image_source = (char*)calloc(1, source_length);
             if (! sprite_image_source)
             {
-                // SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
+                //SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
                 return NG_ERROR;
             }
 
@@ -766,12 +780,12 @@ status_t load_entities(ngine_t* core)
         core->map->entity = (entity_t*)calloc((size_t)core->map->entity_count, sizeof(struct entity));
         if (! core->map->entity)
         {
-            // SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
+            //SDL_Log("%s: error allocating memory.", FUNCTION_NAME);
             return NG_ERROR;
         }
     }
 
-    // SDL_Log("Load %u entities:", core->map->entity_count);
+    //SDL_Log("Load %u entities:", core->map->entity_count);
 
     layer = get_head_layer(core->map->handle);
     while (layer)
@@ -787,6 +801,7 @@ status_t load_entities(ngine_t* core)
                 Sint32                 prop_cnt   = get_object_property_count(tiled_object);
 
                 entity->handle                = tiled_object;
+                entity->state                 = S_DOWN | S_IDLE;
                 entity->pos_x                 = (Sint32)tiled_object->x;
                 entity->pos_y                 = (Sint32)tiled_object->y;
                 entity->uid                   = (Sint32)get_object_uid(tiled_object);
@@ -794,7 +809,6 @@ status_t load_entities(ngine_t* core)
                 entity->width                 = (Sint32)get_integer_property(H_width,     properties, prop_cnt, core);
                 entity->height                = (Sint32)get_integer_property(H_height,    properties, prop_cnt, core);
                 entity->sprite_id             = (Sint32)get_integer_property(H_sprite_id, properties, prop_cnt, core);
-                entity->show_animation        = (SDL_bool)SDL_FALSE;
                 entity->animation.first_frame = (Sint32)1;
                 entity->animation.fps         = (Sint32)0;
                 entity->animation.length      = (Sint32)0;
@@ -832,7 +846,7 @@ status_t load_font(ngine_t* core)
 
     if (NG_OK != load_texture_from_file((const char*)"font.bmp", &core->font_texture, core))
     {
-        // SDL_Log("%s: Error loading image '%s'.", FUNCTION_NAME, tileset_file_name);
+        //SDL_Log("%s: Error loading image '%s'.", FUNCTION_NAME, tileset_file_name);
         status = NG_ERROR;
     }
 
@@ -861,7 +875,7 @@ status_t render_scene(ngine_t* core)
 
         if (0 > SDL_SetRenderTarget(core->renderer, core->map->layer_texture))
         {
-            // SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+            //SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
             return NG_ERROR;
         }
 
@@ -885,7 +899,7 @@ status_t render_scene(ngine_t* core)
 
             if (0 > SDL_RenderCopy(core->renderer, core->map->tileset_texture, &src, &dst))
             {
-                // SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+                //SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
                 return NG_ERROR;
             }
 
@@ -923,7 +937,7 @@ status_t render_scene(ngine_t* core)
 
         if (0 > SDL_RenderCopyEx(core->renderer, core->map->layer_texture, NULL, &dst, 0, NULL, SDL_FLIP_NONE))
         {
-            // SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+            //SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
             return NG_ERROR;
         }
 
@@ -936,23 +950,84 @@ status_t render_scene(ngine_t* core)
                 cute_tiled_object_t* tiled_object = get_head_object(layer, core);
                 while (tiled_object)
                 {
-                    entity_t* entity = &core->map->entity[index];
-                    Sint32   pos_x = entity->pos_x - core->camera.pos_x;
-                    Sint32   pos_y = entity->pos_y - core->camera.pos_y;
-                    SDL_Rect dst   = { 0 };
-                    SDL_Rect src   = { 0 };
+                    entity_t*              entity      = &core->map->entity[index];
+                    cute_tiled_property_t* properties  = tiled_object->properties;
+                    Sint32                 prop_cnt    = get_object_property_count(tiled_object);
+                    Sint32                 pos_x       = entity->pos_x - core->camera.pos_x;
+                    Sint32                 pos_y       = entity->pos_y - core->camera.pos_y;
+                    SDL_Rect               dst         = { 0 };
+                    SDL_Rect               src         = { 0 };
+                    SDL_bool               is_walking  = SDL_FALSE;
+                    Sint32                 sprite_cols = (Sint32)get_integer_property(H_sprite_cols, properties, prop_cnt, core);
 
-                    if (entity->show_animation)
+                    if (IS_STATE_SET(entity->state, S_WALK))
+                    {
+                        is_walking = SDL_TRUE;
+                    }
+
+                    if (IS_STATE_SET(entity->state, S_RIGHT))
+                    {
+                        if (is_walking)
+                        {
+                            entity->animation.length      = (Sint32)get_integer_property(H_anim_walk_right_len,   properties, prop_cnt, core);
+                            entity->animation.first_frame = (Sint32)get_integer_property(H_anim_walk_right_index, properties, prop_cnt, core);
+                        }
+                        else
+                        {
+                            entity->animation.length      = (Sint32)get_integer_property(H_anim_idle_right_len,   properties, prop_cnt, core);
+                            entity->animation.first_frame = (Sint32)get_integer_property(H_anim_idle_right_index, properties, prop_cnt, core);
+                        }
+                    }
+                    else if (IS_STATE_SET(entity->state, S_LEFT))
+                    {
+                        if (is_walking)
+                        {
+                            entity->animation.length      = (Sint32)get_integer_property(H_anim_walk_left_len,   properties, prop_cnt, core);
+                            entity->animation.first_frame = (Sint32)get_integer_property(H_anim_walk_left_index, properties, prop_cnt, core);
+                        }
+                        else
+                        {
+                            entity->animation.length      = (Sint32)get_integer_property(H_anim_idle_left_len,   properties, prop_cnt, core);
+                            entity->animation.first_frame = (Sint32)get_integer_property(H_anim_idle_left_index, properties, prop_cnt, core);
+                        }
+                    }
+                    else if (IS_STATE_SET(entity->state, S_UP))
+                    {
+                        if (is_walking)
+                        {
+                            entity->animation.length      = (Sint32)get_integer_property(H_anim_walk_up_len,   properties, prop_cnt, core);
+                            entity->animation.first_frame = (Sint32)get_integer_property(H_anim_walk_up_index, properties, prop_cnt, core);
+                        }
+                        else
+                        {
+                            entity->animation.length      = (Sint32)get_integer_property(H_anim_idle_up_len,   properties, prop_cnt, core);
+                            entity->animation.first_frame = (Sint32)get_integer_property(H_anim_idle_up_index, properties, prop_cnt, core);
+                        }
+                    }
+                    else if (IS_STATE_SET(entity->state, S_DOWN))
+                    {
+                        if (is_walking)
+                        {
+                            entity->animation.length      = (Sint32)get_integer_property(H_anim_walk_down_len,   properties, prop_cnt, core);
+                            entity->animation.first_frame = (Sint32)get_integer_property(H_anim_walk_down_index, properties, prop_cnt, core);
+                        }
+                        else
+                        {
+                            entity->animation.length      = (Sint32)get_integer_property(H_anim_idle_down_len,   properties, prop_cnt, core);
+                            entity->animation.first_frame = (Sint32)get_integer_property(H_anim_idle_down_index, properties, prop_cnt, core);
+                        }
+                    }
+                    entity->animation.first_frame -= 1;
+
+                    if (entity->animation.length > 1)
                     {
                         entity->animation.time_since_last_anim_frame += core->time_since_last_frame;
                     }
 
-                    src.x  = (entity->animation.first_frame - 1) * entity->width;
-                    src.y  = entity->animation.offset_y          * entity->height;
-
-                    if (entity->show_animation && !core->display_text)
+                    if (entity->animation.length > 1 && !core->display_text)
                     {
                         entity->animation.time_since_last_anim_frame += core->time_since_last_frame;
+                        entity->animation.fps                         = (Sint32)get_integer_property(H_anim_fps, properties, prop_cnt, core);
 
                         if (entity->animation.time_since_last_anim_frame >= (Uint32)(1000 / entity->animation.fps))
                         {
@@ -964,13 +1039,13 @@ status_t render_scene(ngine_t* core)
                                 entity->animation.current_frame = 0;
                             }
                         }
-
-                        src.x += entity->animation.current_frame * entity->width;
                     }
                     else
                     {
-                        entity->animation.current_frame = entity->animation.first_frame;
+                        entity->animation.current_frame = 0;
+                        //get_frame_position(entity->animation.first_frame, entity->width, entity->height, &src.x, &src.y, sprite_cols);
                     }
+                    get_frame_position(entity->animation.first_frame + entity->animation.current_frame, entity->width, entity->height, &src.x, &src.y, sprite_cols);
 
                     src.w  = entity->width;
                     src.h  = entity->height;
@@ -995,7 +1070,7 @@ status_t render_scene(ngine_t* core)
                                 {
                                     if (0 > SDL_RenderCopyEx(core->renderer, core->map->sprite[entity->sprite_id - 1].texture, &src, &dst, 0, NULL, SDL_FLIP_NONE))
                                     {
-                                        // SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+                                        //SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
                                         return NG_ERROR;
                                     }
                                 }
@@ -1052,13 +1127,13 @@ status_t render_scene(ngine_t* core)
 
     if (! core->map->layer_texture)
     {
-        // SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+        //SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
         return NG_ERROR;
     }
 
     if (0 > SDL_SetRenderTarget(core->renderer, core->map->layer_texture))
     {
-        // SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+        //SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
         return NG_ERROR;
     }
     SDL_RenderClear(core->renderer);
@@ -1116,7 +1191,7 @@ status_t render_scene(ngine_t* core)
 
                 {
                     const char* layer_name = get_layer_name(layer);
-                    // SDL_Log("Render map layer: %s", layer_name);
+                    //SDL_Log("Render map layer: %s", layer_name);
                 }
             }
         }
@@ -1125,7 +1200,7 @@ status_t render_scene(ngine_t* core)
 
     if (0 > SDL_SetRenderTarget(core->renderer, core->render_target))
     {
-        // SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+        //SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
         return NG_ERROR;
     }
 
@@ -1152,7 +1227,7 @@ status_t render_scene_ex(ngine_t* core)
 
         if (! core->map->layer_texture)
         {
-            // SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+            //SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
             status = NG_ERROR;
             goto exit;
         }
@@ -1171,7 +1246,7 @@ status_t draw_scene(ngine_t* core)
 
     if (0 > SDL_SetRenderTarget(core->renderer, NULL))
     {
-        // SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+        //SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
     }
 
     if (! core->is_map_loaded)
@@ -1187,7 +1262,7 @@ status_t draw_scene(ngine_t* core)
 
     if (0 > SDL_RenderCopy(core->renderer, core->render_target, NULL, &dst))
     {
-        // SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
+        //SDL_Log("%s: %s.", FUNCTION_NAME, SDL_GetError());
         return NG_ERROR;
     }
 
@@ -1362,7 +1437,6 @@ void move_entity(entity_t* entity, Sint32 offset_x, Sint32 offset_y, ngine_t* co
                 char map_name[16] = { 0 };
                 stbsp_snprintf(map_name, 16, "%s", core->map->string_property);
                 ng_unload_map(core);
-                //draw_scene(core);
                 load_map_right(map_name, entity->pos_y, core);
                 return;
             }
@@ -1388,7 +1462,6 @@ void move_entity(entity_t* entity, Sint32 offset_x, Sint32 offset_y, ngine_t* co
                 char map_name[16] = { 0 };
                 stbsp_snprintf(map_name, 16, "%s", core->map->string_property);
                 ng_unload_map(core);
-                //draw_scene(core);
                 load_map_left(map_name, entity->pos_y, core);
                 return;
             }
@@ -1420,7 +1493,6 @@ void move_entity(entity_t* entity, Sint32 offset_x, Sint32 offset_y, ngine_t* co
                 char map_name[16] = { 0 };
                 stbsp_snprintf(map_name, 16, "%s", core->map->string_property);
                 ng_unload_map(core);
-                //draw_scene(core);
                 load_map_down(map_name, entity->pos_x, core);
                 return;
             }
@@ -1449,7 +1521,6 @@ void move_entity(entity_t* entity, Sint32 offset_x, Sint32 offset_y, ngine_t* co
                 char map_name[16] = { 0 };
                 stbsp_snprintf(map_name, 16, "%s", core->map->string_property);
                 ng_unload_map(core);
-                //draw_scene(core);
                 load_map_up(map_name, entity->pos_x, core);
                 return;
             }
