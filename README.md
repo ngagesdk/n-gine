@@ -40,6 +40,10 @@ For now, the demo map can be used as a reference.
 - [Tiny RPG Forest](http://ansimuz.com/site/portfolio/tiny-rpg-forest/)
   by Luis Zuno.
 
+- [Tiny RPG
+  Mountain](http://ansimuz.com/site/portfolio/tiny-rpg-mountain-tileset/)
+  by Luis Zuno.
+
 - [Tiny RPG Stranger
   Forst](http://ansimuz.com/site/portfolio/tinyrpg-stranger-forest-pack/)
   by Luis Zuno.
