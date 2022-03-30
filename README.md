@@ -52,10 +52,17 @@ For now, the demo map can be used as a reference.
   "cellphone"](https://opengameart.org/content/ascii-bitmap-font-cellphone)
   by domsson.
 
-- This project is licensed under the "The MIT License".  See the file
-  [LICENSE.md](LICENSE.md) for details.
+- This project's source code is, unless stated otherwise, licensed under
+  the "The MIT License".  See the file [LICENSE.md](LICENSE.md) for
+  details.
 
 - The [N-GINE logo](media/) by [Dan Whelan](https://danwhelan.ie) is
   licensed under a Creative Commons [Attribution-ShareAlike 4.0
   International (CC BY-SA
   4.0)](https://creativecommons.org/licenses/by-sa/4.0/) license.
+
+If you are interested in the Nokia N-Gage in general, you are cordially
+invited to visit our small online community. You can find us on
+[Discord](https://discord.gg/dbUzqJ26vs),
+[Telegram](https://t.me/nokia_ngage) and in #ngage on
+[EFnet](http://www.efnet.org/).
