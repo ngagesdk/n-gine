@@ -45,7 +45,7 @@ For now, the demo map can be used as a reference.
   by Luis Zuno.
 
 - [Tiny RPG Stranger
-  Forst](http://ansimuz.com/site/portfolio/tinyrpg-stranger-forest-pack/)
+  Forest](http://ansimuz.com/site/portfolio/tinyrpg-stranger-forest-pack/)
   by Luis Zuno.
 
 - [ASCII Bitmap Font
