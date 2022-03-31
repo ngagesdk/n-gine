@@ -73,7 +73,6 @@ status_t ng_update(ngine_t* core)
     Uint32       delta_time = 0;
     const Uint8* keystate   = SDL_GetKeyboardState(NULL);
     SDL_Event    event;
-    SDL_Rect     dst;
     Sint32       player_index;
 
     core->time_b = core->time_a;
@@ -212,7 +211,6 @@ void ng_free(ngine_t *core)
     if (core)
     {
         free(core);
-        core = NULL;
     }
 
     SDL_Quit();

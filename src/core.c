@@ -590,7 +590,6 @@ status_t load_tileset(ngine_t* core)
         status = NG_ERROR;
     }
 
-warning:
     return status;
 }
 
@@ -638,8 +637,8 @@ status_t load_animated_tiles(ngine_t* core)
 {
     cute_tiled_layer_t* layer               = get_head_layer(core->map->handle);
     Sint32              animated_tile_count = 0;
-    Sint32              index_height        = 0;
-    Sint32              index_width         = 0;
+    Sint32              index_height;
+    Sint32              index_width;
 
     while (layer)
     {
@@ -852,7 +851,6 @@ status_t load_font(ngine_t* core)
 
     clear_display_text(core);
 
-warning:
     return status;
 }
 
@@ -885,8 +883,8 @@ status_t render_scene(ngine_t* core)
             Sint32                gid          = core->map->animated_tile[index].gid;
             Sint32                next_tile_id = 0;
             Sint32                local_id;
-            SDL_Rect              dst;
-            SDL_Rect              src;
+            SDL_Rect              dst          = { 0 };
+            SDL_Rect              src          = { 0 };
 
             local_id = core->map->animated_tile[index].id + 1;
             tileset  = get_head_tileset(core->map->handle);
@@ -955,7 +953,6 @@ status_t render_scene(ngine_t* core)
                     Sint32                 prop_cnt    = get_object_property_count(tiled_object);
                     Sint32                 pos_x       = entity->pos_x - core->camera.pos_x;
                     Sint32                 pos_y       = entity->pos_y - core->camera.pos_y;
-                    SDL_Rect               dst         = { 0 };
                     SDL_Rect               src         = { 0 };
                     SDL_bool               is_walking  = SDL_FALSE;
                     Sint32                 sprite_cols = (Sint32)get_integer_property(H_sprite_cols, properties, prop_cnt, core);
@@ -1077,7 +1074,7 @@ status_t render_scene(ngine_t* core)
                             }
                             if (core->debug_mode)
                             {
-                                SDL_Rect tile_frame;
+                                SDL_Rect tile_frame = { 0 };
                                 Sint32   tile_index;
 
                                 tile_index = get_tile_index(entity->pos_x, entity->pos_y, core);
@@ -1140,8 +1137,8 @@ status_t render_scene(ngine_t* core)
 
     while (layer)
     {
-        SDL_Rect dst;
-        SDL_Rect src;
+        SDL_Rect dst = { 0 };
+        SDL_Rect src = { 0 };
 
         if (is_tiled_layer_of_type(TILE_LAYER, layer, core))
         {
@@ -1242,7 +1239,6 @@ exit:
 status_t draw_scene(ngine_t* core)
 {
     SDL_Rect dst = { 0, 0, 176, 208 };
-    Sint32   index;
 
     if (0 > SDL_SetRenderTarget(core->renderer, NULL))
     {
@@ -1339,7 +1335,6 @@ status_t load_map_right(const char* map_name, Sint32 pos_y, ngine_t* core)
     core->map->entity[player_index].pos_x = (core->map->entity[player_index].width / 2);
     core->map->entity[player_index].pos_y = pos_y;
 
-exit:
     return status;
 }
 
@@ -1358,7 +1353,6 @@ status_t load_map_left(const char* map_name, Sint32 pos_y, ngine_t* core)
     core->map->entity[player_index].pos_x = core->map->width - (core->map->entity[player_index].width / 2);
     core->map->entity[player_index].pos_y = pos_y;
 
-exit:
     return status;
 }
 
@@ -1377,7 +1371,6 @@ status_t load_map_down(const char* map_name, Sint32 pos_x, ngine_t* core)
     core->map->entity[player_index].pos_x = pos_x;
     core->map->entity[player_index].pos_y = 0;
 
-exit:
     return status;
 }
 
@@ -1396,7 +1389,6 @@ status_t load_map_up(const char* map_name, Sint32 pos_x, ngine_t* core)
     core->map->entity[player_index].pos_x = pos_x;
     core->map->entity[player_index].pos_y = core->map->height - (core->map->entity[player_index].height / 2);
 
-exit:
     return status;
 }
 
