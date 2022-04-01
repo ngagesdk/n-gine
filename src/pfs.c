@@ -1,8 +1,5 @@
 /** @file pfs.c
  *
- *  N-GINE, a portable game engine which is being developed specifically
- *  for the Nokia N-Gage.
- *
  *  Packed file system implementation.
  *  Adapted version, originally from The Mistral Report:
  *  https://montyontherun.itch.io/the-mistral-report

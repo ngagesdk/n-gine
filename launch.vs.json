@@ -6,11 +6,11 @@
         {
             "type": "default",
             "project": "..\\..\\sdk\\eka2l1\\eka2l1_qt.exe",
-            "projectTarget": "nrpg.exe",
-            "name": "nrpg.exe",
+            "projectTarget": "ngine.exe",
+            "name": "ngine.exe",
             "args": [
                 "--app",
-                "E:\\nrpg.exe"
+                "E:\\ngine.exe"
             ]
         }
     ]
